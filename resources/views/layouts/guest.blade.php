@@ -48,7 +48,7 @@
         <p class="text-secondary text-sm font-medium">
             ¿No tienes una cuenta?
             <a class="text-primary font-bold hover:underline decoration-primary/30 underline-offset-4"
-                href="#">Contacta a tú administrador</a>
+                href="{{ route('login') }}">Contacta a tú administrador</a>
         </p>
     </div>
 
