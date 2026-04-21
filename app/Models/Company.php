@@ -14,7 +14,8 @@ class Company extends Model
         "logo",
         "address",
         "phone",
-        "state"
+        "state",
+        "type_company_id"
     ];
 
     public function type_companies()
