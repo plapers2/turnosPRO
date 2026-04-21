@@ -1,277 +1,243 @@
 <x-app-layout>
-    <!-- Dashboard Content -->
-    <div class="p-6 space-y-6">
-        <!-- Stats Row: Bento Style -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div
-                class="bg-surface-container-lowest p-6 rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.02)] transition-transform hover:scale-[1.02]">
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-outline">Today's Appts</span>
-                    <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-primary text-sm"
-                            style="font-variation-settings: 'FILL' 1;">event</span>
-                    </div>
-                </div>
-                <div class="text-3xl font-bold text-on-surface mb-1">24</div>
-                <div class="flex items-center gap-1 text-[10px] text-primary font-bold">
-                    <span class="material-symbols-outlined text-xs">trending_up</span>
-                    <span>+12% vs last week</span>
-                </div>
-            </div>
-            <div
-                class="bg-surface-container-lowest p-6 rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.02)] transition-transform hover:scale-[1.02]">
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-outline">Attendance</span>
-                    <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-emerald-800 text-sm">person_check</span>
-                    </div>
-                </div>
-                <div class="text-3xl font-bold text-on-surface mb-1">98.2%</div>
-                <div class="flex items-center gap-1 text-[10px] text-emerald-600 font-bold">
-                    <span class="material-symbols-outlined text-xs">verified</span>
-                    <span>Near perfect score</span>
-                </div>
-            </div>
-            <div
-                class="bg-surface-container-lowest p-6 rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.02)] transition-transform hover:scale-[1.02]">
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-outline">Pending</span>
-                    <div class="w-8 h-8 bg-tertiary-fixed rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-tertiary text-sm">pending_actions</span>
-                    </div>
-                </div>
-                <div class="text-3xl font-bold text-on-surface mb-1">7</div>
-                <div class="flex items-center gap-1 text-[10px] text-tertiary font-bold">
-                    <span class="material-symbols-outlined text-xs">priority_high</span>
-                    <span>Action required</span>
-                </div>
-            </div>
-            <div
-                class="bg-surface-container-lowest p-6 rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.02)] transition-transform hover:scale-[1.02]">
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-outline">Daily Revenue</span>
-                    <div class="w-8 h-8 bg-secondary-container rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-secondary text-sm">payments</span>
-                    </div>
-                </div>
-                <div class="text-3xl font-bold text-on-surface mb-1 tabular-nums">$1,450</div>
-                <div class="flex items-center gap-1 text-[10px] text-stone-500 font-bold">
-                    <span>Target: $2,000</span>
-                </div>
-            </div>
-        </div>
-        <!-- Main Dashboard Grid -->
-        <div class="grid grid-cols-12 gap-6 items-start">
-            <!-- Left: Timeline -->
-            <div
-                class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_12px_32px_rgba(15,110,86,0.04)]">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-xl font-bold text-on-surface">Today's Schedule</h2>
-                    <div class="flex gap-2">
-                        <button class="p-2 hover:bg-surface-container rounded-full"><span
-                                class="material-symbols-outlined">filter_list</span></button>
-                        <button class="p-2 hover:bg-surface-container rounded-full"><span
-                                class="material-symbols-outlined">print</span></button>
-                    </div>
-                </div>
-                <!-- Timeline Content -->
-                <div
-                    class="relative pl-12 space-y-8 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-surface-container-high">
-                    <!-- Timeline Item 1 -->
-                    <div class="relative">
-                        <div class="absolute -left-[45px] top-1 w-10 text-right">
-                            <span class="text-xs font-bold text-on-surface-variant tabular-nums">09:00</span>
-                        </div>
-                        <div class="absolute -left-12 top-1 w-6 h-6 rounded-full bg-white border-4 border-primary z-10">
-                        </div>
-                        <div
-                            class="bg-primary/5 p-4 rounded-2xl border-l-4 border-primary flex justify-between items-center transition-all hover:translate-x-1">
-                            <div class="flex gap-4 items-center">
-                                <img alt="Client Portrait" class="w-10 h-10 rounded-full object-cover"
-                                    data-alt="Portrait of a smiling professional woman with bright eyes against a neutral background"
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0uyAlK-_TUG2hM-c5X5YJyHhh3eMZGyDzs2ych-SMI05juXeK5RCgNngNwiX02zMG9rzcOHq1gnDHjXuV-mx8srk-B72WAgnJG402xglCjdGyaXmrFdvJErmFCrHccOfACpRpGuBzCcsnD55ReGpsBChRYOZwMBt9YQk3lWpvPlMt__trV0JGsl9iu6A4YnCw3woxD87Pkppah_vUfO00dshESX3wUVvto-eNQA7XmkUuJqX18ILuhUA_WOYi5DH9yf3nMH8nr-Mk" />
-                                <div>
-                                    <p class="font-bold text-emerald-950">Sarah Jenkins</p>
-                                    <p class="text-xs text-emerald-700">Initial Consultation • 45m</p>
-                                </div>
-                            </div>
+    <div class="max-w-7xl mx-auto px-8 py-8 flex flex-col gap-12">
+        <!-- Greeting Header -->
+        <header class="flex flex-col gap-2">
+            <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-headline"
+                style="letter-spacing: -0.02em;">
+                Buenos días, Admin
+            </h1>
+            <p class="text-lg text-on-surface-variant font-body">
+                Lunes 20 de abril — Resumen de operaciones
+            </p>
+        </header>
+        <!-- Content Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <!-- Left Column: KPIs & Next Appointments -->
+            <div class="lg:col-span-8 flex flex-col gap-10">
+                <!-- KPI Bento Grid -->
+                <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- KPI Card 1 -->
+                    <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between"
+                        style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.04);">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm font-semibold text-on-surface-variant tracking-wide uppercase">Citas
+                                Hoy</span>
                             <span
-                                class="px-3 py-1 bg-primary text-white text-[10px] font-bold rounded-full">CONFIRMED</span>
+                                class="material-symbols-outlined text-primary-container bg-surface-container p-2 rounded-full text-sm">calendar_today</span>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-bold text-on-surface">12</span>
                         </div>
                     </div>
-                    <!-- Timeline Item 2 -->
-                    <div class="relative">
-                        <div class="absolute -left-[45px] top-1 w-10 text-right">
-                            <span class="text-xs font-bold text-on-surface-variant tabular-nums">10:30</span>
-                        </div>
-                        <div
-                            class="absolute -left-12 top-1 w-6 h-6 rounded-full bg-white border-4 border-secondary z-10">
-                        </div>
-                        <div
-                            class="bg-secondary-container/20 p-4 rounded-2xl border-l-4 border-secondary flex justify-between items-center transition-all hover:translate-x-1">
-                            <div class="flex gap-4 items-center">
-                                <img alt="Client Portrait" class="w-10 h-10 rounded-full object-cover"
-                                    data-alt="Headshot of a middle-aged man with glasses and a kind expression in natural lighting"
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9NJL_LscHoKT8odO0cBGRdmCUuvdEtaPKJpEhONIOK8pDzuJiPF5EyVz0RW1_LDslpo59gq700wK9abdf3bhdksBtZC_JObhictuVWvvTTSuMj4AxDDfb3pG0ulnrS7rZevuC5hqECspefw89D3WU8VRKAgdUCDR4gUJvbcr6HXOfzq2bmYCNXgGPhyAn5v1t9sZnUJrE4f52orDlSxT7OBhXWTrre2RsVNce3cYh-kSTejA0ZuzurtcQlVoYUqZ0ozYEB8BbHQ_P" />
-                                <div>
-                                    <p class="font-bold text-stone-900">David Miller</p>
-                                    <p class="text-xs text-stone-500">Service Follow-up • 30m</p>
-                                </div>
-                            </div>
+                    <!-- KPI Card 2 -->
+                    <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between"
+                        style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.04);">
+                        <div class="flex items-center justify-between mb-4">
                             <span
-                                class="px-3 py-1 bg-secondary text-white text-[10px] font-bold rounded-full uppercase">Arrived</span>
+                                class="text-sm font-semibold text-on-surface-variant tracking-wide uppercase">Confirmadas</span>
+                            <span
+                                class="material-symbols-outlined text-tertiary-container bg-surface-container p-2 rounded-full text-sm">check_circle</span>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-bold text-on-surface">8</span>
                         </div>
                     </div>
-                    <!-- Timeline Item 3 (Current Time Indicator) -->
-                    <div class="relative py-2">
-                        <div
-                            class="absolute left-[-48px] top-1/2 w-screen border-t-2 border-dashed border-tertiary opacity-40 z-0">
+                    <!-- KPI Card 3 -->
+                    <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between"
+                        style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.04);">
+                        <div class="flex items-center justify-between mb-4">
+                            <span
+                                class="text-sm font-semibold text-on-surface-variant tracking-wide uppercase">Canceladas</span>
+                            <span
+                                class="material-symbols-outlined text-error bg-error-container p-2 rounded-full text-sm">cancel</span>
                         </div>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-bold text-error">2</span>
+                        </div>
+                    </div>
+                    <!-- KPI Card 4 -->
+                    <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between relative overflow-hidden"
+                        style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.04);">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-primary-fixed-dim rounded-full blur-3xl opacity-20 -mr-8 -mt-8">
+                        </div>
+                        <div class="flex items-center justify-between mb-4 relative z-10">
+                            <span
+                                class="text-sm font-semibold text-on-surface-variant tracking-wide uppercase">Asistencia</span>
+                            <span
+                                class="material-symbols-outlined text-primary-container bg-surface-container p-2 rounded-full text-sm">trending_up</span>
+                        </div>
+                        <div class="flex items-end gap-2 relative z-10">
+                            <span class="text-4xl font-bold text-primary-container">83%</span>
+                        </div>
+                    </div>
+                </section>
+                <!-- Next Appointments Section -->
+                <section class="flex flex-col gap-6 mt-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-on-surface font-headline tracking-tight">Próximas citas</h2>
                         <span
-                            class="relative z-10 bg-tertiary text-white text-[10px] px-2 py-0.5 rounded-full ml-[-40px]">NOW</span>
+                            class="text-sm font-medium text-on-surface-variant bg-surface-container-low px-3 py-1 rounded-full">Siguiente
+                            2 horas</span>
                     </div>
-                    <!-- Timeline Item 4 -->
-                    <div class="relative">
-                        <div class="absolute -left-[45px] top-1 w-10 text-right">
-                            <span class="text-xs font-bold text-on-surface-variant tabular-nums">13:15</span>
-                        </div>
-                        <div
-                            class="absolute -left-12 top-1 w-6 h-6 rounded-full bg-white border-4 border-surface-container-high z-10">
-                        </div>
-                        <div
-                            class="bg-surface-container-low p-4 rounded-2xl border-l-4 border-outline flex justify-between items-center transition-all hover:translate-x-1 opacity-70">
-                            <div class="flex gap-4 items-center">
+                    <div class="flex flex-col gap-4">
+                        <!-- Appointment Card 1 -->
+                        <div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer"
+                            style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.02);">
+                            <div class="flex items-center gap-5">
                                 <div
-                                    class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-400 font-bold">
-                                    RB</div>
-                                <div>
-                                    <p class="font-bold text-stone-900">Robert Brown</p>
-                                    <p class="text-xs text-stone-500">Annual Review • 60m</p>
+                                    class="flex flex-col items-center justify-center bg-surface-container px-4 py-2 rounded-lg min-w-[80px]">
+                                    <span
+                                        class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Hoy</span>
+                                    <span class="text-xl font-bold text-primary-container">10:30</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-lg font-bold text-on-surface">María Gómez</span>
+                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                                        <span class="flex items-center gap-1"><span
+                                                class="material-symbols-outlined text-[16px]">medical_services</span>
+                                            Consulta General</span>
+                                        <span class="text-surface-dim">•</span>
+                                        <span class="flex items-center gap-1"><span
+                                                class="material-symbols-outlined text-[16px]">person</span> Dr.
+                                            Pérez</span>
+                                    </div>
                                 </div>
                             </div>
-                            <span
-                                class="px-3 py-1 bg-stone-100 text-stone-500 text-[10px] font-bold rounded-full uppercase">Pending</span>
+                            <div class="flex items-center gap-4">
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span>
+                                    Confirmada
+                                </span>
+                                <button
+                                    class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-on-surface-variant hover:text-primary bg-surface rounded-full">
+                                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Appointment Card 2 -->
+                        <div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer relative overflow-hidden"
+                            style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.02);">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
+                            <div class="flex items-center gap-5 pl-2">
+                                <div
+                                    class="flex flex-col items-center justify-center bg-surface-container px-4 py-2 rounded-lg min-w-[80px]">
+                                    <span
+                                        class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Hoy</span>
+                                    <span class="text-xl font-bold text-primary-container">11:00</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-lg font-bold text-on-surface">Carlos Rodríguez</span>
+                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                                        <span class="flex items-center gap-1"><span
+                                                class="material-symbols-outlined text-[16px]">content_cut</span> Corte
+                                            Premium</span>
+                                        <span class="text-surface-dim">•</span>
+                                        <span class="flex items-center gap-1"><span
+                                                class="material-symbols-outlined text-[16px]">person</span> Ana
+                                            L.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-surface-container-high text-on-surface-variant flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-outline"></span> Pendiente
+                                </span>
+                                <button
+                                    class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-on-surface-variant hover:text-primary bg-surface rounded-full">
+                                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Appointment Card 3 -->
+                        <div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer"
+                            style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.02);">
+                            <div class="flex items-center gap-5">
+                                <div
+                                    class="flex flex-col items-center justify-center bg-surface-container px-4 py-2 rounded-lg min-w-[80px]">
+                                    <span
+                                        class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Hoy</span>
+                                    <span class="text-xl font-bold text-primary-container">11:45</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-lg font-bold text-on-surface">Elena Silva</span>
+                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                                        <span class="flex items-center gap-1"><span
+                                                class="material-symbols-outlined text-[16px]">spa</span> Masaje
+                                            Relajante</span>
+                                        <span class="text-surface-dim">•</span>
+                                        <span class="flex items-center gap-1"><span
+                                                class="material-symbols-outlined text-[16px]">person</span> Marta
+                                            M.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span> Confirmada
+                                </span>
+                                <button
+                                    class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-on-surface-variant hover:text-primary bg-surface rounded-full">
+                                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
-            <!-- Right: Mini Calendar + Upcoming -->
-            <div class="col-span-12 lg:col-span-4 space-y-6">
-                <!-- Mini Calendar -->
-                <div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_12px_32px_rgba(15,110,86,0.04)]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-bold text-on-surface">September 2024</h3>
-                        <div class="flex gap-1">
-                            <span
-                                class="material-symbols-outlined text-stone-400 cursor-pointer hover:text-primary">chevron_left</span>
-                            <span
-                                class="material-symbols-outlined text-stone-400 cursor-pointer hover:text-primary">chevron_right</span>
+            <!-- Right Column: Chart Placeholder & Actions -->
+            <div class="lg:col-span-4 flex flex-col gap-8">
+                <!-- Chart Widget -->
+                <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col h-full min-h-[400px]">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-on-surface tracking-tight">Ocupación esta semana</h3>
+                        <button class="text-on-surface-variant hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">calendar_month</span>
+                        </button>
+                    </div>
+                    <!-- Chart Placeholder Visuals -->
+                    <div class="flex-1 flex items-end gap-3 pt-8 pb-2 relative">
+                        <!-- Background horizontal lines -->
+                        <div class="absolute inset-0 flex flex-col justify-between py-2 z-0">
+                            <div class="border-b border-surface-container-highest w-full h-0"></div>
+                            <div class="border-b border-surface-container-highest w-full h-0"></div>
+                            <div class="border-b border-surface-container-highest w-full h-0"></div>
+                            <div class="border-b border-surface-container-highest w-full h-0"></div>
                         </div>
-                    </div>
-                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-outline mb-2">
-                        <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-                    </div>
-                    <div class="grid grid-cols-7 gap-1 text-center">
-                        <span class="py-2 text-stone-300">28</span>
-                        <span class="py-2 text-stone-300">29</span>
-                        <span class="py-2 text-stone-300">30</span>
-                        <span class="py-2 text-stone-300">31</span>
-                        <span
-                            class="py-2 text-on-surface hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">1</span>
-                        <span
-                            class="py-2 text-on-surface hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">2</span>
-                        <span
-                            class="py-2 text-on-surface hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">3</span>
-                        <!-- Today Indicator -->
-                        <span class="py-2 bg-primary text-white font-bold rounded-lg cursor-pointer">4</span>
-                        <span
-                            class="py-2 text-on-surface relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full">5</span>
-                        <span
-                            class="py-2 text-on-surface hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">6</span>
-                        <span
-                            class="py-2 text-on-surface hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">7</span>
-                        <span
-                            class="py-2 text-on-surface hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">8</span>
-                        <span
-                            class="py-2 text-on-surface hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">9</span>
-                        <span
-                            class="py-2 text-on-surface hover:bg-emerald-50 rounded-lg cursor-pointer transition-colors">10</span>
-                    </div>
-                </div>
-                <!-- Upcoming List -->
-                <div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_12px_32px_rgba(15,110,86,0.04)]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-bold text-on-surface">Tomorrow</h3>
-                        <a class="text-xs text-primary font-bold" href="#">View all</a>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between group cursor-pointer">
-                            <div class="flex gap-3 items-center">
-                                <div class="w-2 h-10 bg-emerald-100 rounded-full"></div>
-                                <div>
-                                    <p class="text-sm font-bold group-hover:text-primary transition-colors">Legal
-                                        Strategy Session</p>
-                                    <p class="text-[10px] text-stone-500">09:00 AM • James K.</p>
+                        <!-- Bars -->
+                        <div class="w-full flex justify-between items-end h-full z-10 px-2">
+                            <div
+                                class="w-8 bg-surface-container-highest rounded-t-md h-[40%] group relative hover:bg-primary-container transition-colors duration-300">
+                            </div>
+                            <div
+                                class="w-8 bg-surface-container-highest rounded-t-md h-[70%] group relative hover:bg-primary-container transition-colors duration-300">
+                            </div>
+                            <div class="w-8 bg-primary-container rounded-t-md h-[85%] relative shadow-sm">
+                                <!-- Tooltip for current day -->
+                                <div
+                                    class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs py-1 px-2 rounded font-medium whitespace-nowrap">
+                                    85% Hoy
                                 </div>
                             </div>
-                            <span
-                                class="material-symbols-outlined text-stone-300 group-hover:text-primary transition-colors">arrow_forward_ios</span>
-                        </div>
-                        <div class="flex items-center justify-between group cursor-pointer">
-                            <div class="flex gap-3 items-center">
-                                <div class="w-2 h-10 bg-emerald-100 rounded-full"></div>
-                                <div>
-                                    <p class="text-sm font-bold group-hover:text-primary transition-colors">Asset Audit
-                                    </p>
-                                    <p class="text-[10px] text-stone-500">11:30 AM • Maria L.</p>
-                                </div>
+                            <div
+                                class="w-8 bg-surface-container-highest rounded-t-md h-[60%] group relative hover:bg-primary-container transition-colors duration-300">
                             </div>
-                            <span
-                                class="material-symbols-outlined text-stone-300 group-hover:text-primary transition-colors">arrow_forward_ios</span>
+                            <div
+                                class="w-8 bg-surface-container-highest rounded-t-md h-[30%] group relative hover:bg-primary-container transition-colors duration-300">
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <!-- Bottom: Activity Feed -->
-            <div
-                class="col-span-12 bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_12px_32px_rgba(15,110,86,0.04)]">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-on-surface">Recent Activity</h2>
-                    <button class="text-xs font-bold text-primary flex items-center gap-1">
-                        Clear all <span class="material-symbols-outlined text-xs">close</span>
-                    </button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="flex gap-4 items-start">
-                        <div class="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span class="material-symbols-outlined text-primary text-sm">add_circle</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold">New Booking Created</p>
-                            <p class="text-xs text-stone-500 mb-1">Anna W. booked 'Design Review' for Oct 12.</p>
-                            <p class="text-[10px] text-stone-400">2 minutes ago</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4 items-start">
-                        <div
-                            class="w-8 h-8 bg-tertiary-fixed rounded-full flex items-center justify-center flex-shrink-0">
-                            <span class="material-symbols-outlined text-tertiary text-sm">payment</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold">Payment Received</p>
-                            <p class="text-xs text-stone-500 mb-1">$250.00 from Invoice #99211.</p>
-                            <p class="text-[10px] text-stone-400">45 minutes ago</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4 items-start">
-                        <div class="w-8 h-8 bg-stone-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span class="material-symbols-outlined text-stone-500 text-sm">edit</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold">Schedule Adjusted</p>
-                            <p class="text-xs text-stone-500 mb-1">Dr. Aris changed lunch break to 1:30 PM.</p>
-                            <p class="text-[10px] text-stone-400">1 hour ago</p>
-                        </div>
+                    <!-- X Axis Labels -->
+                    <div
+                        class="flex justify-between items-center px-2 mt-4 text-xs font-semibold text-on-surface-variant uppercase">
+                        <span>L</span>
+                        <span>M</span>
+                        <span class="text-primary-container">M</span>
+                        <span>J</span>
+                        <span>V</span>
                     </div>
                 </div>
             </div>

@@ -1,27 +1,42 @@
-<header
-    class="docked full-width top-0 sticky z-50 bg-emerald-50/80  backdrop-blur-md flex justify-between items-center w-full px-6 py-3 font-inter tracking-tight leading-relaxed">
-    <div class="flex items-center gap-6">
-        <span class="text-xl font-bold tracking-tight text-emerald-950  ">Dashboard</span>
-        <div class="h-4 w-[1px] bg-emerald-200/50"></div>
-        <div class="hidden md:flex gap-4">
-            <a class="text-stone-500   hover:bg-emerald-100/50 px-3 py-1 rounded transition-colors"
-                href="#">Support</a>
-            <a class="text-stone-500   hover:bg-emerald-100/50 px-3 py-1 rounded transition-colors" href="#">Public
-                View</a>
+<!-- TopNavBar Component -->
+<div
+    class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-surface-container-highest w-full px-8 py-4 flex items-center justify-between">
+    <button id="menuBtn" class="md:hidden mr-4 p-2 rounded-lg hover:bg-surface-container-low">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
+    <div class="flex-1 flex items-center">
+        <div class="relative w-full max-w-md">
+            <span
+                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+            <input
+                class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-surface-container-highest rounded-full text-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-on-surface-variant transition-all outline-none shadow-sm"
+                placeholder="Buscar..." type="text" />
         </div>
     </div>
     <div class="flex items-center gap-4">
-        <div class="relative group">
-            <span
-                class="material-symbols-outlined text-stone-500 cursor-pointer p-2 rounded-full hover:bg-emerald-100/50 transition-colors"
-                data-icon="notifications">notifications</span>
-            <span class="absolute top-2 right-2 w-2 h-2 bg-tertiary rounded-full border-2 border-white"></span>
+        <button
+            class="relative p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-low">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+        </button>
+        <div class="w-px h-6 bg-surface-container-highest mx-1"></div>
+        <div class="flex items-center gap-3 px-2 cursor-pointer group">
+            <img alt="Admin Avatar"
+                class="w-10 h-10 rounded-full object-cover shadow-sm group-hover:scale-105 transition-transform"
+                data-alt="professional portrait of male administrator in soft lighting"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLWYEj_C0m-SUbpl8eco4NCcYiwDTQZAIHna4GfNOuzEwQhSpYCRRioJjNZKFWY6vnXv5_IrgEZlWqEd1fS528d6zZGq_2ReK_aWID6n482hrvwLxSicpQpVWG8XRlpL2PNkJwpBdgc2WaAd0k2Xv89P5CetVWISRSuBE1PRJtoMSbdWLE5aGqSIxcNxn2uex8OKAzs2tB-SNf_a5Yb5hv5jgdkJ77zybgANcRIhdkId24eTLLE6GYKknKRvxGONDyi3GbEM8O2dwH" />
+            <div class="flex flex-col">
+                <span class="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">Admin
+                    Usuario</span>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button
+                        class="text-xs text-on-surface-variant flex items-center gap-1 hover:text-error transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-[14px]">logout</span> Cerrar sesión
+                    </button>
+                </form>
+
+            </div>
         </div>
-        <span
-            class="material-symbols-outlined text-stone-500 cursor-pointer p-2 rounded-full hover:bg-emerald-100/50 transition-colors"
-            data-icon="settings">settings</span>
-        <img alt="Admin User Profile" class="w-8 h-8 rounded-full border-2 border-primary/20 object-cover"
-            data-alt="Close up portrait of a professional man with a friendly expression in a light-filled office environment"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-XcZjbcGVL-bSKU0IFuplCSgJoiKC0PqLxtQXzX5CCT2K10gLSRDvJ4HaezSbHOcu2bzG1u_x-4ZCZgizsafCHA988PU9TSvg2HY9lOE4JezF_9LKeJXrcjCdxScizhArJVEIu3eXiQcqmQcTcGZHzaM_CmzGdJYEzAdOsg4rcii2ErZzI3eR1Wf36JkagsdIASJZZasRSTfF4LOkmJ9nZy68xl0WfjY7i3wMCOgVCjLrjpsKf_2T84ewIR_HO_EAr0BiToWIxFkU" />
     </div>
-</header>
+</div>

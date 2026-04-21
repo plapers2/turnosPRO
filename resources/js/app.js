@@ -38,3 +38,28 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    const openSidebar = () => {
+        sidebar.classList.remove("-translate-x-full");
+        overlay.classList.remove("hidden");
+    };
+
+    const closeSidebar = () => {
+        sidebar.classList.add("-translate-x-full");
+        overlay.classList.add("hidden");
+    };
+
+    const toggleSidebar = () => {
+        sidebar.classList.contains("-translate-x-full")
+            ? openSidebar()
+            : closeSidebar();
+    };
+
+    menuBtn.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", closeSidebar);
+});

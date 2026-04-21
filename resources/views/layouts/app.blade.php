@@ -23,14 +23,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-surface text-on-surface flex min-h-screen">
+<body class="bg-surface text-on-surface h-screen flex overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
 
     @include('layouts.side-bar')
-    <main class="ml-[240px] flex-grow flex flex-col min-h-screen">
+    <main class="md:ml-64 flex-1 h-screen overflow-y-auto bg-surface relative">
         @include('layouts.header')
         {{ $slot }}
     </main>
-  
+
     @livewireScripts
 </body>
 

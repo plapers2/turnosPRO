@@ -1,66 +1,75 @@
 <!-- SideNavBar -->
-<aside
-    class="fixed left-0 top-0 h-screen w-[240px] z-40 bg-stone-50 flex flex-col py-6 gap-2 shadow-[12px_0px_32px_rgba(15,110,86,0.04)] font-inter text-sm font-medium">
-    <div class="px-6 mb-8 flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center">
-            <span class="material-symbols-outlined text-white"
+<aside id="sidebar"
+    class="fixed top-0 left-0 h-screen w-64 bg-[#f6f3ee] border-r border-stone-200/20 z-[60]
+           transform -translate-x-full md:translate-x-0
+           transition-transform duration-300">
+    <!-- Brand Header -->
+    <div class="px-6 py-8 flex flex-col gap-1">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-3xl text-[#854F0B]"
                 style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+            <span class="text-xl font-bold tracking-tighter text-[#854F0B]">TurnosPRO</span>
         </div>
-        <div>
-            <h1 class="text-lg font-bold text-emerald-900  leading-tight">TurnosPro</h1>
-            <p class="text-[10px] uppercase tracking-widest text-stone-500">Admin Dashboard</p>
-        </div>
+        <p class="text-xs text-on-surface-variant ml-10">Gestión de Turnos</p>
     </div>
-    <nav class="flex-grow space-y-1">
-        <!-- Active Tab: Overview -->
-        <a class="flex items-center gap-3 py-3 px-4 bg-emerald-100/50  text-emerald-900 rounded-lg mx-2 transition-all duration-200 ease-in-out"
+    <!-- Navigation Links -->
+    <div class="p-4 gap-2 flex flex-col h-full overflow-y-auto">
+        <!-- Active Tab -->
+        <a class="flex items-center gap-4 px-4 py-3 bg-white text-[#854F0B] font-semibold rounded-lg shadow-sm text-sm tracking-wide Inter"
             href="#">
-            <span class="material-symbols-outlined" data-icon="dashboard"
-                style="font-variation-settings: 'FILL' 1;">dashboard</span>
-            <span>Overview</span>
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+            Dashboard
         </a>
-        <a class="flex items-center gap-3 py-3 px-4 text-stone-600  hover:text-emerald-700 hover:bg-stone-100  rounded-lg mx-2 transition-all duration-200 ease-in-out"
+        <a class="flex items-center gap-4 px-4 py-3 text-stone-600 hover:bg-[#fcf9f3] transition-all duration-300 font-medium text-sm tracking-wide Inter hover:translate-x-1 rounded-lg"
             href="#">
-            <span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
-            <span>Operations</span>
+            <span class="material-symbols-outlined">calendar_month</span>
+            Citas
         </a>
-        <a class="flex items-center gap-3 py-3 px-4 text-stone-600  hover:text-emerald-700 hover:bg-stone-100  rounded-lg mx-2 transition-all duration-200 ease-in-out"
+        <a class="flex items-center gap-4 px-4 py-3 text-stone-600 hover:bg-[#fcf9f3] transition-all duration-300 font-medium text-sm tracking-wide Inter hover:translate-x-1 rounded-lg"
             href="#">
-            <span class="material-symbols-outlined" data-icon="store">store</span>
-            <span>Business</span>
+            <span class="material-symbols-outlined">medical_services</span>
+            Servicios
         </a>
-        <a class="flex items-center gap-3 py-3 px-4 text-stone-600  hover:text-emerald-700 hover:bg-stone-100  rounded-lg mx-2 transition-all duration-200 ease-in-out"
+        <a class="flex items-center gap-4 px-4 py-3 text-stone-600 hover:bg-[#fcf9f3] transition-all duration-300 font-medium text-sm tracking-wide Inter hover:translate-x-1 rounded-lg"
             href="#">
-            <span class="material-symbols-outlined" data-icon="payments">payments</span>
-            <span>Finance</span>
+            <span class="material-symbols-outlined">group</span>
+            Profesionales
         </a>
-        <a class="flex items-center gap-3 py-3 px-4 text-stone-600  hover:text-emerald-700 hover:bg-stone-100  rounded-lg mx-2 transition-all duration-200 ease-in-out"
+        <a class="flex items-center gap-4 px-4 py-3 text-stone-600 hover:bg-[#fcf9f3] transition-all duration-300 font-medium text-sm tracking-wide Inter hover:translate-x-1 rounded-lg"
             href="#">
-            <span class="material-symbols-outlined" data-icon="settings">settings</span>
-            <span>System</span>
+            <span class="material-symbols-outlined">person</span>
+            Clientes
         </a>
-    </nav>
-    <div class="px-4 mb-6">
+        <a class="flex items-center gap-4 px-4 py-3 text-stone-600 hover:bg-[#fcf9f3] transition-all duration-300 font-medium text-sm tracking-wide Inter hover:translate-x-1 rounded-lg"
+            href="#">
+            <span class="material-symbols-outlined">settings</span>
+            Configuración
+        </a>
+    </div>
+    <!-- Bottom User / CTA -->
+    <div class="p-4 mt-auto border-t border-stone-200/20">
         <button
-            class="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20">
-            <span class="material-symbols-outlined">add</span>
-            <span>New Appointment</span>
+            class="w-full flex items-center justify-center gap-2 bg-primary-container text-on-primary-container py-3 rounded-lg font-semibold hover:scale-[0.98] transition-transform duration-200">
+            <span class="material-symbols-outlined text-sm">add</span>
+            Nueva Cita
         </button>
-    </div>
-    <div class="border-t border-stone-200/50 mx-4 pt-4 mt-auto">
-        <a class="flex items-center gap-3 py-2 px-4 text-stone-600 dark:text-stone-400 hover:text-emerald-700 hover:bg-stone-100 rounded-lg transition-all"
-            href="#">
-            <span class="material-symbols-outlined" data-icon="help">help</span>
-            <span>Help Center</span>
-        </a>
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit"
-                class="flex items-center gap-3 py-2 px-4 text-stone-600 dark:text-stone-400 hover:text-emerald-700 hover:bg-stone-100 rounded-lg transition-all">
-                <span class="material-symbols-outlined" data-icon="logout">logout</span>
-                <span>Logout</span>
-            </button>
-        </form>
-
+        <div class="mt-6 flex items-center gap-3 px-2 cursor-pointer group">
+            <img alt="Admin Avatar"
+                class="w-10 h-10 rounded-full object-cover shadow-sm group-hover:scale-105 transition-transform"
+                data-alt="professional portrait of male administrator in soft lighting"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLWYEj_C0m-SUbpl8eco4NCcYiwDTQZAIHna4GfNOuzEwQhSpYCRRioJjNZKFWY6vnXv5_IrgEZlWqEd1fS528d6zZGq_2ReK_aWID6n482hrvwLxSicpQpVWG8XRlpL2PNkJwpBdgc2WaAd0k2Xv89P5CetVWISRSuBE1PRJtoMSbdWLE5aGqSIxcNxn2uex8OKAzs2tB-SNf_a5Yb5hv5jgdkJ77zybgANcRIhdkId24eTLLE6GYKknKRvxGONDyi3GbEM8O2dwH" />
+            <div class="flex flex-col">
+                <span class="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">Admin
+                    Usuario</span>
+                <span
+                    class="text-xs text-on-surface-variant flex items-center gap-1 hover:text-error transition-colors">
+                    <span class="material-symbols-outlined text-[14px]">logout</span> Cerrar sesión
+                </span>
+            </div>
+        </div>
     </div>
 </aside>
+<!-- Overlay (AQUÍ VA) -->
+<div id="overlay"
+    class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden md:hidden z-50 transition-all duration-300">
+</div>
