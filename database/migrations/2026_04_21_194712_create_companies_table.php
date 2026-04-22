@@ -14,6 +14,7 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("logo", 255);
+            $table->string("email");
             $table->string("address");
             $table->string("phone");
             $table->enum('state',["Active", "Inactive"])->default("Active");

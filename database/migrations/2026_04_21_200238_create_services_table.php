@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal("price", 10, 2);
             $table->string("image");
             $table->enum("state", ["Active", "Inactive"])->default("Active");
-            $table->foreignId("company_id");
+            $table->foreignId("company_id")->constrained();
             $table->timestamps();
         });
     }
