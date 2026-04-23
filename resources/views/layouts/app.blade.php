@@ -1,5 +1,5 @@
     <!DOCTYPE html>
-    <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <html data-theme="cmyk" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
     <head>
         @livewireStyles
