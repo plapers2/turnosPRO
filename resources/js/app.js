@@ -7,6 +7,7 @@ import Chart from "chart.js/auto";
 
 window.Alpine = Alpine;
 Alpine.start();
+
 document.addEventListener("DOMContentLoaded", function () {
     let calendarEl = document.getElementById("calendar");
 
@@ -43,6 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuBtn = document.getElementById("menuBtn");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
+
+    if (!menuBtn || !sidebar || !overlay) return;
 
     const openSidebar = () => {
         sidebar.classList.remove("-translate-x-full");
