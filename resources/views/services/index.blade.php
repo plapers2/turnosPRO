@@ -4,60 +4,10 @@
         <header
             class="bg-[#fcf9f3]/80 backdrop-blur-md text-primary font-['Inter'] text-2xl font-bold tracking-tight h-20 flex items-center flex-col lg:flex-row justify-between px-8 w-full mt-10 mb-2">
             <h2 class="text-2xl font-bold tracking-tight -ml-2">Gestión de Servicios</h2>
-            <button
-                class="bg-primary-container mt-2 w-full lg:w-auto text-center justify-center hover:bg-primary/90 text-white scale-98 transition-transform px-6 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2"
-                onclick="modalForm.showModal()">
+            <a href="{{ route('services.create') }}"
+                class="bg-primary-container mt-2 w-full lg:w-auto text-center justify-center hover:bg-primary/90 text-white scale-98 transition-transform px-6 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2">
                 + Nuevo servicio
-            </button>
-            <x-modal-form id="modalForm" title="Nuevo Servicio">
-
-                <form id="formService" action="{{ route('services.store') }}" method="POST" class="space-y-8"
-                    enctype="multipart/form-data">
-                    @csrf
-
-                    <x-form.field label="Nombre del servicio" for="name">
-                        <x-form.input value="{{ old('name') }}" type="text" id="name"
-                            placeholder="Ej. Manicura Spa" />
-                    </x-form.field>
-
-                    <x-form.field label="Descripción" for="description">
-                        <x-form.textarea id="description" placeholder="Detalla los beneficios..." />
-                    </x-form.field>
-
-                    <div class="grid grid-cols-2 gap-6">
-
-                        <x-form.field label="Duración (min)" for="duration">
-                            <x-form.input value="{{ old('duration') }}" type="number" id="duration" placeholder="0" />
-                        </x-form.field>
-
-                        <x-form.field label="Precio ref. (COP)" for="price">
-                            <x-form.input value="{{ old('price') }}" type="number" id="price" placeholder="0" />
-                        </x-form.field>
-
-                    </div>
-
-
-                    <x-form.field label="Imagen" for="image">
-                        <x-form.input-file id="image" />
-                    </x-form.field>
-
-                    <input type="hidden" id="company_id" name="company_id" value="1">
-
-                </form>
-
-                <x-slot name="actions">
-                    <x-button form="formService" variant="secondary">
-                        Guardar
-                    </x-button>
-
-                    <form method="dialog">
-                        <x-button variant="error">
-                            Cerrar
-                        </x-button>
-                    </form>
-                </x-slot>
-
-            </x-modal-form>
+            </a>
         </header>
         <!-- Canvas -->
         <div class="p-8 pb-20">
@@ -118,41 +68,3 @@
         </div>
     </main>
 </x-app-layout>
-
-<script>
-    var dropzone = document.getElementById('image');
-
-    dropzone.addEventListener('dragover', e => {
-        e.preventDefault();
-        dropzone.classList.add('border-indigo-600');
-    });
-
-    dropzone.addEventListener('dragleave', e => {
-        e.preventDefault();
-        dropzone.classList.remove('border-indigo-600');
-    });
-
-    dropzone.addEventListener('drop', e => {
-        e.preventDefault();
-        dropzone.classList.remove('border-indigo-600');
-        var file = e.dataTransfer.files[0];
-        displayPreview(file);
-    });
-
-    var input = document.getElementById('image');
-
-    input.addEventListener('change', e => {
-        var file = e.target.files[0];
-        displayPreview(file);
-    });
-
-    function displayPreview(file) {
-        var reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-            var preview = document.getElementById('preview');
-            preview.src = reader.result;
-            preview.classList.remove('hidden');
-        };
-    }
-</script>

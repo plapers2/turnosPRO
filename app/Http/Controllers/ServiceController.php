@@ -27,20 +27,20 @@ class ServiceController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    // public function create(): View
-    // {
-    //     $service = new Service();
-    //     $companies = Company::all();
+    public function create(): View
+    {
+        $service = new Service();
+        $companies = Company::all();
 
-    //     return view('services.create', compact('service', 'companies'));
-    // }
+        return view('services.create', compact('service', 'companies'));
+    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request): RedirectResponse
     {
-        
+
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -62,7 +62,8 @@ class ServiceController extends Controller
         ]);
 
 
-        return back()->with('success', 'Servicio creado correctamente');
+        return redirect()->route('services.index')
+            ->with('success', 'Servicio creado correctamente');
     }
 
     /**
