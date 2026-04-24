@@ -4,66 +4,21 @@
         <header
             class="bg-[#fcf9f3]/80 backdrop-blur-md text-primary font-['Inter'] text-2xl font-bold tracking-tight h-20 flex items-center flex-col lg:flex-row justify-between px-8 w-full mt-10 mb-2">
             <h2 class="text-2xl font-bold tracking-tight -ml-2">Gestión de Servicios</h2>
-            <button
-                class="bg-primary-container mt-2 w-full lg:w-auto text-center justify-center hover:bg-primary/90 text-white scale-98 transition-transform px-6 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2"
-                onclick="modalForm.showModal()">
+            <a href="{{ route('services.create') }}"
+                class="bg-primary-container mt-2 w-full lg:w-auto text-center justify-center hover:bg-primary/90 text-white scale-98 transition-transform px-6 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2">
                 + Nuevo servicio
-            </button>
-       <x-modal-form id="modalForm" title="Nuevo Servicio">
-
-    <form class="space-y-8">
-
-        <x-form.field label="Nombre del servicio" for="nombre">
-            <x-form.input id="nombre" placeholder="Ej. Manicura Spa" />
-        </x-form.field>
-
-        <x-form.field label="Descripción" for="descripcion">
-            <x-form.textarea id="descripcion" placeholder="Detalla los beneficios..." />
-        </x-form.field>
-
-        <div class="grid grid-cols-2 gap-6">
-
-            <x-form.field label="Duración" for="duracion">
-                <x-form.select id="duracion">
-                    <option value="15">15 min</option>
-                    <option value="30">30 min</option>
-                    <option value="45" selected>45 min</option>
-                    <option value="60">60 min</option>
-                </x-form.select>
-            </x-form.field>
-
-            <x-form.field label="Precio ref. (COP)" for="precio">
-                <x-form.input id="precio" placeholder="0" />
-            </x-form.field>
-
-        </div>
-
-    </form>
-
-    <x-slot name="actions">
-        <x-button variant="secondary">
-            Guardar
-        </x-button>
-
-        <form method="dialog">
-            <x-button  variant="error">
-                Cerrar
-            </x-button>
-        </form>
-    </x-slot>
-
-</x-modal-form>
+            </a>
         </header>
         <!-- Canvas -->
         <div class="p-8 pb-20">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Service Card -->
-                @foreach ($services as $service)
+                @forelse ($services as $service)
                     <article
                         class="bg-surface-container-lowest rounded-xl flex flex-col shadow-[0_10px_30px_rgba(95,94,90,0.06)] transition-all hover:-translate-y-1 duration-300">
                         <figure class="w-full h-48 overflow-hidden rounded-t-xl">
                             <img alt="Tratamiento Facial" class="w-full h-full object-cover"
-                                src='{{ $service->image }}' />
+                                src="{{ asset('storage/' . $service->image) }}" />
                         </figure>
                         <div class="p-6 flex flex-col gap-6 flex-1">
                             <div>
@@ -96,7 +51,18 @@
                             </div>
                         </div>
                     </article>
-                @endforeach
+                @empty
+                    <div role="alert" class="alert alert-warning col-span-2 place-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span class="">Agrega servicios para comenzar a ver tus registros</span>
+                    </div>
+                @endforelse
+
+
 
             </div>
         </div>

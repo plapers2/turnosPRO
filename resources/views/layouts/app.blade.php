@@ -32,6 +32,35 @@
 
         @livewireScripts
         <!-- Scripts -->
+        <x-toast />
+
+        @if (session('success') || $errors->any())
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    setTimeout(() => {
+
+                        @if (session('success'))
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: {
+                                    type: 'success',
+                                    message: "{{ session('success') }}"
+                                }
+                            }))
+                        @endif
+
+                        @if ($errors->any())
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: {
+                                    type: 'error',
+                                    message: "{{ $errors->first() }}"
+                                }
+                            }))
+                        @endif
+
+                    }, 100)
+                })
+            </script>
+        @endif
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </body>
 
