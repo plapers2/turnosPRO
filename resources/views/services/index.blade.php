@@ -9,61 +9,66 @@
                 onclick="modalForm.showModal()">
                 + Nuevo servicio
             </button>
-       <x-modal-form id="modalForm" title="Nuevo Servicio">
+            <x-modal-form id="modalForm" title="Nuevo Servicio">
 
-    <form class="space-y-8">
+                <form id="formService" action="{{ route('services.store') }}" method="POST" class="space-y-8"
+                    enctype="multipart/form-data">
+                    @csrf
 
-        <x-form.field label="Nombre del servicio" for="nombre">
-            <x-form.input id="nombre" placeholder="Ej. Manicura Spa" />
-        </x-form.field>
+                    <x-form.field label="Nombre del servicio" for="name">
+                        <x-form.input value="{{ old('name') }}" type="text" id="name"
+                            placeholder="Ej. Manicura Spa" />
+                    </x-form.field>
 
-        <x-form.field label="Descripción" for="descripcion">
-            <x-form.textarea id="descripcion" placeholder="Detalla los beneficios..." />
-        </x-form.field>
+                    <x-form.field label="Descripción" for="description">
+                        <x-form.textarea id="description" placeholder="Detalla los beneficios..." />
+                    </x-form.field>
 
-        <div class="grid grid-cols-2 gap-6">
+                    <div class="grid grid-cols-2 gap-6">
 
-            <x-form.field label="Duración" for="duracion">
-                <x-form.select id="duracion">
-                    <option value="15">15 min</option>
-                    <option value="30">30 min</option>
-                    <option value="45" selected>45 min</option>
-                    <option value="60">60 min</option>
-                </x-form.select>
-            </x-form.field>
+                        <x-form.field label="Duración (min)" for="duration">
+                            <x-form.input value="{{ old('duration') }}" type="number" id="duration" placeholder="0" />
+                        </x-form.field>
 
-            <x-form.field label="Precio ref. (COP)" for="precio">
-                <x-form.input id="precio" placeholder="0" />
-            </x-form.field>
+                        <x-form.field label="Precio ref. (COP)" for="price">
+                            <x-form.input value="{{ old('price') }}" type="number" id="price" placeholder="0" />
+                        </x-form.field>
 
-        </div>
+                    </div>
 
-    </form>
 
-    <x-slot name="actions">
-        <x-button variant="secondary">
-            Guardar
-        </x-button>
+                    <x-form.field label="Imagen" for="image">
+                        <x-form.input-file id="image" />
+                    </x-form.field>
 
-        <form method="dialog">
-            <x-button  variant="error">
-                Cerrar
-            </x-button>
-        </form>
-    </x-slot>
+                    <input type="hidden" id="company_id" name="company_id" value="1">
 
-</x-modal-form>
+                </form>
+
+                <x-slot name="actions">
+                    <x-button form="formService" variant="secondary">
+                        Guardar
+                    </x-button>
+
+                    <form method="dialog">
+                        <x-button variant="error">
+                            Cerrar
+                        </x-button>
+                    </form>
+                </x-slot>
+
+            </x-modal-form>
         </header>
         <!-- Canvas -->
         <div class="p-8 pb-20">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Service Card -->
-                @foreach ($services as $service)
+                @forelse ($services as $service)
                     <article
                         class="bg-surface-container-lowest rounded-xl flex flex-col shadow-[0_10px_30px_rgba(95,94,90,0.06)] transition-all hover:-translate-y-1 duration-300">
                         <figure class="w-full h-48 overflow-hidden rounded-t-xl">
                             <img alt="Tratamiento Facial" class="w-full h-full object-cover"
-                                src='{{ $service->image }}' />
+                                src="{{ asset('storage/' . $service->image) }}" />
                         </figure>
                         <div class="p-6 flex flex-col gap-6 flex-1">
                             <div>
@@ -96,9 +101,58 @@
                             </div>
                         </div>
                     </article>
-                @endforeach
+                @empty
+                    <div role="alert" class="alert alert-warning col-span-2 place-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span class="">Agrega servicios para comenzar a ver tus registros</span>
+                    </div>
+                @endforelse
+
+
 
             </div>
         </div>
     </main>
 </x-app-layout>
+
+<script>
+    var dropzone = document.getElementById('image');
+
+    dropzone.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropzone.classList.add('border-indigo-600');
+    });
+
+    dropzone.addEventListener('dragleave', e => {
+        e.preventDefault();
+        dropzone.classList.remove('border-indigo-600');
+    });
+
+    dropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropzone.classList.remove('border-indigo-600');
+        var file = e.dataTransfer.files[0];
+        displayPreview(file);
+    });
+
+    var input = document.getElementById('image');
+
+    input.addEventListener('change', e => {
+        var file = e.target.files[0];
+        displayPreview(file);
+    });
+
+    function displayPreview(file) {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            var preview = document.getElementById('preview');
+            preview.src = reader.result;
+            preview.classList.remove('hidden');
+        };
+    }
+</script>
