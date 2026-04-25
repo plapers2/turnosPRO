@@ -128,11 +128,26 @@ class ServiceController extends Controller
             ->with('success', 'Servicio actualizado correctamente');
     }
 
-    public function destroy($id): RedirectResponse
-    {
-        Service::find($id)->delete();
 
-        return Redirect::route('services.index')
-            ->with('success', 'Service deleted successfully');
+    public function destroy(Request $request, Service $service)
+    {
+        // eliminar imagen
+        if ($service->image && Storage::disk('public')->exists($service->image)) {
+            Storage::disk('public')->delete($service->image);
+        }
+
+        $service->delete();
+
+        // Si es AJAX (fetch)
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Servicio eliminado correctamente'
+            ]);
+        }
+
+        // Si es formulario normal
+        return redirect()->route('services.index')
+            ->with('success', 'Servicio eliminado correctamente');
     }
 }

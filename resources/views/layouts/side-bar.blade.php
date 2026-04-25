@@ -23,7 +23,7 @@
             Citas
         </x-sidebar-link> --}}
 
-        <x-sidebar-link route="services.index" pattern="services.*" icon="medical_services">
+        <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
             Servicios
         </x-sidebar-link>
 
