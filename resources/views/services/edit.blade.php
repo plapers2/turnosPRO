@@ -1,37 +1,38 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Update') }} Service
-        </h2>
-    </x-slot>
+    <main class="flex-1 flex flex-col h-full overflow-y-auto bg-surface">
 
-    <div class="py-12">
-        <div class="max-w-full mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="w-full">
-                    <div class="sm:flex sm:items-center">
-                        <div class="sm:flex-auto">
-                            <h1 class="text-base font-semibold leading-6 text-gray-900">{{ __('Update') }} Service</h1>
-                            <p class="mt-2 text-sm text-gray-700">Update existing {{ __('Service') }}.</p>
-                        </div>
-                        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                            <a type="button" href="{{ route('services.index') }}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Back</a>
-                        </div>
-                    </div>
+        <!-- HEADER -->
+        <header class="px-8 mt-10 mb-6 flex items-center justify-between">
 
-                    <div class="flow-root">
-                        <div class="mt-8 overflow-x-auto">
-                            <div class="max-w-xl py-2 align-middle">
-                                <form method="POST" action="{{ route('services.update', $service->id) }}"  role="form" enctype="multipart/form-data">
-                                    {{ method_field('PATCH') }}
-                                    @csrf
-                                    @include('service.form')
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('services.index') }}"
+                    class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition">
+                    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    Volver
+                </a>
+
+                <div class="h-6 w-px bg-outline-variant/40"></div>
+
+                <h1 class="text-2xl font-bold text-primary tracking-tight">
+                    Editar Servicio
+                </h1>
             </div>
+
+            <div class="text-sm text-on-surface-variant">
+                Panel de gestión
+            </div>
+
+        </header>
+
+        <!-- CONTENIDO -->
+        <div class="px-8 pb-20">
+            <form action="{{ route('services.update', $service->id) }}" method="POST" enctype="multipart/form-data"
+                class="space-y-8">
+                @csrf
+                @method('PUT')
+                @include('services.form')
+            </form>
         </div>
-    </div>
+
+    </main>
 </x-app-layout>

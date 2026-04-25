@@ -11,7 +11,7 @@
         </header>
         <!-- Canvas -->
         <div class="p-8 pb-20">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="serviceCard">
                 <!-- Service Card -->
                 @forelse ($services as $service)
                     <article
@@ -42,12 +42,10 @@
                                 </span>
                             </div>
                             <div class="flex justify-end gap-4 pt-4 mt-2">
-                                <button
-                                    class="text-sm font-semibold text-primary hover:text-primary-container transition-colors px-2 py-1 rounded"
-                                    wire:click="edit({{ $service->id }})">Editar</button>
-                                <button
-                                    class="text-sm font-semibold text-error hover:text-on-error-container transition-colors px-2 py-1 rounded"
-                                    wire:click='delete({{ $service->id }})'>Eliminar</button>
+                                <a href="{{ route('services.edit', $service->id) }}"
+                                    class="text-sm font-semibold text-primary hover:text-primary-container transition-colors px-2 py-1 rounded">Editar</a>
+                                <button id="btnEliminar"
+                                    class="text-sm font-semibold text-error hover:text-on-error-container transition-colors px-2 py-1 rounded btnEliminar">Eliminar</button>
                             </div>
                         </div>
                     </article>

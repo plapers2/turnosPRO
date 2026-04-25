@@ -48,15 +48,6 @@
                             }))
                         @endif
 
-                        @if ($errors->any())
-                            window.dispatchEvent(new CustomEvent('notify', {
-                                detail: {
-                                    type: 'error',
-                                    message: "{{ $errors->first() }}"
-                                }
-                            }))
-                        @endif
-
                     }, 100)
                 })
             </script>

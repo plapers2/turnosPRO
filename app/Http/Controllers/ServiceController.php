@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\ServiceRequest;
 use App\Models\Company;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ServiceController extends Controller
@@ -40,27 +41,28 @@ class ServiceController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'duration' => 'required|integer',
-            'price' => 'required|numeric',
-            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048'
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'duracion' => 'required|integer',
+            'precio' => 'required|numeric',
+            'imagen' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048'
         ]);
 
-        $ruta = $request->file('image')->store('services', 'public');
+        // guardar imagen
+        if ($request->hasFile('imagen')) {
+            $data['imagen'] = $request->file('imagen')->store('services', 'public');
+        }
 
+        // crear servicio
         Service::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'duration' => $request->duration,
-            'price' => $request->price,
-            'image' => $ruta,
+            'name' => $data['nombre'],
+            'description' => $data['descripcion'],
+            'duration' => $data['duracion'],
+            'price' => $data['precio'],
+            'image' => $data['imagen'],
             'company_id' => $request->company_id
         ]);
-
 
         return redirect()->route('services.index')
             ->with('success', 'Servicio creado correctamente');
@@ -90,12 +92,40 @@ class ServiceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ServiceRequest $request, Service $service): RedirectResponse
+    public function update(Request $request, Service $service): RedirectResponse
     {
-        $service->update($request->validated());
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'duracion' => 'required|integer',
+            'precio' => 'required|numeric',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        // Manejo de imagen
+        if ($request->hasFile('imagen')) {
+
+            // eliminar anterior
+            if ($service->image) {
+                Storage::disk('public')->delete($service->image);
+            }
+
+            // guardar nueva
+            $data['imagen'] = $request->file('imagen')->store('services', 'public');
+        }
+
+        // Mapear nombres
+        $service->update([
+            'name' => $data['nombre'],
+            'description' => $data['descripcion'],
+            'duration' => $data['duracion'],
+            'price' => $data['precio'],
+            'image' => $data['imagen'] ?? $service->image,
+            'company_id' => $request->company_id
+        ]);
 
         return Redirect::route('services.index')
-            ->with('success', 'Service updated successfully');
+            ->with('success', 'Servicio actualizado correctamente');
     }
 
     public function destroy($id): RedirectResponse
