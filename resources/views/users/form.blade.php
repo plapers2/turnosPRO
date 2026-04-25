@@ -1,0 +1,120 @@
+<!-- COLUMNA PRINCIPAL -->
+<div class="lg:col-span-2 space-y-8">
+
+    <!-- CARD INFO -->
+    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+
+        <div>
+            <h2 class="text-lg font-semibold text-primary mb-1">
+                Información del usuario
+            </h2>
+            <p class="text-sm text-on-surface-variant">
+                Datos básicos del profesional
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <x-form.field label="Nombre" for="name">
+                <x-form.input name="name" id="name" type="text" :value="old('name', $user->name ?? '')" placeholder="Ej. Juan Pérez"
+                    class="focus:ring-primary/10 focus:border-primary/40" />
+            </x-form.field>
+
+            <x-form.field label="Teléfono" for="phone">
+                <x-form.input name="phone" id="phone" type="text" :value="old('phone', $user->phone)"
+                    placeholder="Ej. 3001234567" class="focus:ring-primary/10 focus:border-primary/40" />
+            </x-form.field>
+        </div>
+
+        <x-form.field label="Correo electrónico" for="email">
+            <x-form.input name="email" id="email" type="email" :value="old('email', $user->email)" placeholder="ejemplo@email.com"
+                class="focus:ring-primary/10 focus:border-primary/40" />
+        </x-form.field>
+
+        <x-form.field label="Rol del Usuario" for="roles_id">
+            <x-form.select id="roles_id">
+                @forelse ($roles as $rol)
+                    <option value="{{ $rol->id }}">{{ $rol->name }}</option>
+                @empty
+                <option value="">No hay ningun rol en el sistema</option>
+                @endforelse
+            </x-form.select>
+
+        </x-form.field>
+
+    </div>
+
+    <!-- CARD SEGURIDAD -->
+    @if (!$user->password)
+        <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+
+            <h2 class="text-lg font-semibold text-primary">
+                Seguridad
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <x-form.field label="Contraseña" for="password">
+                    <x-form.input name="password" id="password" type="password" placeholder="•••••••••"
+                        class="focus:ring-secondary/10 focus:border-secondary/40" />
+                </x-form.field>
+
+                <x-form.field label="Confirmar contraseña" for="password_confirmation">
+                    <x-form.input name="password_confirmation" id="password_confirmation" type="password"
+                        placeholder="•••••••••" class="focus:ring-secondary/10 focus:border-secondary/40" />
+                </x-form.field>
+
+            </div>
+
+        </div>
+    @endif
+
+
+    <!-- BOTONES -->
+    <div class="flex justify-end gap-4 pt-4">
+
+        <a href="{{ route('users.index') }}"
+            class="px-5 py-2.5 rounded-lg text-sm font-semibold
+                       bg-surface-container hover:bg-surface-container-high transition">
+            Cancelar
+        </a>
+
+        <button type="submit"
+            class="px-6 py-2.5 rounded-lg text-sm font-semibold
+                       bg-primary text-white hover:bg-primary/90 transition shadow-md hover:shadow-lg">
+            Guardar usuario
+        </button>
+
+    </div>
+
+</div>
+
+<!-- SIDEBAR -->
+<div class="space-y-8">
+
+    <!-- IMAGEN -->
+    <div class="bg-surface-container rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+
+        <h3 class="text-md font-semibold text-primary">
+            Foto de perfil
+        </h3>
+
+        <x-form.input-file name="image" id="image" />
+
+        <img id="preview" class="hidden w-full h-40 object-cover rounded-lg border border-outline-variant/20">
+    </div>
+
+    <!-- INFO -->
+    <div class="bg-primary-container/10 rounded-xl p-6 border border-primary/10 space-y-3">
+        <h3 class="text-sm font-semibold text-primary">
+            Recomendaciones
+        </h3>
+
+        <ul class="text-sm text-on-surface-variant space-y-2">
+            <li>• Usa una foto clara del profesional</li>
+            <li>• Verifica que el correo sea válido</li>
+            <li>• Completa el teléfono correctamente</li>
+        </ul>
+    </div>
+
+</div>

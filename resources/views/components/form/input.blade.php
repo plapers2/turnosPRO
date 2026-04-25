@@ -1,15 +1,16 @@
-@props(['name', 'type', 'value', 'placeholder' => ''])
+@props(['name', 'type' => 'text', 'value' => null, 'placeholder' => ''])
 
 @php
     $hasError = $errors->has($name);
 @endphp
 
-<input name="{{ $name }}" type="{{ $type }}" placeholder="{{ $placeholder }}" value="{{ $value }}"
+<input name="{{ $name }}" type="{{ $type }}" placeholder="{{ $placeholder }}"
+    value="{{ old($name, $value) }}"
     {{ $attributes->merge([
         'class' =>
             '
-                    form-input w-full rounded-lg border px-4 py-2.5 text-sm transition
-                    ' .
+                form-input w-full rounded-lg border px-4 py-2.5 text-sm transition
+                ' .
             ($hasError
                 ? 'border-red-500 focus:border-red-500 focus:ring-red-100'
                 : 'border-outline-variant/30 focus:border-primary/40 focus:ring-primary/10'),

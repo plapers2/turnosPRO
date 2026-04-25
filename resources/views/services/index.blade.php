@@ -1,55 +1,13 @@
 <x-app-layout>
     <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
-        <!-- TopAppBar -->
-        <header
-            class="relative bg-[#fcf9f3]/80 backdrop-blur-md border border-outline-variant/20
-           rounded-xl mx-8 mt-10 mb-4 px-6 py-5 flex flex-col lg:flex-row
-           items-start lg:items-center justify-between gap-4 shadow-[0_8px_20px_rgba(95,94,90,0.04)]">
 
-            <!-- IZQUIERDA -->
-            <div class="flex flex-col gap-1">
+        <!-- HEADER-->
+        <x-header-admin
+        icono="service_toolbox"
+        titulo="Gestion de Servicios"
+        mensaje="Administra, edita y organiza los servicios de tú negocio"
+        textoBoton="Nuevo Servicio" />
 
-                <div class="flex items-center gap-3">
-
-                    <!-- ICONO -->
-                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined">
-                            service_toolbox
-                        </span>
-                    </div>
-
-                    <!-- TITULO -->
-                    <h2 class="text-xl font-bold text-primary tracking-tight">
-                        Gestión de Servicios
-                    </h2>
-
-                </div>
-
-                <!-- SUBTEXTO -->
-                <p class="text-sm text-on-surface-variant ml-13">
-                    Administra, edita y organiza los servicios de tu negocio
-                </p>
-
-            </div>
-
-            <!-- DERECHA -->
-            <div class="flex items-center gap-3 w-full lg:w-auto">
-
-                <!-- BOTÓN PRINCIPAL -->
-                <a href="{{ route('services.create') }}"
-                    class="flex items-center justify-center gap-2 w-full lg:w-auto
-                  px-6 py-2.5 rounded-lg text-sm font-semibold
-                  bg-primary text-white
-                  hover:bg-primary/90 transition-all duration-200
-                  shadow-sm hover:shadow-md active:scale-[0.98]">
-
-                    <span class="material-symbols-outlined text-[18px]">add</span>
-                    Nuevo servicio
-                </a>
-
-            </div>
-
-        </header>
         <!-- Canvas -->
         <div class="p-8 pb-20">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="serviceCard">

@@ -27,9 +27,9 @@
             Servicios
         </x-sidebar-link>
 
-        {{-- <x-sidebar-link route="professionals.index" pattern="professionals.*" icon="group">
+        <x-sidebar-link route="users.index" pattern="users.*" icon="group">
             Profesionales
-        </x-sidebar-link> --}}
+        </x-sidebar-link>
 
         {{-- <x-sidebar-link route="clients.index" pattern="clients.*" icon="person">
             Clientes
