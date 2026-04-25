@@ -6,7 +6,8 @@
         icono="service_toolbox"
         titulo="Gestion de Servicios"
         mensaje="Administra, edita y organiza los servicios de tú negocio"
-        textoBoton="Nuevo Servicio" />
+        textoBoton="Nuevo Servicio"
+        ruta="services" />
 
         <!-- Canvas -->
         <div class="p-8 pb-20">

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone');
             $table->string('image');
+            $table->enum("state", ["Active", "Inactive"])->default("Activo");
             $table->rememberToken();
             $table->timestamps();
         });

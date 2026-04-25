@@ -6,9 +6,10 @@
 
         <!-- FORM -->
         <div class="px-8 pb-20">
-            <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data"
+            <form action="{{ route('users.update', $user->id) }}" method="POST" enctype="multipart/form-data"
                 class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
                 @csrf
+                @method('PUT')
                 @include('users.form')
             </form>
         </div>

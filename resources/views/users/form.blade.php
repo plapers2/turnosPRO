@@ -16,12 +16,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <x-form.field label="Nombre" for="name">
-                <x-form.input name="name" id="name" type="text" :value="old('name', $user->name ?? '')" placeholder="Ej. Juan Pérez"
+                <x-form.input name="nombre" id="nombre" type="text" :value="old('nombre', $user->name ?? '')" placeholder="Ej. Juan Pérez"
                     class="focus:ring-primary/10 focus:border-primary/40" />
             </x-form.field>
 
             <x-form.field label="Teléfono" for="phone">
-                <x-form.input name="phone" id="phone" type="text" :value="old('phone', $user->phone)"
+                <x-form.input name="telefono" id="telefono" type="text" :value="old('telefono', $user->phone)"
                     placeholder="Ej. 3001234567" class="focus:ring-primary/10 focus:border-primary/40" />
             </x-form.field>
         </div>
@@ -32,11 +32,12 @@
         </x-form.field>
 
         <x-form.field label="Rol del Usuario" for="roles_id">
-            <x-form.select id="roles_id">
-                @forelse ($roles as $rol)
-                    <option value="{{ $rol->id }}">{{ $rol->name }}</option>
+            <x-form.select name="role" id="role">
+                @forelse ($roles as $role)
+                    <option {{ $user->roles->contains('id', $role->id) ? 'selected' : '' }} value="{{ $role->name }}">
+                        {{ ucfirst($role->name) }}</option>
                 @empty
-                <option value="">No hay ningun rol en el sistema</option>
+                    <option value="">No hay ningun rol en el sistema</option>
                 @endforelse
             </x-form.select>
 
@@ -99,7 +100,7 @@
             Foto de perfil
         </h3>
 
-        <x-form.input-file name="image" id="image" />
+        <x-form.input-file name="archivo" id="archivo" />
 
         <img id="preview" class="hidden w-full h-40 object-cover rounded-lg border border-outline-variant/20">
     </div>
@@ -118,3 +119,21 @@
     </div>
 
 </div>
+<script>
+    const input = document.getElementById('archivo');
+    const preview = document.getElementById('preview');
+    const placeholder = document.getElementById('placeholder');
+
+    input.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            preview.src = reader.result;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+</script>

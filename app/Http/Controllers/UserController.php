@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\UserRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -17,7 +20,7 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $users = User::paginate();
+        $users = User::where('id', '!=', auth()->id())->paginate();
 
         return view('users.index', compact('users'))
             ->with('i', ($request->input('page', 1) - 1) * $users->perPage());
@@ -37,12 +40,39 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(UserRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        User::create($request->validated());
+        $data = $request->validate([
+            'nombre' => "required|string|max:255",
+            'email' => "required|string|max:255|unique:users,email",
+            'telefono' => "required|string|min:8|max:20",
+            'password' => ['required', Password::min(8), 'confirmed'],
+            'archivo' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'role' => 'required|exists:roles,name'
+        ]);
+
+
+        // Subida de imagenes
+        if ($request->hasFile('archivo')) {
+            $data['archivo'] = $request->file('archivo')->store('users', 'public');
+        }
+
+        // Hashear password
+        $data['password'] = Hash::make($data['password']);
+
+        $user = User::create([
+            'name' => $data['nombre'],
+            'email' => $data['email'],
+            'phone' => $data['telefono'],
+            'password' => $data["password"],
+            'image' => $data['archivo']
+        ]);
+
+        // Asignar el rol al usuario
+        $user->assignRole($data['role']);
 
         return Redirect::route('users.index')
-            ->with('success', 'User created successfully.');
+            ->with('success', 'Usuario creado exitosamente.');
     }
 
     /**
@@ -63,25 +93,81 @@ class UserController extends Controller
         $user = User::find($id);
         $roles = Role::all();
 
-        return view('users.edit', compact('user', '$roles'));
+        return view('users.edit', compact('user', 'roles'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request, User $user): RedirectResponse
+    public function update(Request $request, User $user)
     {
-        $user->update($request->validated());
 
-        return Redirect::route('users.index')
-            ->with('success', 'User updated successfully');
+        $data = $request->validate([
+            'nombre' => "required|string|max:255",
+            'email' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id, 'id'),
+            ],
+            'telefono' => "required|string|min:8|max:20",
+            'password' => ['nullable', Password::min(8), 'confirmed'],
+            'archivo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'role' => 'required|exists:roles,name'
+        ]);
+
+        // Manejo de imagen
+        if ($request->hasFile('archivo')) {
+
+            // eliminar anterior
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
+            }
+
+            // guardar nueva
+            $data['archivo'] = $request->file('archivo')->store('users', 'public');
+        }
+
+
+
+        $user->update([
+            'name' => $data['nombre'],
+            'email' => $data['email'],
+            'phone' => $data['telefono'],
+            'image' => $data['archivo'] ?? $user->image,
+        ]);
+
+        if (!empty($data['password'])) {
+            $user->password = Hash::make($data['password']);
+            $user->save();
+        }
+
+
+        $user->syncRoles([$data['role']]);
+
+        return redirect()->route('users.index')
+            ->with('success', 'Usuario actualizado correctamente.');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(Request $request, User $user)
     {
-        User::find($id)->delete();
+        // eliminar imagen
+        if ($user->image && Storage::disk('public')->exists($user->image)) {
+            Storage::disk('public')->delete($user->image);
+        }
 
-        return Redirect::route('users.index')
-            ->with('success', 'User deleted successfully');
+        $user->delete();
+
+        // Si es AJAX (fetch)
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario eliminado correctamente'
+            ]);
+        }
+
+        // Si es formulario normal
+        return redirect()->route('services.index')
+            ->with('success', 'Servicio eliminado correctamente');
     }
 }

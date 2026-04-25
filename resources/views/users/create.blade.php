@@ -18,20 +18,3 @@
 
     </main>
 </x-app-layout>
-
-<script>
-    const input = document.getElementById('image');
-    const preview = document.getElementById('preview');
-
-    input.addEventListener('change', e => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            preview.src = reader.result;
-            preview.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-    });
-</script>
