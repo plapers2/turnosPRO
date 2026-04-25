@@ -23,13 +23,18 @@
             Citas
         </x-sidebar-link> --}}
 
-        <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
-            Servicios
-        </x-sidebar-link>
+        @can('gestionar servicios')
+            <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
+                Servicios
+            </x-sidebar-link>
+        @endcan
 
-        <x-sidebar-link route="users.index" pattern="users.*" icon="group">
-            Profesionales
-        </x-sidebar-link>
+        @can('gestionar usuarios')
+            <x-sidebar-link route="users.index" pattern="users.*" icon="group">
+                Profesionales
+            </x-sidebar-link>
+        @endcan
+
 
         {{-- <x-sidebar-link route="clients.index" pattern="clients.*" icon="person">
             Clientes

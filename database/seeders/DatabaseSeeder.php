@@ -7,6 +7,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\TypeCompanySeeder;
 use Database\Seeders\CompanySeeder;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,6 +20,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            RolesAndPermissionsSeeder::class,
             UserSeeder::class,
             TypeCompanySeeder::class,
             CompanySeeder::class,
