@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
-use app\Models\TypeCompany;
+use App\Models\TypeCompany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\CompanyRequest;
@@ -29,9 +29,9 @@ class CompanyController extends Controller
     public function create(): View
     {
         $company = new Company();
-        // $typeCompanies = TypeCompany::all();
+        $typeCompanies = TypeCompany::all();
 
-        return view('company.create', compact('company'));
+        return view('company.create', compact('company', 'typeCompanies'));
     }
 
     /**
@@ -66,9 +66,9 @@ class CompanyController extends Controller
     public function edit($id): View
     {
         $company = Company::find($id);
-        // $typeCompanies = TypeCompany::all();
+        $typeCompanies = TypeCompany::all();
 
-        return view('company.edit', compact('company'));
+        return view('company.edit', compact('company', 'typeCompanies'));
     }
 
     /**

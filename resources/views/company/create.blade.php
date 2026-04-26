@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create') }} Company
+            {{ __('Crear') }} Empresa
         </h2>
     </x-slot>
 
@@ -11,18 +11,18 @@
                 <div class="w-full">
                     <div class="sm:flex sm:items-center">
                         <div class="sm:flex-auto">
-                            <h1 class="text-base font-semibold leading-6 text-gray-900">{{ __('Create') }} Company</h1>
-                            <p class="mt-2 text-sm text-gray-700">Add a new {{ __('Company') }}.</p>
+                            <h1 class="text-base font-semibold leading-6 text-gray-900">{{ __('Crear') }} Empresa</h1>
+                            <p class="mt-2 text-sm text-gray-700">Añadir nueva {{ __('Empresa') }}.</p>
                         </div>
-                        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                            <a type="button" href="{{ route('companies.index') }}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Back</a>
-                        </div>
+                        <x-button>
+                            <a type="button" href="{{ route('companies.index') }}">Regresar</a>
+                        </x-button>
                     </div>
 
                     <div class="flow-root">
                         <div class="mt-8 overflow-x-auto">
                             <div class="max-w-xl py-2 align-middle">
-                                <form method="POST" action="{{ route('companies.store') }}"  role="form" enctype="multipart/form-data">
+                                <form method="POST" action="{{ route('companies.store') }}" role="form" enctype="multipart/form-data">
                                     @csrf
 
                                     @include('company.form')

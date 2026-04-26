@@ -14,15 +14,15 @@
                             <h1 class="text-base font-semibold leading-6 text-gray-900">{{ __('Update') }} Company</h1>
                             <p class="mt-2 text-sm text-gray-700">Update existing {{ __('Company') }}.</p>
                         </div>
-                        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                            <a type="button" href="{{ route('companies.index') }}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Back</a>
-                        </div>
+                        <x-button>
+                            <a type="button" href="{{ route('companies.index') }}">Regresar</a>
+                        </x-button>
                     </div>
 
                     <div class="flow-root">
                         <div class="mt-8 overflow-x-auto">
                             <div class="max-w-xl py-2 align-middle">
-                                <form method="POST" action="{{ route('companies.update', $company->id) }}"  role="form" enctype="multipart/form-data">
+                                <form method="POST" action="{{ route('companies.update', $company->id) }}" role="form" enctype="multipart/form-data">
                                     {{ method_field('PATCH') }}
                                     @csrf
                                     @include('company.form')

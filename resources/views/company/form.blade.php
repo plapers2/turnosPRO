@@ -50,14 +50,38 @@
                         class="focus:ring-secondary/10 focus:border-secondary/40" />
                     <x-input-error class="mt-2" :messages="$errors->get('address')" />
                 </x-form.field>
+                <div class="col-span-2">
+                    <x-form.field label="Tipo de empresa" for="type_company_id">
 
-                <x-form.field label="Tipo de empresa" for="type_company_id">
-                    <x-form.input id="type_company_id" name="type_company_id" type="number"
-                        :value="old('type_company_id', $company?->type_company_id)"
-                        placeholder=""
-                        class="focus:ring-secondary/10 focus:border-secondary/40" />
-                    <x-input-error class="mt-2" :messages="$errors->get('type_company_id')" />
-                </x-form.field>
+                        <!-- Input hidden que guarda el valor real -->
+                        <input type="hidden" name="type_company_id" id="type_company_id"
+                            value="{{ old('type_company_id', $company->type_company_id) }}">
+
+                        <!-- Input visible de búsqueda -->
+                        <div class="relative">
+                            <input type="text" id="type_company_search"
+                                placeholder="Buscar tipo de empresa..."
+                                autocomplete="off"
+                                class="w-full rounded-lg border border-outline-variant/40 px-3 py-2 text-sm focus:ring-primary/10 focus:border-primary/40"
+                                value="{{ old('type_company_id') ? $typeCompanies->firstWhere('id', old('type_company_id'))?->name : $company?->typeCompany?->name }}" />
+
+                            <!-- Dropdown -->
+                            <ul id="type_company_dropdown"
+                                class="absolute z-50 w-full bg-white border border-outline-variant/30 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
+                                @foreach ($typeCompanies as $type)
+                                <li class="type-option px-3 py-2 text-sm cursor-pointer hover:bg-primary/10 transition"
+                                    data-id="{{ $type->id }}"
+                                    data-name="{{ $type->name }}">
+                                    {{ $type->name }}
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+
+                        <x-input-error class="mt-2" :messages="$errors->get('type_company_id')" />
+                    </x-form.field>
+                </div>
+
 
             </div>
 
@@ -120,5 +144,49 @@
             preview.classList.remove('hidden');
         };
         reader.readAsDataURL(file);
+    });
+</script>
+<script>
+    const searchInput = document.getElementById('type_company_search');
+    const hiddenInput = document.getElementById('type_company_id');
+    const dropdown = document.getElementById('type_company_dropdown');
+    const options = document.querySelectorAll('.type-option');
+
+    // Mostrar dropdown al escribir
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase();
+        let hasResults = false;
+
+        options.forEach(opt => {
+            const match = opt.dataset.name.toLowerCase().includes(query);
+            opt.style.display = match ? 'block' : 'none';
+            if (match) hasResults = true;
+        });
+
+        dropdown.classList.toggle('hidden', !hasResults && query === '');
+        if (query === '') hiddenInput.value = '';
+        dropdown.classList.remove('hidden');
+    });
+
+    // Seleccionar opción
+    options.forEach(opt => {
+        opt.addEventListener('click', () => {
+            hiddenInput.value = opt.dataset.id;
+            searchInput.value = opt.dataset.name;
+            dropdown.classList.add('hidden');
+        });
+    });
+
+    // Cerrar dropdown al hacer click fuera
+    document.addEventListener('click', e => {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Abrir dropdown al hacer foco
+    searchInput.addEventListener('focus', () => {
+        options.forEach(opt => opt.style.display = 'block');
+        dropdown.classList.remove('hidden');
     });
 </script>

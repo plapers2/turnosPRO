@@ -14,7 +14,7 @@
                             <h1 class="text-base font-semibold leading-6 text-gray-900">{{ __('Crear') }} Tipo de Empresa</h1>
                             <p class="mt-2 text-sm text-gray-700">Añadir nuevo {{ __('Tipo de Empresa') }}.</p>
                         </div>
-                        <x-button class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+                        <x-button>
                             <a type="button" href="{{ route('type-companies.index') }}">Regresar</a>
                         </x-button>
                     </div>
