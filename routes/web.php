@@ -44,6 +44,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
 
     Route::resource('/opening-hours', OpeningHourController::class);
+    Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore']);
 });
 
 require __DIR__ . '/auth.php';

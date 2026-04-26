@@ -16,33 +16,35 @@
         <!-- DIA -->
         <x-form.field label="Día de la semana" for="day_of_week">
             <x-form.select name="day_of_week" id="day_of_week">
-                <option value="">Seleccionar día</option>
-                <option value="monday">Lunes</option>
-                <option value="tuesday">Martes</option>
-                <option value="wednesday">Miércoles</option>
-                <option value="thursday">Jueves</option>
-                <option value="friday">Viernes</option>
-                <option value="saturday">Sábado</option>
-                <option value="sunday">Domingo</option>
+                @foreach ([
+        'monday' => 'Lunes',
+        'tuesday' => 'Martes',
+        'wednesday' => 'Miércoles',
+        'thursday' => 'Jueves',
+        'friday' => 'Viernes',
+        'saturday' => 'Sábado',
+        'sunday' => 'Domingo',
+    ] as $value => $label)
+                    <option value="{{ $value }}"
+                        {{ old('day_of_week', $openingHour->day_of_week ?? '') == $value ? 'selected' : '' }}>
+                        {{ $label }}
+                    </option>
+                @endforeach
             </x-form.select>
         </x-form.field>
 
         <!-- HORAS -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <x-form.field label="Hora de inicio" for="start_time">
-                <x-form.input type="time" name="start_time" id="start_time" :value="old('start_time')" />
-            </x-form.field>
+            <x-form.input type="time" name="start_time" id="start_time" :value="old('start_time', $openingHour->start_time ?? '')" />
 
-            <x-form.field label="Hora de fin" for="end_time">
-                <x-form.input type="time" name="end_time" id="end_time" :value="old('end_time')" />
-            </x-form.field>
+            <x-form.input type="time" name="end_time" id="end_time" :value="old('end_time', $openingHour->end_time ?? '')" />
 
         </div>
 
         <!-- DURACION -->
         <x-form.field label="Duración por cita (minutos)" for="duration">
-            <x-form.input type="number" name="duration" id="duration" placeholder="Ej. 30" :value="old('duration')" />
+            <x-form.input type="number" name="duration" id="duration" :value="old('duration', $openingHour->duration ?? '')" />
         </x-form.field>
 
     </div>
@@ -52,14 +54,16 @@
 
         <a href="{{ route('opening-hours.index') }}"
             class="px-5 py-2.5 rounded-lg text-sm font-semibold
-                   bg-surface-container hover:bg-surface-container-high transition">
+               bg-surface-container hover:bg-surface-container-high transition">
             Cancelar
         </a>
 
         <button type="submit"
             class="px-6 py-2.5 rounded-lg text-sm font-semibold
-                   bg-primary text-white hover:bg-primary/90 transition shadow-md">
-            Guardar horario
+               bg-primary text-white hover:bg-primary/90 transition shadow-md">
+
+            {{ isset($openingHour) ? 'Actualizar horario' : 'Guardar horario' }}
+
         </button>
 
     </div>

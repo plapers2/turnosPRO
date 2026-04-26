@@ -16,7 +16,7 @@ class OpeningHourController extends Controller
      */
     public function index(): View
     {
-        $openingHours = OpeningHour::orderByRaw("
+        $openingHours = OpeningHour::withTrashed()->orderByRaw("
         FIELD(day_of_week,
         'monday','tuesday','wednesday','thursday','friday','saturday','sunday')
     ")->get()->groupBy('day_of_week');
@@ -42,7 +42,7 @@ class OpeningHourController extends Controller
         OpeningHour::create($request->validated());
 
         return Redirect::route('opening-hours.index')
-            ->with('success', 'OpeningHour created successfully.');
+            ->with('success', 'Horario de atencion creado.');
     }
 
     /**
@@ -73,14 +73,22 @@ class OpeningHourController extends Controller
         $openingHour->update($request->validated());
 
         return Redirect::route('opening-hours.index')
-            ->with('success', 'OpeningHour updated successfully');
+            ->with('success', 'Actualizacion de horario de atencion exitosa');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($id)
     {
-        OpeningHour::find($id)->delete();
+        $hour = OpeningHour::findOrFail($id);
+        $hour->delete();
 
-        return Redirect::route('opening-hours.index')
-            ->with('success', 'OpeningHour deleted successfully');
+        return response()->json(['success' => true]);
+    }
+
+    public function restore($id)
+    {
+        $hour = OpeningHour::withTrashed()->findOrFail($id);
+        $hour->restore();
+
+        return response()->json(['success' => true]);
     }
 }
