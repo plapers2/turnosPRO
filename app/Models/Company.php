@@ -25,4 +25,8 @@ class Company extends Model
     {
         return $this->belongsTo(TypeCompany::class, 'type_company_id', 'id');
     }
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

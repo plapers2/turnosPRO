@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\CompanySelectionController;
+
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
@@ -23,6 +25,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/services', ServiceController::class);
     Route::resource('/users', UserController::class);
+    Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
+    Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
 });
 
 require __DIR__ . '/auth.php';

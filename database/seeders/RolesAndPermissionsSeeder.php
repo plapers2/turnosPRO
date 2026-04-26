@@ -23,12 +23,13 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Roles
         $admin = Role::create(['name' => 'admin']);
-        $guardia = Role::create(['name' => 'empleado']);
+        $employee = Role::create(['name' => 'empleado']);
+        $costumer = Role::create(['name' => 'cliente']);
 
         // Asignar permisos
         $admin->givePermissionTo(Permission::all());
 
-        $guardia->givePermissionTo([
+        $employee->givePermissionTo([
             'gestionar citas',
         ]);
     }
