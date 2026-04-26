@@ -27,7 +27,8 @@ class TypeCompanySeeder extends Seeder
 
         foreach ($types as $type) {
             TypeCompany::create([
-                'name' => $type
+                'name' => $type,
+                'logo' => 'https://placehold.co/600x400'
             ]);
         }
     }

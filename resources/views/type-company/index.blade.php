@@ -4,10 +4,10 @@
         <!-- HEADER -->
         <x-header-admin
             icono="business"
-            titulo="Gestión de Empresas"
-            mensaje="Administra las empresas registradas en el sistema"
-            textoBoton="Nueva Empresa"
-            ruta="companies" />
+            titulo="Gestión de Tipos de Empresa"
+            mensaje="Administra los tipos de empresa registrados en el sistema"
+            textoBoton="Nuevo Tipo de Empresa"
+            ruta="type-companies" />
 
         <!-- TABLA -->
         <div class="px-8 pb-20">
@@ -19,7 +19,7 @@
                 <!-- HEADER TABLA -->
                 <div class="px-6 py-4 border-b border-outline-variant/20">
                     <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide">
-                        Lista de empresas
+                        Lista de Tipos de Empresas
                     </h3>
                 </div>
 
@@ -31,10 +31,8 @@
                         <!-- THEAD -->
                         <thead class="bg-surface/50 text-on-surface-variant">
                             <tr>
-                                <th class="px-6 py-4 text-left font-semibold">Empresa</th>
-                                <th class="px-6 py-4 text-left font-semibold">Contacto</th>
-                                <th class="px-6 py-4 text-left font-semibold">Dirección</th>
-                                <th class="px-6 py-4 text-left font-semibold">Tipo</th>
+                                <th class="px-6 py-4 text-left font-semibold">Nombre</th>
+                                <th class="px-6 py-4 text-center font-semibold">Cantidad de Empresas Asociadas</th>
                                 <th class="px-6 py-4 text-right font-semibold">Acciones</th>
                             </tr>
                         </thead>
@@ -42,7 +40,7 @@
                         <!-- TBODY -->
                         <tbody class="divide-y divide-outline-variant/10">
 
-                            @forelse ($companies as $company)
+                            @forelse ($typeCompanies as $company)
                             <tr class="hover:bg-surface/40 transition">
 
                                 <!-- EMPRESA -->
@@ -66,31 +64,11 @@
                                     </div>
                                 </td>
 
-                                <!-- CONTACTO -->
-                                <td class="px-6 py-4">
-                                    <p class="text-on-surface-variant">
-                                        {{ $company->email }}
+                                <!-- CANTIDAD DE EMPRESAS ASOCIADAS -->
+                                <td class="px-6 py-4 text-center">
+                                    <p class="text-md badge-soft badge text-on-surface-variant">
+                                        {{ $company->companies_count ?? 'Sin Empresas Asociadas' }}
                                     </p>
-
-                                    <p class="text-xs text-on-surface-variant">
-                                        {{ $company->phone ?? 'Sin teléfono' }}
-                                    </p>
-                                </td>
-
-                                <!-- DIRECCIÓN -->
-                                <td class="px-6 py-4">
-                                    <p class="text-on-surface-variant">
-                                        {{ $company->address ?? 'Sin dirección' }}
-                                    </p>
-                                </td>
-
-                                <!-- TIPO -->
-                                <td class="px-6 py-4">
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold
-                                            bg-blue-100 text-blue-700">
-                                        Tipo #{{ $company->type_company_id }}
-                                    </span>
                                 </td>
 
                                 <!-- ACCIONES -->
@@ -98,13 +76,13 @@
                                     <div class="flex justify-end gap-3">
 
                                         <a
-                                            href="{{ route('companies.show', $company->id) }}"
+                                            href="{{ route('type-companies.show', $company->id) }}"
                                             class="text-secondary hover:text-primary transition">
                                             Ver
                                         </a>
 
                                         <a
-                                            href="{{ route('companies.edit', $company->id) }}"
+                                            href="{{ route('type-companies.edit', $company->id) }}"
                                             class="text-primary hover:text-primary-container transition">
                                             Editar
                                         </a>
@@ -132,13 +110,13 @@
                                         </span>
 
                                         <p class="text-on-surface-variant">
-                                            No hay empresas registradas
+                                            No hay tipos de empresas registrados
                                         </p>
 
                                         <a
-                                            href="{{ route('companies.create') }}"
+                                            href="{{ route('type-companies.create') }}"
                                             class="px-4 py-2 rounded-lg bg-primary text-white text-sm">
-                                            Crear empresa
+                                            Crear Tipo de Empresa
                                         </a>
 
                                     </div>
@@ -156,14 +134,14 @@
                 <!-- MOBILE -->
                 <div class="md:hidden space-y-4">
 
-                    @forelse ($companies as $company)
+                    @forelse ($typeCompanies as $company)
                     <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-4 shadow-sm">
 
                         <!-- TOP -->
                         <div class="flex items-center gap-4 mb-3">
 
                             <img class="w-12 h-12 rounded-lg object-cover"
-                                src="{{ $company->image ? asset('storage/' . $company->image) : 'https://ui-avatars.com/api/?name=' . $company->name }}"
+                                src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . $company->name }}"
                                 alt="{{ $company->name }}">
 
                             <div>
@@ -210,13 +188,13 @@
                         <div class="flex justify-end gap-4 mt-4 border-t pt-3">
 
                             <a
-                                href="{{ route('companies.show', $company->id) }}"
+                                href="{{ route('type-companies.show', $company->id) }}"
                                 class="text-secondary text-sm">
                                 Ver
                             </a>
 
                             <a
-                                href="{{ route('companies.edit', $company->id) }}"
+                                href="{{ route('type-companies.edit', $company->id) }}"
                                 class="text-primary text-sm">
                                 Editar
                             </a>
@@ -241,7 +219,7 @@
 
                 <!-- PAGINACIÓN -->
                 <div class="px-6 py-4 border-t border-outline-variant/20">
-                    {!! $companies->withQueryString()->links() !!}
+                    {!! $typeCompanies->withQueryString()->links() !!}
                 </div>
 
             </div>
@@ -254,7 +232,7 @@
 <script>
     function deletecompany(id) {
         Swal.fire({
-            title: '¿Eliminar esta empresa?',
+            title: '¿Eliminar este tipo de empresa?',
             text: 'Esta acción no se puede deshacer',
             icon: 'warning',
             showCancelButton: true,
@@ -268,7 +246,7 @@
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await fetch(`/companies/${id}`, {
+                    await fetch(`/type-companies/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',

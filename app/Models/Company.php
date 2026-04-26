@@ -56,7 +56,7 @@ class Company extends Model
      */
     public function typeCompany()
     {
-        return $this->belongsTo(\App\Models\TypeCompany::class, 'type_company_id', 'id');
+        return $this->belongsTo(\App\Models\TypeCompany::class);
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
