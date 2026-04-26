@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('type_companies', function (Blueprint $table) {
             $table->id();
             $table->string("name");
-            $table->enum('state', ["Active", "Inactive"])->default("Active");
+            $table->string("logo", 255);
             $table->softDeletes();
             $table->timestamps();
         });

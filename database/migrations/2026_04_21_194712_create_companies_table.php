@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string("email");
             $table->string("address");
             $table->string("phone");
-            $table->enum('state',["Active", "Inactive"])->default("Active");
             $table->foreignId('type_company_id')->constrained();
             $table->softDeletes();
             $table->timestamps();

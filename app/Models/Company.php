@@ -2,29 +2,65 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 
+/**
+ * Class Company
+ *
+ * @property $id
+ * @property $name
+ * @property $logo
+ * @property $email
+ * @property $address
+ * @property $phone
+ * @property $state
+ * @property $type_company_id
+ * @property $deleted_at
+ * @property $created_at
+ * @property $updated_at
+ *
+ * @property TypeCompany $typeCompany
+ * @property Batch[] $batches
+ * @property Category[] $categories
+ * @property Client[] $clients
+ * @property CompanyUser[] $companyUsers
+ * @property Expense[] $expenses
+ * @property ProductionRecord[] $productionRecords
+ * @property Product[] $products
+ * @property Role[] $roles
+ * @property Sale[] $sales
+ * @property CompanyUser[] $companyUsers
+ * @property Service[] $services
+ * @package App
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ */
 class Company extends Model
 {
-    use SoftDeletes;
-    use HasFactory;
+    use SoftDeletes, HasFactory;
 
-    protected $fillable = [
-        "name",
-        "logo",
-        "address",
-        "phone",
-        "state",
-        "email",
-        "type_company_id"
-    ];
+    protected $perPage = 20;
 
-    public function type_companies()
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = ['name', 'logo', 'email', 'address', 'phone', 'type_company_id'];
+
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function typeCompany()
     {
-        return $this->belongsTo(TypeCompany::class, 'type_company_id', 'id');
+        return $this->belongsTo(\App\Models\TypeCompany::class);
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function users()
     {
         return $this->belongsToMany(User::class);

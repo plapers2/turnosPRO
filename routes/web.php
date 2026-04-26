@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\TypeCompanyController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\CompanySelectionController;
 
@@ -29,6 +31,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/users', UserController::class);
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     
+    Route::resource('/companies', CompanyController::class);
+    Route::resource('/type-companies', TypeCompanyController::class);
     Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
     Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
 });

@@ -19,6 +19,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::create(['name' => 'gestionar servicios']);
         Permission::create(['name' => 'gestionar usuarios']);
         Permission::create(['name' => 'gestionar citas']);
+        Permission::create(['name' => 'gestionar empresas']);
 
 
         // Roles
