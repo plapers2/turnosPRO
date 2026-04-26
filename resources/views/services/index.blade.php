@@ -2,12 +2,9 @@
     <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
 
         <!-- HEADER-->
-        <x-header-admin
-        icono="service_toolbox"
-        titulo="Gestion de Servicios"
-        mensaje="Administra, edita y organiza los servicios de tú negocio"
-        textoBoton="Nuevo Servicio"
-        ruta="services" />
+        <x-header-admin icono="service_toolbox" titulo="Gestion de Servicios"
+            mensaje="Administra, edita y organiza los servicios de tú negocio" textoBoton="Nuevo Servicio"
+            ruta="services" />
 
         <!-- Canvas -->
         <div class="p-8 pb-20">
@@ -20,12 +17,13 @@
                             <img alt="Tratamiento Facial" class="w-full h-full object-cover"
                                 src="{{ asset('storage/' . $service->image) }}" />
                         </figure>
-                        <div class="p-6 flex flex-col gap-6 flex-1">
+                        <div class="p-6 flex flex-col gap-4 flex-1">
                             <div>
                                 <h3 class="text-xl font-bold text-primary mb-2 font-headline tracking-tight">
                                     {{ $service->name }}</h3>
                                 <p class="text-on-surface-variant text-sm leading-relaxed line-clamp-2">
                                     {{ $service->description }}</p>
+
                             </div>
                             <div class="flex flex-wrap gap-3 mt-auto">
                                 <span
@@ -41,11 +39,27 @@
                                     {{ $service->price }}
                                 </span>
                             </div>
+                            <div>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold
+                                            {{ $service->deleted_at ? 'bg-error/20 text-on-error-container' : 'bg-indigo-400/20 text-indigo-700' }}">
+                                    {{ $service->deleted_at ? 'Inactivo' : 'Activo' }}
+                                </span>
+                            </div>
                             <div class="flex justify-end gap-4 pt-4 mt-2">
-                                <a href="{{ route('services.edit', $service->id) }}"
-                                    class="text-sm font-semibold text-primary hover:text-primary-container transition-colors px-2 py-1 rounded">Editar</a>
-                                <button id="btnEliminar" onclick="deleteService({{ $service->id }})"
-                                    class="text-sm font-semibold text-error hover:text-on-error-container transition-colors px-2 py-1 rounded btnEliminar">Eliminar</button>
+                                @if ($service->trashed())
+                                    <!-- RESTAURAR -->
+                                    <button onclick="restoreService(this, {{ $service->id }})"
+                                        class="text-green-600 hover:text-green-800 transition">
+                                        Restaurar
+                                    </button>
+                                @else
+                                    <a href="{{ route('services.edit', $service->id) }}"
+                                        class="text-sm font-semibold text-primary hover:text-primary-container transition-colors px-2 py-1 rounded">Editar</a>
+                                    <button id="btnEliminar" onclick="deleteService({{ $service->id }})"
+                                        class="text-sm font-semibold text-error hover:text-on-error-container transition-colors px-2 py-1 rounded btnEliminar">Eliminar</button>
+                                @endif
+
                             </div>
                         </div>
                     </article>
@@ -97,6 +111,37 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    async function restoreService(button, id) {
+
+        const original = button.innerHTML;
+
+        button.innerHTML = `
+        <span class="animate-spin inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full"></span>
+    `;
+        button.disabled = true;
+
+        try {
+            const response = await fetch(`/services/${id}/restore`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                throw new Error();
+            }
+
+            console.log(response)
+        } catch (error) {
+            button.innerHTML = original;
+            button.disabled = false;
+        }
+    }
+
     function deleteService(id) {
 
         Swal.fire({
@@ -132,16 +177,16 @@
                     if (response.ok) {
 
                         // animación elegante
-                        const card = document.querySelector(`[data-id="${id}"]`);
-                        if (card) {
-                            card.style.transition = 'all 0.3s ease';
-                            card.style.opacity = '0';
-                            card.style.transform = 'scale(0.95)';
+                        // const card = document.querySelector(`[data-id="${id}"]`);
+                        // if (card) {
+                        //     card.style.transition = 'all 0.3s ease';
+                        //     card.style.opacity = '0';
+                        //     card.style.transform = 'scale(0.95)';
 
-                            setTimeout(() => {
-                                card.remove();
-                            }, 300);
-                        }
+                        //     setTimeout(() => {
+                        //         card.remove();
+                        //     }, 300);
+                        // }
 
                         Swal.fire({
                             title: 'Eliminado',
@@ -151,7 +196,9 @@
                             showConfirmButton: false,
                             background: '#fcf9f3',
                             color: '#1c1c19'
-                        });
+                        }).then(() => {
+                            location.reload()
+                        })
 
                     } else {
                         throw new Error();

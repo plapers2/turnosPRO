@@ -20,7 +20,7 @@ class ServiceController extends Controller
     {
         $companyId = session('active_company_id');
 
-        $query = Service::query();
+        $query = Service::query()->withTrashed();
 
         if ($companyId) {
             $query->where('company_id', $companyId);
@@ -140,10 +140,6 @@ class ServiceController extends Controller
 
     public function destroy(Request $request, Service $service)
     {
-        // eliminar imagen
-        if ($service->image && Storage::disk('public')->exists($service->image)) {
-            Storage::disk('public')->delete($service->image);
-        }
 
         $service->delete();
 
@@ -158,5 +154,14 @@ class ServiceController extends Controller
         // Si es formulario normal
         return redirect()->route('services.index')
             ->with('success', 'Servicio eliminado correctamente');
+    }
+
+    public function restore($id)
+    {
+        $user = Service::withTrashed()->findOrFail($id);
+        $user->restore();
+
+        return redirect()->route('services.index')
+            ->with('success', 'Servicio restaurado correctamente');
     }
 }
