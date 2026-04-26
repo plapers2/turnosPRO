@@ -1,78 +1,291 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Companies') }}
-        </h2>
-    </x-slot>
+    <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
 
-    <div class="py-12">
-        <div class="max-w-full mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="w-full">
-                    <div class="sm:flex sm:items-center">
-                        <div class="sm:flex-auto">
-                            <h1 class="text-base font-semibold leading-6 text-gray-900">{{ __('Companies') }}</h1>
-                            <p class="mt-2 text-sm text-gray-700">A list of all the {{ __('Companies') }}.</p>
-                        </div>
-                        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                            <a type="button" href="{{ route('companies.create') }}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Add new</a>
-                        </div>
-                    </div>
+        <!-- HEADER -->
+        <x-header-admin
+            icono="business"
+            titulo="Gestión de Empresas"
+            mensaje="Administra las empresas registradas en el sistema"
+            textoBoton="Nueva Empresa"
+            ruta="companies" />
 
-                    <div class="flow-root">
-                        <div class="mt-8 overflow-x-auto">
-                            <div class="inline-block min-w-full py-2 align-middle">
-                                <table class="w-full divide-y divide-gray-300">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">No</th>
-                                        
-									<th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Name</th>
-									<th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Logo</th>
-									<th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Email</th>
-									<th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Address</th>
-									<th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Phone</th>
-									<th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">State</th>
-									<th scope="col" class="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Type Company Id</th>
+        <!-- TABLA -->
+        <div class="px-8 pb-20">
 
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200 bg-white">
-                                    @foreach ($companies as $company)
-                                        <tr class="even:bg-gray-50">
-                                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-semibold text-gray-900">{{ ++$i }}</td>
-                                            
-										<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $company->name }}</td>
-										<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $company->logo }}</td>
-										<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $company->email }}</td>
-										<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $company->address }}</td>
-										<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $company->phone }}</td>
-										<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $company->state }}</td>
-										<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $company->type_company_id }}</td>
+            <div
+                class="bg-surface-container-lowest rounded-xl border border-outline-variant/20
+                shadow-[0_10px_30px_rgba(95,94,90,0.05)] overflow-hidden">
 
-                                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                                                <form action="{{ route('companies.destroy', $company->id) }}" method="POST">
-                                                    <a href="{{ route('companies.show', $company->id) }}" class="text-gray-600 font-bold hover:text-gray-900 mr-2">{{ __('Show') }}</a>
-                                                    <a href="{{ route('companies.edit', $company->id) }}" class="text-indigo-600 font-bold hover:text-indigo-900  mr-2">{{ __('Edit') }}</a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <a href="{{ route('companies.destroy', $company->id) }}" class="text-red-600 font-bold hover:text-red-900" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;">{{ __('Delete') }}</a>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-
-                                <div class="mt-4 px-4">
-                                    {!! $companies->withQueryString()->links() !!}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- HEADER TABLA -->
+                <div class="px-6 py-4 border-b border-outline-variant/20">
+                    <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide">
+                        Lista de empresas
+                    </h3>
                 </div>
+
+                <!-- DESKTOP -->
+                <div class="hidden md:block overflow-x-auto">
+
+                    <table class="w-full text-sm">
+
+                        <!-- THEAD -->
+                        <thead class="bg-surface/50 text-on-surface-variant">
+                            <tr>
+                                <th class="px-6 py-4 text-left font-semibold">Empresa</th>
+                                <th class="px-6 py-4 text-left font-semibold">Contacto</th>
+                                <th class="px-6 py-4 text-left font-semibold">Dirección</th>
+                                <th class="px-6 py-4 text-left font-semibold">Tipo</th>
+                                <th class="px-6 py-4 text-right font-semibold">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <!-- TBODY -->
+                        <tbody class="divide-y divide-outline-variant/10">
+
+                            @forelse ($companies as $company)
+                            <tr class="hover:bg-surface/40 transition">
+
+                                <!-- EMPRESA -->
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-4">
+
+                                        <img class="w-12 h-12 rounded-lg object-cover"
+                                            src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . $company->name }}">
+
+                                        <div>
+                                            <p class="font-semibold text-primary">
+                                                {{ $company->name }}
+                                            </p>
+
+                                            <p class="text-xs text-on-surface-variant">
+                                                ID: {{ $company->id }}
+                                            </p>
+                                        </div>
+
+                                    </div>
+                                </td>
+
+                                <!-- CONTACTO -->
+                                <td class="px-6 py-4">
+                                    <p class="text-on-surface-variant">
+                                        {{ $company->email }}
+                                    </p>
+
+                                    <p class="text-xs text-on-surface-variant">
+                                        {{ $company->phone ?? 'Sin teléfono' }}
+                                    </p>
+                                </td>
+
+                                <!-- DIRECCIÓN -->
+                                <td class="px-6 py-4">
+                                    <p class="text-on-surface-variant">
+                                        {{ $company->address ?? 'Sin dirección' }}
+                                    </p>
+                                </td>
+
+                                <!-- TIPO -->
+                                <td class="px-6 py-4">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold
+                                            bg-blue-100 text-blue-700">
+                                        Tipo #{{ $company->type_company_id }}
+                                    </span>
+                                </td>
+
+                                <!-- ACCIONES -->
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex justify-end gap-3">
+
+                                        <a
+                                            href="{{ route('companies.show', $company->id) }}"
+                                            class="text-secondary hover:text-primary transition">
+                                            Ver
+                                        </a>
+
+                                        <a
+                                            href="{{ route('companies.edit', $company->id) }}"
+                                            class="text-primary hover:text-primary-container transition">
+                                            Editar
+                                        </a>
+
+                                        <button
+                                            onclick="deletecompany({{ $company->id }})"
+                                            class="text-error hover:text-on-error-container transition">
+                                            Eliminar
+                                        </button>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                            @empty
+
+                            <tr>
+                                <td colspan="6" class="text-center py-16">
+
+                                    <div class="flex flex-col items-center gap-4">
+
+                                        <span class="material-symbols-outlined text-4xl text-primary">
+                                            business
+                                        </span>
+
+                                        <p class="text-on-surface-variant">
+                                            No hay empresas registradas
+                                        </p>
+
+                                        <a
+                                            href="{{ route('companies.create') }}"
+                                            class="px-4 py-2 rounded-lg bg-primary text-white text-sm">
+                                            Crear empresa
+                                        </a>
+
+                                    </div>
+
+                                </td>
+                            </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <!-- MOBILE -->
+                <div class="md:hidden space-y-4">
+
+                    @forelse ($companies as $company)
+                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-4 shadow-sm">
+
+                        <!-- TOP -->
+                        <div class="flex items-center gap-4 mb-3">
+
+                            <img class="w-12 h-12 rounded-lg object-cover"
+                                src="{{ $company->image ? asset('storage/' . $company->image) : 'https://ui-avatars.com/api/?name=' . $company->name }}">
+
+                            <div>
+                                <p class="font-semibold text-primary">
+                                    {{ $company->name }}
+                                </p>
+
+                                <p class="text-xs text-on-surface-variant">
+                                    ID: {{ $company->id }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <!-- INFO -->
+                        <div class="space-y-2 text-sm">
+
+                            <p class="text-on-surface-variant">
+                                <span class="text-secondary font-bold">Email:</span>
+                                {{ $company->email }}
+                            </p>
+
+                            <p class="text-on-surface-variant">
+                                <span class="text-secondary font-bold">Teléfono:</span>
+                                {{ $company->phone ?? 'Sin teléfono' }}
+                            </p>
+
+                            <p class="text-on-surface-variant">
+                                <span class="text-secondary font-bold">Dirección:</span>
+                                {{ $company->address ?? 'Sin dirección' }}
+                            </p>
+
+                            <div>
+                                <span
+                                    class="inline-block text-xs px-2 py-1 rounded-md
+                                        bg-secondary-fixed text-on-secondary-fixed">
+                                    {{ $company->state }}
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <!-- ACCIONES -->
+                        <div class="flex justify-end gap-4 mt-4 border-t pt-3">
+
+                            <a
+                                href="{{ route('companies.show', $company->id) }}"
+                                class="text-secondary text-sm">
+                                Ver
+                            </a>
+
+                            <a
+                                href="{{ route('companies.edit', $company->id) }}"
+                                class="text-primary text-sm">
+                                Editar
+                            </a>
+
+                            <button
+                                onclick="deletecompany({{ $company->id }})"
+                                class="text-error text-sm">
+                                Eliminar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    @empty
+                    <p class="text-center text-sm text-gray-400">
+                        No hay empresas registradas
+                    </p>
+                    @endforelse
+
+                </div>
+
+                <!-- PAGINACIÓN -->
+                <div class="px-6 py-4 border-t border-outline-variant/20">
+                    {!! $companies->withQueryString()->links() !!}
+                </div>
+
             </div>
+
         </div>
-    </div>
+
+    </main>
 </x-app-layout>
+
+<script>
+    function deletecompany(id) {
+        Swal.fire({
+            title: '¿Eliminar esta empresa?',
+            text: 'Esta acción no se puede deshacer',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ba1a1a',
+            cancelButtonColor: '#847467',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true,
+            background: '#fcf9f3',
+            color: '#1c1c19',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await fetch(`/companies/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    window.location.reload();
+
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo eliminar',
+                        icon: 'error',
+                        background: '#fcf9f3',
+                        color: '#1c1c19'
+                    });
+                }
+            }
+        });
+    }
+</script>

@@ -1,42 +1,124 @@
-<div class="space-y-6">
-    
-    <div>
-        <x-input-label for="name" :value="__('Name')"/>
-        <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $company?->name)" autocomplete="name" placeholder="Name"/>
-        <x-input-error class="mt-2" :messages="$errors->get('name')"/>
-    </div>
-    <div>
-        <x-input-label for="logo" :value="__('Logo')"/>
-        <x-text-input id="logo" name="logo" type="text" class="mt-1 block w-full" :value="old('logo', $company?->logo)" autocomplete="logo" placeholder="Logo"/>
-        <x-input-error class="mt-2" :messages="$errors->get('logo')"/>
-    </div>
-    <div>
-        <x-input-label for="email" :value="__('Email')"/>
-        <x-text-input id="email" name="email" type="text" class="mt-1 block w-full" :value="old('email', $company?->email)" autocomplete="email" placeholder="Email"/>
-        <x-input-error class="mt-2" :messages="$errors->get('email')"/>
-    </div>
-    <div>
-        <x-input-label for="address" :value="__('Address')"/>
-        <x-text-input id="address" name="address" type="text" class="mt-1 block w-full" :value="old('address', $company?->address)" autocomplete="address" placeholder="Address"/>
-        <x-input-error class="mt-2" :messages="$errors->get('address')"/>
-    </div>
-    <div>
-        <x-input-label for="phone" :value="__('Phone')"/>
-        <x-text-input id="phone" name="phone" type="text" class="mt-1 block w-full" :value="old('phone', $company?->phone)" autocomplete="phone" placeholder="Phone"/>
-        <x-input-error class="mt-2" :messages="$errors->get('phone')"/>
-    </div>
-    <div>
-        <x-input-label for="state" :value="__('State')"/>
-        <x-text-input id="state" name="state" type="text" class="mt-1 block w-full" :value="old('state', $company?->state)" autocomplete="state" placeholder="State"/>
-        <x-input-error class="mt-2" :messages="$errors->get('state')"/>
-    </div>
-    <div>
-        <x-input-label for="type_company_id" :value="__('Type Company Id')"/>
-        <x-text-input id="type_company_id" name="type_company_id" type="text" class="mt-1 block w-full" :value="old('type_company_id', $company?->type_company_id)" autocomplete="type_company_id" placeholder="Type Company Id"/>
-        <x-input-error class="mt-2" :messages="$errors->get('type_company_id')"/>
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <!-- FORM -->
+    <div class="lg:col-span-2 space-y-8">
+
+        <!-- CARD INFORMACIÓN BÁSICA -->
+        <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-8">
+
+            <div>
+                <h2 class="text-lg font-semibold text-primary mb-1">Información básica</h2>
+                <p class="text-sm text-on-surface-variant">Define los detalles principales de la empresa</p>
+            </div>
+
+            <x-form.field label="Nombre de la empresa" for="name">
+                <x-form.input id="name" name="name" type="text"
+                    :value="old('name', $company?->name)"
+                    placeholder="Ej. Salón Bella Vista"
+                    class="focus:ring-primary/10 focus:border-primary/40" />
+                <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            </x-form.field>
+
+            <x-form.field label="Correo electrónico" for="email">
+                <x-form.input id="email" name="email" type="email"
+                    :value="old('email', $company?->email)"
+                    placeholder="Ej. contacto@empresa.com"
+                    class="focus:ring-primary/10 focus:border-primary/40" />
+                <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            </x-form.field>
+
+        </div>
+
+        <!-- CARD CONFIGURACIÓN -->
+        <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+
+            <h2 class="text-lg font-semibold text-primary">Configuración</h2>
+
+            <div class="grid grid-cols-2 gap-6">
+
+                <x-form.field label="Teléfono" for="phone">
+                    <x-form.input id="phone" name="phone" type="text"
+                        :value="old('phone', $company?->phone)"
+                        placeholder="Ej. 3001234567"
+                        class="focus:ring-secondary/10 focus:border-secondary/40" />
+                    <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+                </x-form.field>
+
+                <x-form.field label="Dirección" for="address">
+                    <x-form.input id="address" name="address" type="text"
+                        :value="old('address', $company?->address)"
+                        placeholder="Ej. Calle 10 #5-23"
+                        class="focus:ring-secondary/10 focus:border-secondary/40" />
+                    <x-input-error class="mt-2" :messages="$errors->get('address')" />
+                </x-form.field>
+
+                <x-form.field label="Tipo de empresa" for="type_company_id">
+                    <x-form.input id="type_company_id" name="type_company_id" type="number"
+                        :value="old('type_company_id', $company?->type_company_id)"
+                        placeholder=""
+                        class="focus:ring-secondary/10 focus:border-secondary/40" />
+                    <x-input-error class="mt-2" :messages="$errors->get('type_company_id')" />
+                </x-form.field>
+
+            </div>
+
+        </div>
+
+        <!-- BOTONES -->
+        <div class="flex justify-end gap-4 pt-4">
+            <a href="{{ route('companies.index') }}"
+                class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-surface-container hover:bg-surface-container-high transition">
+                Cancelar
+            </a>
+            <button type="submit"
+                class="px-6 py-2.5 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition shadow-md hover:shadow-lg">
+                Guardar empresa
+            </button>
+        </div>
+
     </div>
 
-    <div class="flex items-center gap-4">
-        <x-primary-button>Submit</x-primary-button>
+    <!-- SIDEBAR -->
+    <div class="space-y-8">
+
+        <div class="bg-surface-container rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+            <h3 class="text-md font-semibold text-primary">Logo de la empresa</h3>
+            <x-form.input-file name="logo" id="logo" />
+            <img id="preview" src="{{ $company?->logo ? asset('storage/' . $company->logo) : '' }}"
+                class="{{ isset($company) && $company->logo ? '' : 'hidden' }} w-full h-40 object-cover rounded-lg border border-outline-variant/20">
+        </div>
+
+        <div class="bg-primary-container/10 rounded-xl p-6 border border-primary/10 space-y-3">
+            <h3 class="text-sm font-semibold text-primary">Recomendaciones</h3>
+            <ul class="text-sm text-on-surface-variant space-y-2">
+                <li>• Usa un logo de buena resolución</li>
+                <li>• El correo debe ser válido y activo</li>
+                <li>• Verifica la dirección antes de guardar</li>
+            </ul>
+        </div>
+
+        <div class="bg-tertiary-container/10 rounded-xl p-6 border border-tertiary/10">
+            <p class="text-sm text-tertiary font-medium">
+                La empresa será visible para los clientes al instante
+            </p>
+        </div>
+
     </div>
+
 </div>
+
+<script>
+    const input = document.getElementById('logo');
+    const preview = document.getElementById('preview');
+
+    input.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            preview.src = reader.result;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+</script>

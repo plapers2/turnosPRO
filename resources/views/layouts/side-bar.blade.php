@@ -24,7 +24,7 @@
         </x-sidebar-link> --}}
 
         @can('gestionar empresas')
-        <x-sidebar-link route="companies.index" pattern="companies.*" icon="service_toolbox">
+        <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
             Empresa
         </x-sidebar-link>
         @endcan

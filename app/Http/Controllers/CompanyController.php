@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use app\Models\TypeCompany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\CompanyRequest;
@@ -16,7 +17,7 @@ class CompanyController extends Controller
      */
     public function index(Request $request): View
     {
-        $companies = Company::paginate();
+        $companies = Company::paginate(10);
 
         return view('company.index', compact('companies'))
             ->with('i', ($request->input('page', 1) - 1) * $companies->perPage());
@@ -28,6 +29,7 @@ class CompanyController extends Controller
     public function create(): View
     {
         $company = new Company();
+        // $typeCompanies = TypeCompany::all();
 
         return view('company.create', compact('company'));
     }
@@ -37,7 +39,12 @@ class CompanyController extends Controller
      */
     public function store(CompanyRequest $request): RedirectResponse
     {
-        Company::create($request->validated());
+        $data = $request->validated();
+        if ($request->hasFile('logo')) {
+            $data['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
+        Company::create($data);
 
         return Redirect::route('companies.index')
             ->with('success', 'Company created successfully.');
@@ -59,6 +66,7 @@ class CompanyController extends Controller
     public function edit($id): View
     {
         $company = Company::find($id);
+        // $typeCompanies = TypeCompany::all();
 
         return view('company.edit', compact('company'));
     }
@@ -68,7 +76,13 @@ class CompanyController extends Controller
      */
     public function update(CompanyRequest $request, Company $company): RedirectResponse
     {
-        $company->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            $data['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
+        $company->update($data);
 
         return Redirect::route('companies.index')
             ->with('success', 'Company updated successfully');

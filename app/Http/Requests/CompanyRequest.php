@@ -23,11 +23,10 @@ class CompanyRequest extends FormRequest
     {
         return [
 			'name' => 'required|string',
-			'logo' => 'required|string',
+			'logo' => 'nullable|image|mimes:png,jpg,jpeg,gif|max:10240',
 			'email' => 'required|string',
 			'address' => 'required|string',
 			'phone' => 'required|string',
-			'state' => 'required',
 			'type_company_id' => 'required',
         ];
     }
