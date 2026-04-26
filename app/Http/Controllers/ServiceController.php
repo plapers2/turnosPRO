@@ -18,8 +18,15 @@ class ServiceController extends Controller
      */
     public function index(Request $request): View
     {
-        $services = Service::paginate();
+        $companyId = session('active_company_id');
 
+        $query = Service::query();
+
+        if ($companyId) {
+            $query->where('company_id', $companyId);
+        }
+
+        $services = $query->paginate(10);
 
         return view('services.index', compact('services'))
             ->with('i', ($request->input('page', 1) - 1) * $services->perPage());
@@ -31,9 +38,8 @@ class ServiceController extends Controller
     public function create(): View
     {
         $service = new Service();
-        $companies = Company::all();
 
-        return view('services.create', compact('service', 'companies'));
+        return view('services.create', compact('service'));
     }
 
     /**
@@ -41,6 +47,8 @@ class ServiceController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $companyId = session('active_company_id');
+
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
@@ -61,7 +69,7 @@ class ServiceController extends Controller
             'duration' => $data['duracion'],
             'price' => $data['precio'],
             'image' => $data['imagen'],
-            'company_id' => $request->company_id
+            'company_id' => $companyId
         ]);
 
         return redirect()->route('services.index')
@@ -94,6 +102,7 @@ class ServiceController extends Controller
      */
     public function update(Request $request, Service $service): RedirectResponse
     {
+        $companyId = session("active_company_id");
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
@@ -121,7 +130,7 @@ class ServiceController extends Controller
             'duration' => $data['duracion'],
             'price' => $data['precio'],
             'image' => $data['imagen'] ?? $service->image,
-            'company_id' => $request->company_id
+            'company_id' => $companyId
         ]);
 
         return Redirect::route('services.index')

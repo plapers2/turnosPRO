@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/services', ServiceController::class);
     Route::resource('/users', UserController::class);
+    Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
     Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
 });

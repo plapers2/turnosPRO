@@ -20,7 +20,9 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $users = User::where('id', '!=', auth()->id())->paginate();
+        $users = User::withTrashed()
+            ->where('id', '!=', auth()->id())
+            ->paginate(10);
 
         return view('users.index', compact('users'))
             ->with('i', ($request->input('page', 1) - 1) * $users->perPage());
@@ -151,23 +153,28 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $user)
     {
-        // eliminar imagen
-        if ($user->image && Storage::disk('public')->exists($user->image)) {
-            Storage::disk('public')->delete($user->image);
-        }
-
+        // Solo hace soft delete (NO borra imagen)
         $user->delete();
 
         // Si es AJAX (fetch)
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Usuario eliminado correctamente'
+                'message' => 'Usuario enviado a la papelera'
             ]);
         }
 
         // Si es formulario normal
-        return redirect()->route('services.index')
-            ->with('success', 'Servicio eliminado correctamente');
+        return redirect()->route('users.index')
+            ->with('success', 'Usuario enviado a la papelera');
+    }
+
+    public function restore($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore();
+
+        return redirect()->route('users.index')
+            ->with('success', 'Usuario restaurado correctamente');
     }
 }

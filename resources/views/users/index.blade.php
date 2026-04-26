@@ -73,8 +73,8 @@
                                     <td class="px-6 py-4">
                                         <span
                                             class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold
-                                           bg-secondary-fixed text-on-secondary-fixed">
-                                            {{ $user->state }}
+                                            {{ $user->deleted_at ? 'bg-error/20 text-on-error-container' : 'bg-indigo-400/20 text-indigo-700' }}">
+                                            {{ $user->deleted_at ? 'Inactivo' : 'Activo' }}
                                         </span>
                                     </td>
 
@@ -111,19 +111,28 @@
 
                                     <!-- ACCIONES -->
                                     <td class="px-6 py-4 text-right">
-                                        <div class="flex justify-end gap-3">
-
-                                            <a href="{{ route('users.edit', $user->id) }}"
-                                                class="text-primary hover:text-primary-container transition">
-                                                Editar
-                                            </a>
-
-                                            <button onclick="deleteUser({{ $user->id }})"
-                                                class="text-error hover:text-on-error-container transition">
-                                                Eliminar
+                                        @if ($user->trashed())
+                                            <!-- RESTAURAR -->
+                                            <button onclick="restoreUser(this, {{ $user->id }})"
+                                                class="text-green-600 hover:text-green-800 transition">
+                                                Restaurar
                                             </button>
+                                        @else
+                                            <div class="flex justify-end gap-3">
 
-                                        </div>
+                                                <a href="{{ route('users.edit', $user->id) }}"
+                                                    class="text-primary hover:text-primary-container transition">
+                                                    Editar
+                                                </a>
+
+                                                <button onclick="deleteUser({{ $user->id }})"
+                                                    class="text-error hover:text-on-error-container transition">
+                                                    Eliminar
+                                                </button>
+
+                                            </div>
+                                        @endif
+
                                     </td>
 
                                 </tr>
@@ -193,8 +202,9 @@
                                 <!-- ESTADO -->
                                 <div>
                                     <span
-                                        class="inline-block text-xs px-2 py-1 rounded-md bg-secondary-fixed text-on-secondary-fixed">
-                                        {{ $user->state }}
+                                        class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold
+                                            {{ $user->deleted_at ? 'bg-error/20 text-on-error-container' : 'bg-indigo-400/20 text-indigo-700' }}">
+                                        {{ $user->deleted_at ? 'Inactivo' : 'Activo' }}
                                     </span>
                                 </div>
 
@@ -220,13 +230,25 @@
 
                             <!-- ACCIONES -->
                             <div class="flex justify-end gap-4 mt-4 border-t pt-3">
-                                <a href="{{ route('users.edit', $user->id) }}" class="text-primary text-sm">
-                                    Editar
-                                </a>
+                                @if ($user->trashed())
+                                    <!-- RESTAURAR -->
+                                    <button onclick="restoreUser({{ $user->id }})"
+                                        class="text-green-600 hover:text-green-800 transition">
+                                        Restaurar
+                                    </button>
+                                @else
+                                    <!-- EDITAR -->
+                                    <a href="{{ route('users.edit', $user->id) }}"
+                                        class="text-primary hover:text-primary-container transition">
+                                        Editar
+                                    </a>
 
-                                <button onclick="deleteUser({{ $user->id }})" class="text-error text-sm">
-                                    Eliminar
-                                </button>
+                                    <!-- SOFT DELETE -->
+                                    <button onclick="deleteUser({{ $user->id }})"
+                                        class="text-error hover:text-on-error-container transition">
+                                        Eliminar
+                                    </button>
+                                @endif
                             </div>
 
                         </div>
@@ -256,6 +278,36 @@
 
 
 <script>
+    async function restoreUser(button, id) {
+
+        const original = button.innerHTML;
+
+        button.innerHTML = `
+        <span class="animate-spin inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full"></span>
+    `;
+        button.disabled = true;
+
+        try {
+            const response = await fetch(`/users/${id}/restore`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                throw new Error();
+            }
+
+        } catch (error) {
+            button.innerHTML = original;
+            button.disabled = false;
+        }
+    }
+
     function deleteUser(id) {
 
         Swal.fire({
@@ -307,7 +359,7 @@
                 } catch (error) {
                     Swal.fire({
                         title: 'Error',
-                        text: 'No se pudo eliminar' + error,
+                        text: 'No se pudo eliminar: ' + error,
                         icon: 'error',
                         background: '#fcf9f3',
                         color: '#1c1c19'

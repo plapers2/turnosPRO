@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('image');
             $table->enum("state", ["Active", "Inactive"])->default("Active");
+            $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
         });
