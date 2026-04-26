@@ -22,7 +22,8 @@ class UserController extends Controller
     {
         $users = User::withTrashed()
             ->where('id', '!=', auth()->id())
-            ->paginate(10);
+            ->orderByRaw('deleted_at IS NOT NULL')
+            ->paginate();
 
         return view('users.index', compact('users'))
             ->with('i', ($request->input('page', 1) - 1) * $users->perPage());

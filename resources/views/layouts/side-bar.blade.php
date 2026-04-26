@@ -24,27 +24,33 @@
         </x-sidebar-link> --}}
 
         @can('gestionar empresas')
-        <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
-            Empresa
-        </x-sidebar-link>
+            <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
+                Empresa
+            </x-sidebar-link>
         @endcan
 
         @can('gestionar empresas')
-        <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="business">
-            Tipos de Empresa
+            <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="business">
+                Tipos de Empresa
+            </x-sidebar-link>
+        @endcan
+
+        @can('gestionar empresas')
+            <x-sidebar-link route="opening-hours.index" pattern="opening-hours.*" icon="calendar_month">
+            Horarios de atención
         </x-sidebar-link>
         @endcan
 
         @can('gestionar servicios')
-        <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
-            Servicios
-        </x-sidebar-link>
+            <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
+                Servicios
+            </x-sidebar-link>
         @endcan
 
         @can('gestionar usuarios')
-        <x-sidebar-link route="users.index" pattern="users.*" icon="group">
-            Profesionales
-        </x-sidebar-link>
+            <x-sidebar-link route="users.index" pattern="users.*" icon="group">
+                Profesionales
+            </x-sidebar-link>
         @endcan
 
 

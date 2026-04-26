@@ -5,7 +5,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\TypeCompanyController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\CompanySelectionController;
-
+use App\Http\Controllers\OpeningHourController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
@@ -25,16 +25,25 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    // Servicios
     Route::resource('/services', ServiceController::class);
     Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore');
 
+    // Usuarios
     Route::resource('/users', UserController::class);
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
-    
+
+    // Empresas
     Route::resource('/companies', CompanyController::class);
+
+    // Tipos de empresas
     Route::resource('/type-companies', TypeCompanyController::class);
+
+    // Seleccionar empresa
     Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
     Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
+
+    Route::resource('/opening-hours', OpeningHourController::class);
 });
 
 require __DIR__ . '/auth.php';
