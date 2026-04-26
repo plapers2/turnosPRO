@@ -2,7 +2,7 @@
     <main class="flex-1 flex flex-col h-full overflow-y-auto bg-surface">
 
         <!-- HEADER -->
-        <x-form.header icono="schedule" titulo="Nuevo horario" subtitulo="Configuración de atención" />
+        <x-form.header icono="arrow_back" titulo="Nuevo horario" ruta="opening-hours" subtitulo="Configuración de atención" />
 
         <!-- FORM -->
         <div class="px-8 pb-20">

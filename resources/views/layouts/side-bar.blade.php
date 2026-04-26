@@ -30,7 +30,7 @@
         @endcan
 
         @can('gestionar empresas')
-            <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="business">
+            <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="add_business">
                 Tipos de Empresa
             </x-sidebar-link>
         @endcan

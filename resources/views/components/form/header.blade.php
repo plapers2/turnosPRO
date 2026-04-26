@@ -1,8 +1,8 @@
-@props(['icono', 'titulo', 'subtitulo'])
+@props(['icono', 'titulo', 'subtitulo', 'ruta'])
 <header class="px-8 mt-10 mb-6 flex items-center justify-between">
 
     <div class="flex items-center gap-4">
-        <a href="{{ route('users.index') }}"
+        <a href="{{ route($ruta . '.index') }}"
             class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition">
             <span class="material-symbols-outlined text-[18px]">{{ $icono }}</span>
             Volver
