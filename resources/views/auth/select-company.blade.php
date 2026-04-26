@@ -8,20 +8,20 @@
         <form method="POST" action="{{ route('company.select.store') }}">
             @csrf
 
-            <select
-                name="company_id"
-                class="w-full border rounded p-2 mb-2"
-                required>
-                <option value="">
-                    Selecciona una empresa
-                </option>
+            <div class="mb-5">
+                <x-form.select id="company_id" name="company_id" required>
+                    <option value="">
+                        Selecciona una empresa
+                    </option>
 
-                @foreach($companies as $company)
-                <option value="{{ $company->id }}">
-                    {{ $company->name }}
-                </option>
-                @endforeach
-            </select>
+                    @foreach ($companies as $company)
+                        <option value="{{ $company->id }}">
+                            {{ $company->name }}
+                        </option>
+                    @endforeach
+                </x-form.select>
+            </div>
+
             <x-primary-button>
                 {{ __('Continuar') }}
             </x-primary-button>

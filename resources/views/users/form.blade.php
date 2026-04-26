@@ -102,7 +102,8 @@
 
         <x-form.input-file name="archivo" id="archivo" />
 
-        <img id="preview" class="hidden w-full h-40 object-cover rounded-lg border border-outline-variant/20">
+        <img id="preview" src="{{ $user->image ? asset('storage/' . $user->image) : '' }}"
+            class="{{ isset($user) ? '' : 'hidden' }} w-full h-40 object-cover rounded-lg border border-outline-variant/20">
     </div>
 
     <!-- INFO -->

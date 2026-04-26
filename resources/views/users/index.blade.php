@@ -186,7 +186,8 @@
                                 </p>
 
                                 <p class="text-xs text-on-surface-variant">
-                                    <span class="text-secondary font-bold">Telefono:</span> {{ $user->phone ?? 'Sin teléfono' }}
+                                    <span class="text-secondary font-bold">Telefono:</span>
+                                    {{ $user->phone ?? 'Sin teléfono' }}
                                 </p>
 
                                 <!-- ESTADO -->
@@ -286,6 +287,23 @@
                             'Accept': 'application/json'
                         }
                     });
+
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Eliminado',
+                            text: 'El usuario fue eliminado correctamente',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            background: '#fcf9f3',
+                            color: '#1c1c19'
+                        }).then(() => {
+                            location.reload();
+                        })
+
+                    } else {
+                        throw new Error();
+                    }
                 } catch (error) {
                     Swal.fire({
                         title: 'Error',
