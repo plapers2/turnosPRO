@@ -89,7 +89,7 @@
                                     <span
                                         class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold
                                             bg-blue-100 text-blue-700">
-                                        Tipo #{{ $company->type_company_id }}
+                                        {{ $company->typeCompany->name }}
                                     </span>
                                 </td>
 
