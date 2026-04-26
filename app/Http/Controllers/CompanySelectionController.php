@@ -11,8 +11,17 @@ class CompanySelectionController extends Controller
         $user = auth()->user();
 
         $companies = $user->companies;
-
-        return view('auth.select-company', compact('companies'));
+        if ($companies->count() > 1) {
+            return view('auth.select-company', compact('companies'));
+        }
+        if ($companies->count() === 1) {
+            $company = $companies->first();
+            session([
+                'active_company_id' => $company->company_id
+            ]);
+            return redirect()->route('dashboard');
+        }
+        return abort(403, 'No tienes empresas asignadas.');
     }
 
     public function store(Request $request)
