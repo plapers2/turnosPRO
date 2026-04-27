@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\OpeningHour;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,10 +35,15 @@ class UserController extends Controller
      */
     public function create(): View
     {
+        $companyId = session('active_company_id');
+
         $user = new User();
         $roles = Role::all();
+        $horariosEmpresa = OpeningHour::where("company_id", $companyId)->where('deleted_at', true)
+            ->get()
+            ->keyBy('day_of_week');
 
-        return view('users.create', compact('user', 'roles'));
+        return view('users.create', compact('user', 'roles', 'horariosEmpresa'));
     }
 
     /**

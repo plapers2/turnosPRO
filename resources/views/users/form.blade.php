@@ -70,6 +70,25 @@
         </div>
     @endif
 
+    {{-- CARD DISPONIBILIDAD --}}
+    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+
+        <div>
+            <h2 class="text-lg font-semibold text-primary mb-1">
+                Disponibilidad semanal
+            </h2>
+            <p class="text-sm text-on-surface-variant">
+                Selecciona los días activos y define el horario de atención
+            </p>
+        </div>
+
+
+        @include('components.form.disponibilidad', [
+            'disponibilidades' => $user->disponibilidades ?? collect(),
+            'horariosEmpresa' => $horariosEmpresa,
+        ])
+
+    </div>
 
     <!-- BOTONES -->
     <div class="flex justify-end gap-4 pt-4">

@@ -31,7 +31,7 @@ class OpeningHour extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['day_of_week', 'start_time', 'end_time', 'duration', 'company_id'];
+    protected $fillable = ['day_of_week', 'start_time', 'end_time', 'company_id'];
 
     public function companies()
     {
