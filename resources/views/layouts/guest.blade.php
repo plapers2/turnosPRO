@@ -43,15 +43,6 @@
 
     </div>
 
-    <!-- Secondary Action Footer -->
-    <div class="flex flex-col items-center gap-8 mt-5">
-        <p class="text-secondary text-sm font-medium">
-            ¿No tienes una cuenta?
-            <a class="text-primary font-bold hover:underline decoration-primary/30 underline-offset-4"
-                href="{{ route('login') }}">Contacta a tú administrador</a>
-        </p>
-    </div>
-
 </body>
 
 </html>

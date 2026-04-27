@@ -120,6 +120,11 @@
                                         @else
                                             <div class="flex justify-end gap-3">
 
+                                                <a href="{{ route('users.show', $user->id) }}"
+                                                    class="text-blue-700 hover:text-blue-800 transition">
+                                                    Ver
+                                                </a>
+
                                                 <a href="{{ route('users.edit', $user->id) }}"
                                                     class="text-primary hover:text-primary-container transition">
                                                     Editar
@@ -237,6 +242,12 @@
                                         Restaurar
                                     </button>
                                 @else
+                                    {{-- VER DETALLE --}}
+                                    <a href="{{ route('users.show', $user->id) }}"
+                                        class="text-blue-700 hover:text-blue-800 transition">
+                                        Ver
+                                    </a>
+
                                     <!-- EDITAR -->
                                     <a href="{{ route('users.edit', $user->id) }}"
                                         class="text-primary hover:text-primary-container transition">
@@ -312,7 +323,7 @@
 
         Swal.fire({
             title: '¿Eliminar este usuario?',
-            text: 'Esta acción no se puede deshacer',
+            text: 'Podra revertir este acción después',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ba1a1a', // color error
