@@ -312,7 +312,7 @@
 
         Swal.fire({
             title: '¿Eliminar este usuario?',
-            text: 'Esta acción no se puede deshacer',
+            text: 'Podra revertir este acción después',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ba1a1a', // color error

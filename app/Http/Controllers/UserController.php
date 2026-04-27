@@ -139,10 +139,14 @@ class UserController extends Controller
      */
     public function edit($id): View
     {
+        $companyId = session('active_company_id');
         $user = User::find($id);
         $roles = Role::all();
+        $horariosEmpresa = OpeningHour::where("company_id", $companyId)->where('deleted_at', true)
+            ->get()
+            ->keyBy('day_of_week');
 
-        return view('users.edit', compact('user', 'roles'));
+        return view('users.edit', compact('user', 'roles', 'horariosEmpresa'));
     }
 
     /**
@@ -150,37 +154,66 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-
+        // Validación base del usuario
         $data = $request->validate([
-            'nombre' => "required|string|max:255",
-            'email' => [
+            'nombre'   => 'required|string|max:255',
+            'email'    => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id, 'id'),
             ],
-            'telefono' => "required|string|min:8|max:20",
+            'telefono' => 'required|string|min:8|max:20',
             'password' => ['nullable', Password::min(8), 'confirmed'],
-            'archivo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'role' => 'required|exists:roles,name'
+            'archivo'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'role'     => 'required|exists:roles,name',
         ]);
+
+        // Validación dinámica de disponibilidad
+        $slots     = $request->input('disponibilidad', []);
+        $companyId = session('active_company_id');
+
+        // 1. Asegúrate que companyId no sea null
+        abort_if(!$companyId, 403, 'No hay empresa activa en sesión.');
+
+        // 2. Valida los slots con dia_semana primero
+        $slotRules = [];
+        foreach ($slots as $i => $slot) {
+            $dia = $slot['dia_semana'] ?? '';
+
+            $slotRules["disponibilidad.{$i}.dia_semana"] = [
+                'required',
+                'string',
+                'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            ];
+            $slotRules["disponibilidad.{$i}.hora_inicio"] = [
+                'required',
+                'date_format:H:i',
+                new DentroHorarioEmpresa($dia, $companyId),
+            ];
+            $slotRules["disponibilidad.{$i}.hora_fin"] = [
+                'required',
+                'date_format:H:i',
+                "after:disponibilidad.{$i}.hora_inicio",
+                new DentroHorarioEmpresa($dia, $companyId),
+            ];
+        }
+
+        if ($slotRules) {
+            $request->validate($slotRules);
+        }
 
         // Manejo de imagen
         if ($request->hasFile('archivo')) {
-
-            // eliminar anterior
             if ($user->image) {
                 Storage::disk('public')->delete($user->image);
             }
-
-            // guardar nueva
             $data['archivo'] = $request->file('archivo')->store('users', 'public');
         }
 
-
-
+        // Actualizar usuario
         $user->update([
-            'name' => $data['nombre'],
+            'name'  => $data['nombre'],
             'email' => $data['email'],
             'phone' => $data['telefono'],
             'image' => $data['archivo'] ?? $user->image,
@@ -191,8 +224,18 @@ class UserController extends Controller
             $user->save();
         }
 
-
         $user->syncRoles([$data['role']]);
+
+        // Sincronizar disponibilidades: eliminar las anteriores y recrear
+        $user->disponibilidades()->forceDelete();
+
+        foreach ($slots as $slot) {
+            $user->disponibilidades()->create([
+                'day_of_week' => $slot['dia_semana'],
+                'start_time'  => $slot['hora_inicio'],
+                'end_time'    => $slot['hora_fin'],
+            ]);
+        }
 
         return redirect()->route('users.index')
             ->with('success', 'Usuario actualizado correctamente.');
@@ -201,6 +244,7 @@ class UserController extends Controller
     public function destroy(Request $request, User $user)
     {
         // Solo hace soft delete (NO borra imagen)
+        $user->disponibilidades()->delete();
         $user->delete();
 
         // Si es AJAX (fetch)
@@ -220,6 +264,7 @@ class UserController extends Controller
     {
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
+        $user->disponibilidades()->onlyTrashed()->restore();
 
         return redirect()->route('users.index')
             ->with('success', 'Usuario restaurado correctamente');
