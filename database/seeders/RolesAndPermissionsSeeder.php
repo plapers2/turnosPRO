@@ -33,5 +33,9 @@ class RolesAndPermissionsSeeder extends Seeder
         $employee->givePermissionTo([
             'gestionar citas',
         ]);
+
+        $costumer->givePermissionTo([
+            'gestionar servicios'
+        ]);
     }
 }
