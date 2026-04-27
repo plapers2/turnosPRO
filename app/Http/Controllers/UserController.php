@@ -14,6 +14,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Storage;
 use App\Rules\DentroHorarioEmpresa;
+use App\Rules\SinSolapamientoEnSlots;
 
 class UserController extends Controller
 {
@@ -62,33 +63,31 @@ class UserController extends Controller
             'role'     => 'required|exists:roles,name',
         ]);
 
-        // Validación dinámica de disponibilidad
-        $slots = $request->input('disponibilidad', []);
+        $slots     = $request->input('disponibilidad', []);
         $companyId = session('active_company_id');
 
-        // 1. Asegúrate que companyId no sea null
         abort_if(!$companyId, 403, 'No hay empresa activa en sesión.');
 
-        // 2. Valida los slots con dia_semana primero
         $slotRules = [];
         foreach ($slots as $i => $slot) {
-            $dia = $slot['dia_semana'] ?? '';
+            $dia     = $slot['dia_semana'] ?? '';
 
             $slotRules["disponibilidad.{$i}.dia_semana"] = [
                 'required',
                 'string',
-                'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday', // valida el valor
+                'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
             ];
             $slotRules["disponibilidad.{$i}.hora_inicio"] = [
                 'required',
                 'date_format:H:i',
-                new DentroHorarioEmpresa($dia, $companyId, validarDia: true),  // muestra error de día
+                new DentroHorarioEmpresa($dia, $companyId, validarDia: true),
+                new SinSolapamientoEnSlots($dia, $i, $slots),
             ];
             $slotRules["disponibilidad.{$i}.hora_fin"] = [
                 'required',
                 'date_format:H:i',
                 "after:disponibilidad.{$i}.hora_inicio",
-                new DentroHorarioEmpresa($dia, $companyId, validarDia: false), // solo valida rango, sin repetir el mensaje
+                new DentroHorarioEmpresa($dia, $companyId, validarDia: false),
             ];
         }
 
@@ -96,10 +95,8 @@ class UserController extends Controller
             $request->validate($slotRules);
         }
 
-        // Imagen
         $imagePath = $request->file('archivo')->store('users', 'public');
 
-        // Crear usuario
         $user = User::create([
             'name'     => $data['nombre'],
             'email'    => $data['email'],
@@ -110,13 +107,11 @@ class UserController extends Controller
 
         $user->assignRole($data['role']);
 
-        // Guardar disponibilidades (múltiples turnos por día)
         foreach ($slots as $slot) {
             $user->disponibilidades()->create([
                 'day_of_week' => $slot['dia_semana'],
                 'start_time'  => $slot['hora_inicio'],
                 'end_time'    => $slot['hora_fin'],
-                'user_id'     => $user->id, // ya lo toma del hasMany, pero explícito no daña
             ]);
         }
 
@@ -154,7 +149,6 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Validación base del usuario
         $data = $request->validate([
             'nombre'   => 'required|string|max:255',
             'email'    => [
@@ -169,14 +163,11 @@ class UserController extends Controller
             'role'     => 'required|exists:roles,name',
         ]);
 
-        // Validación dinámica de disponibilidad
         $slots     = $request->input('disponibilidad', []);
         $companyId = session('active_company_id');
 
-        // 1. Asegúrate que companyId no sea null
         abort_if(!$companyId, 403, 'No hay empresa activa en sesión.');
 
-        // 2. Valida los slots con dia_semana primero
         $slotRules = [];
         foreach ($slots as $i => $slot) {
             $dia = $slot['dia_semana'] ?? '';
@@ -189,13 +180,14 @@ class UserController extends Controller
             $slotRules["disponibilidad.{$i}.hora_inicio"] = [
                 'required',
                 'date_format:H:i',
-                new DentroHorarioEmpresa($dia, $companyId, validarDia: true),  // muestra error de día
+                new DentroHorarioEmpresa($dia, $companyId, validarDia: true),
+                new SinSolapamientoEnSlots($dia, $i, $slots),  // ← mismo que en store
             ];
             $slotRules["disponibilidad.{$i}.hora_fin"] = [
                 'required',
                 'date_format:H:i',
                 "after:disponibilidad.{$i}.hora_inicio",
-                new DentroHorarioEmpresa($dia, $companyId, validarDia: false), // solo valida rango, sin repetir el mensaje
+                new DentroHorarioEmpresa($dia, $companyId, validarDia: false),
             ];
         }
 
@@ -211,7 +203,6 @@ class UserController extends Controller
             $data['archivo'] = $request->file('archivo')->store('users', 'public');
         }
 
-        // Actualizar usuario
         $user->update([
             'name'  => $data['nombre'],
             'email' => $data['email'],
@@ -226,9 +217,7 @@ class UserController extends Controller
 
         $user->syncRoles([$data['role']]);
 
-        // Sincronizar disponibilidades: eliminar las anteriores y recrear
         $user->disponibilidades()->forceDelete();
-
         foreach ($slots as $slot) {
             $user->disponibilidades()->create([
                 'day_of_week' => $slot['dia_semana'],
