@@ -51,11 +51,16 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'deleted_at' => 'datetime', 
+            'deleted_at' => 'datetime',
         ];
     }
     public function companies()
     {
         return $this->belongsToMany(Company::class);
+    }
+
+    public function disponibilidades()
+    {
+        return $this->hasMany(ProfessionalAvailability::class, 'user_id');
     }
 }

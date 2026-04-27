@@ -34,10 +34,12 @@
         <x-form.field label="Rol del Usuario" for="roles_id">
             <x-form.select name="role" id="role">
                 @forelse ($roles as $role)
-                    <option {{ $user->roles->contains('id', $role->id) ? 'selected' : '' }} value="{{ $role->name }}">
-                        {{ ucfirst($role->name) }}</option>
+                    <option {{ old('role', $user->roles->first()?->name) === $role->name ? 'selected' : '' }}
+                        value="{{ $role->name }}">
+                        {{ ucfirst($role->name) }}
+                    </option>
                 @empty
-                    <option value="">No hay ningun rol en el sistema</option>
+                    <option value="">No hay ningún rol en el sistema</option>
                 @endforelse
             </x-form.select>
 
@@ -71,23 +73,49 @@
     @endif
 
     {{-- CARD DISPONIBILIDAD --}}
-    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+    {{-- CARD DISPONIBILIDAD — error general si no se seleccionó ningún día --}}
+    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6" x-data
+        x-cloak>
 
         <div>
-            <h2 class="text-lg font-semibold text-primary mb-1">
-                Disponibilidad semanal
-            </h2>
+            <h2 class="text-lg font-semibold text-primary mb-1">Disponibilidad semanal</h2>
             <p class="text-sm text-on-surface-variant">
                 Selecciona los días activos y define el horario de atención
             </p>
         </div>
 
+        @if (
+            $errors->hasAny([
+                'disponibilidad',
+                'disponibilidad.*',
+                'disponibilidad.*.hora_inicio',
+                'disponibilidad.*.hora_fin',
+                'disponibilidad.*.dia_semana',
+            ]))
+            <div class="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                <svg class="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <p class="text-sm font-medium text-red-700">Revisa los horarios</p>
+                    @foreach ($errors->get('disponibilidad.*') as $fieldErrors)
+                        @foreach ($fieldErrors as $msg)
+                            <p class="text-xs text-red-600 mt-0.5">{{ $msg }}</p>
+                        @endforeach
+                    @endforeach
+                    @error('disponibilidad')
+                        <p class="text-xs text-red-600 mt-0.5">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        @endif
 
         @include('components.form.disponibilidad', [
             'disponibilidades' => $user->disponibilidades ?? collect(),
             'horariosEmpresa' => $horariosEmpresa,
         ])
-
     </div>
 
     <!-- BOTONES -->

@@ -13,6 +13,7 @@ use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Storage;
+use App\Rules\DentroHorarioEmpresa;
 
 class UserController extends Controller
 {
@@ -51,34 +52,73 @@ class UserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validación base del usuario
         $data = $request->validate([
-            'nombre' => "required|string|max:255",
-            'email' => "required|string|max:255|unique:users,email",
-            'telefono' => "required|string|min:8|max:20",
+            'nombre'   => 'required|string|max:255',
+            'email'    => 'required|string|max:255|unique:users,email',
+            'telefono' => 'required|string|min:8|max:20',
             'password' => ['required', Password::min(8), 'confirmed'],
-            'archivo' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'role' => 'required|exists:roles,name'
+            'archivo'  => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'role'     => 'required|exists:roles,name',
         ]);
 
+        // Validación dinámica de disponibilidad
+        $slots = $request->input('disponibilidad', []);
+        $companyId = session('active_company_id');
 
-        // Subida de imagenes
-        if ($request->hasFile('archivo')) {
-            $data['archivo'] = $request->file('archivo')->store('users', 'public');
+        // 1. Asegúrate que companyId no sea null
+        abort_if(!$companyId, 403, 'No hay empresa activa en sesión.');
+
+        // 2. Valida los slots con dia_semana primero
+        $slotRules = [];
+        foreach ($slots as $i => $slot) {
+            $dia = $slot['dia_semana'] ?? '';
+
+            $slotRules["disponibilidad.{$i}.dia_semana"] = [
+                'required',
+                'string',
+                'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday', // ← valida el valor
+            ];
+            $slotRules["disponibilidad.{$i}.hora_inicio"] = [
+                'required',
+                'date_format:H:i',
+                new DentroHorarioEmpresa($dia, $companyId),
+            ];
+            $slotRules["disponibilidad.{$i}.hora_fin"] = [
+                'required',
+                'date_format:H:i',
+                "after:disponibilidad.{$i}.hora_inicio",
+                new DentroHorarioEmpresa($dia, $companyId),
+            ];
         }
 
-        // Hashear password
-        $data['password'] = Hash::make($data['password']);
+        if ($slotRules) {
+            $request->validate($slotRules);
+        }
 
+        // Imagen
+        $imagePath = $request->file('archivo')->store('users', 'public');
+
+        // Crear usuario
         $user = User::create([
-            'name' => $data['nombre'],
-            'email' => $data['email'],
-            'phone' => $data['telefono'],
-            'password' => $data["password"],
-            'image' => $data['archivo']
+            'name'     => $data['nombre'],
+            'email'    => $data['email'],
+            'phone'    => $data['telefono'],
+            'password' => Hash::make($data['password']),
+            'image'    => $imagePath,
         ]);
 
-        // Asignar el rol al usuario
         $user->assignRole($data['role']);
+
+        // Guardar disponibilidades (múltiples turnos por día)
+        foreach ($slots as $slot) {
+            $user->disponibilidades()->create([
+                'day_of_week' => $slot['dia_semana'],
+                'start_time'  => $slot['hora_inicio'],
+                'end_time'    => $slot['hora_fin'],
+                'user_id'     => $user->id, // ya lo toma del hasMany, pero explícito no daña
+            ]);
+        }
 
         return Redirect::route('users.index')
             ->with('success', 'Usuario creado exitosamente.');
