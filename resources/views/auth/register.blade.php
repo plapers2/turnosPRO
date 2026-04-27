@@ -15,6 +15,19 @@
             </div>
         </div>
 
+        <!-- Telefono -->
+        <div class="mt-4 flex flex-col gap-2">
+            <x-input-label for="phone" :value="__('Telefono')" />
+            <div class="relative group">
+                <span
+                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors"
+                    data-icon="phone">phone</span>
+                <x-text-input placeholder="123 456 7890" id="phone" class="block mt-1 w-full" type="text"
+                    name="phone" :value="old('phone')" required autofocus autocomplete="phone" />
+                <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+            </div>
+        </div>
+
         <!-- Correo -->
         <div class="mt-4 flex flex-col gap-2">
             <x-input-label for="email" :value="__('Correo electrónico')" />
