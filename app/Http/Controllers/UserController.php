@@ -77,18 +77,18 @@ class UserController extends Controller
             $slotRules["disponibilidad.{$i}.dia_semana"] = [
                 'required',
                 'string',
-                'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday', // ← valida el valor
+                'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday', // valida el valor
             ];
             $slotRules["disponibilidad.{$i}.hora_inicio"] = [
                 'required',
                 'date_format:H:i',
-                new DentroHorarioEmpresa($dia, $companyId),
+                new DentroHorarioEmpresa($dia, $companyId, validarDia: true),  // muestra error de día
             ];
             $slotRules["disponibilidad.{$i}.hora_fin"] = [
                 'required',
                 'date_format:H:i',
                 "after:disponibilidad.{$i}.hora_inicio",
-                new DentroHorarioEmpresa($dia, $companyId),
+                new DentroHorarioEmpresa($dia, $companyId, validarDia: false), // solo valida rango, sin repetir el mensaje
             ];
         }
 
@@ -189,13 +189,13 @@ class UserController extends Controller
             $slotRules["disponibilidad.{$i}.hora_inicio"] = [
                 'required',
                 'date_format:H:i',
-                new DentroHorarioEmpresa($dia, $companyId),
+                new DentroHorarioEmpresa($dia, $companyId, validarDia: true),  // muestra error de día
             ];
             $slotRules["disponibilidad.{$i}.hora_fin"] = [
                 'required',
                 'date_format:H:i',
                 "after:disponibilidad.{$i}.hora_inicio",
-                new DentroHorarioEmpresa($dia, $companyId),
+                new DentroHorarioEmpresa($dia, $companyId, validarDia: false), // solo valida rango, sin repetir el mensaje
             ];
         }
 

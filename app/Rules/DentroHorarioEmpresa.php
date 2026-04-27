@@ -12,9 +12,9 @@ class DentroHorarioEmpresa implements ValidationRule
 {
     public function __construct(
         private string $diaKey,
-        private int    $companyId
+        private int    $companyId,
+        private bool   $validarDia = true  // ← nuevo parámetro
     ) {}
-
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -28,16 +28,21 @@ class DentroHorarioEmpresa implements ValidationRule
             ->first();
 
         if (!$horario) {
-            $this->diaKey === "monday" ? $this->diaKey = "lunes" : $this->diaKey;
-            $this->diaKey === "tuesday" ? $this->diaKey = "Martes" : $this->diaKey;
-            $this->diaKey === "wednesday" ? $this->diaKey = "miercoles" : $this->diaKey;
-            $this->diaKey === "thursday" ? $this->diaKey = "jueves" : $this->diaKey;
-            $this->diaKey === "friday" ? $this->diaKey = "viernes" : $this->diaKey;
-            $this->diaKey === "saturday" ? $this->diaKey = "Sabado" : $this->diaKey;
-            $this->diaKey === "sunday" ? $this->diaKey = "Domingo" : $this->diaKey;
-
-            $fail("La empresa no atiende los {$this->diaKey}.");
-            return;
+            // Solo mostrar este error en hora_inicio
+            if ($this->validarDia) {
+                $traducciones = [
+                    'monday'    => 'lunes',
+                    'tuesday'   => 'martes',
+                    'wednesday' => 'miércoles',
+                    'thursday'  => 'jueves',
+                    'friday'    => 'viernes',
+                    'saturday'  => 'sábado',
+                    'sunday'    => 'domingo',
+                ];
+                $diaLegible = $traducciones[$this->diaKey] ?? $this->diaKey;
+                $fail("La empresa no atiende los {$diaLegible}.");
+            }
+            return;  // ← en ambos casos corta aquí
         }
 
         $valor    = Carbon::createFromFormat('H:i', substr($value, 0, 5));
