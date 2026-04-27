@@ -14,8 +14,8 @@
         </div>
 
         <!-- DIA -->
-        <x-form.field label="Día de la semana" for="day_of_week">
-            <x-form.select name="day_of_week" id="day_of_week">
+        <x-form.field label="Día de la semana" for="dia">
+            <x-form.select name="dia" id="dia">
                 @foreach ([
         'monday' => 'Lunes',
         'tuesday' => 'Martes',
@@ -26,7 +26,7 @@
         'sunday' => 'Domingo',
     ] as $value => $label)
                     <option value="{{ $value }}"
-                        {{ old('day_of_week', $openingHour->day_of_week ?? '') == $value ? 'selected' : '' }}>
+                        {{ old('dia', $openingHour->day_of_week ?? '') == $value ? 'selected' : '' }}>
                         {{ $label }}
                     </option>
                 @endforeach
@@ -36,15 +36,20 @@
         <!-- HORAS -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <x-form.input type="time" name="start_time" id="start_time" :value="old('start_time', $openingHour->start_time ?? '')" />
+            <x-form.field label="Hora de inicio" for="hora_inicio">
+                <x-form.input type="time" name="hora_inicio" id="hora_inicio" :value="old('hora_inicio', $openingHour->start_time ?? '')" />
+            </x-form.field>
 
-            <x-form.input type="time" name="end_time" id="end_time" :value="old('end_time', $openingHour->end_time ?? '')" />
+            <x-form.field label="Hora de fin" for="hora_fin">
+                <x-form.input type="time" name="hora_fin" id="hora_fin" :value="old('hora_fin', $openingHour->end_time ?? '')" />
+            </x-form.field>
+
 
         </div>
 
         <!-- DURACION -->
-        <x-form.field label="Duración por cita (minutos)" for="duration">
-            <x-form.input type="number" name="duration" id="duration" :value="old('duration', $openingHour->duration ?? '')" />
+        <x-form.field label="Duración por cita (minutos)" for="duracion">
+            <x-form.input type="number" name="duracion" id="duracion" :value="old('duracion', $openingHour->duration ?? '')" />
         </x-form.field>
 
     </div>

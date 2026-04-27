@@ -37,12 +37,37 @@ class OpeningHourController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(OpeningHourRequest $request): RedirectResponse
+    public function store(Request $request)
     {
-        OpeningHour::create($request->validated());
+        $data = $request->validate([
+            'dia' => 'required',
+            'hora_inicio' => 'required',
+            'hora_fin' => 'required|after:start_time',
+            'duracion' => 'required|integer|min:1',
+        ]);
 
-        return Redirect::route('opening-hours.index')
-            ->with('success', 'Horario de atencion creado.');
+        // VALIDAR SOLAPAMIENTO
+        $exists = OpeningHour::where('day_of_week', $data['dia'])
+            ->where(function ($query) use ($data) {
+                $query->where('start_time', '<', $data['hora_fin'])
+                    ->where('end_time', '>', $data['hora_inicio']);
+            })
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors(['hora_inicio' => 'Este horario se choca con otro existente'])
+                ->withInput();
+        }
+
+        OpeningHour::create([
+            "day_of_week" => $data["dia"],
+            'start_time' => $data["hora_inicio"],
+            'end_time' => $data["hora_fin"],
+            'duration' => $data["duracion"]
+        ]);
+
+        return redirect()->route('opening-hours.index')->with("success", "Horario de atencion creado");
     }
 
     /**
@@ -68,12 +93,37 @@ class OpeningHourController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(OpeningHourRequest $request, OpeningHour $openingHour): RedirectResponse
+    public function update(Request $request, OpeningHour $openingHour)
     {
-        $openingHour->update($request->validated());
+        $data = $request->validate([
+            'dia' => 'required',
+            'hora_inicio' => 'required',
+            'hora_fin' => 'required|after:start_time',
+            'duracion' => 'required|integer|min:1',
+        ]);
 
-        return Redirect::route('opening-hours.index')
-            ->with('success', 'Actualizacion de horario de atencion exitosa');
+        $exists = OpeningHour::where('day_of_week', $data['dia'])
+            ->where('id', '!=', $openingHour->id)
+            ->where(function ($query) use ($data) {
+                $query->where('start_time', '<', $data['hora_inicio'])
+                    ->where('end_time', '>', $data['hora_fin']);
+            })
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors(['hora_inicio' => 'Este horario se choca con otro existente'])
+                ->withInput();
+        }
+
+        $openingHour->update([
+            "day_of_week" => $data["dia"],
+            'start_time' => $data["hora_inicio"],
+            'end_time' => $data["hora_fin"],
+            'duration' => $data["duracion"]
+        ]);
+
+        return redirect()->route('opening-hours.index');
     }
 
     public function destroy($id)
