@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class Costumer
+ * Class Customer
  *
  * @property $id
  * @property $name
@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @package App
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
-class Costumer extends Model
+class Customer extends Model
 {
     use SoftDeletes;
     protected $perPage = 20;
@@ -29,9 +29,18 @@ class Costumer extends Model
      * @var array<int, string>
      */
     protected $fillable = ['name', 'email', 'phone'];
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function companies()
     {
         return $this->hasMany(Company::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function appointments()
+    {
+        return $this->belongsToMany(Appointment::class);
     }
 }

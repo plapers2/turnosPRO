@@ -15,17 +15,17 @@
                             <p class="mt-2 text-sm text-gray-700">Editar {{ __('Cliente') }} Existente.</p>
                         </div>
                         <x-button>
-                            <a type="button" href="{{ route('costumers.index') }}">Regresar</a>
+                            <a type="button" href="{{ route('customers.index') }}">Regresar</a>
                         </x-button>
                     </div>
 
                     <div class="flow-root">
                         <div class="mt-8 overflow-x-auto">
                             <div class="max-w-xl py-2 align-middle">
-                                <form method="POST" action="{{ route('costumers.update', $costumer->id) }}" role="form" enctype="multipart/form-data">
+                                <form method="POST" action="{{ route('customers.update', $customer->id) }}" role="form" enctype="multipart/form-data">
                                     {{ method_field('PATCH') }}
                                     @csrf
-                                    @include('costumer.form')
+                                    @include('customer.form')
                                 </form>
                             </div>
                         </div>

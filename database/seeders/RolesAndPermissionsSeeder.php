@@ -15,28 +15,44 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
-        // Permisos
+        //* Permisos
+
+        // Servicios
         Permission::create(['name' => 'gestionar servicios']);
+
+        // Usuarios
         Permission::create(['name' => 'gestionar usuarios']);
+
+        // Citas
         Permission::create(['name' => 'gestionar citas']);
+        Permission::create(['name' => 'ver historial citas']);
+
+        // Empresas
         Permission::create(['name' => 'gestionar empresas']);
+
+        // Clientes
         Permission::create(['name' => 'gestionar clientes']);
 
 
-        // Roles
+        //* Roles
         $admin = Role::create(['name' => 'admin']);
         $employee = Role::create(['name' => 'empleado']);
-        $costumer = Role::create(['name' => 'cliente']);
+        $customer = Role::create(['name' => 'cliente']);
 
-        // Asignar permisos
+        //* Asignar 
+
+        // Administradores
         $admin->givePermissionTo(Permission::all());
 
+        // Empleados
         $employee->givePermissionTo([
             'gestionar citas',
         ]);
 
-        $costumer->givePermissionTo([
-            'gestionar servicios'
+        // Clientes
+        $customer->givePermissionTo([
+            'gestionar citas',
+            'ver historial citas'
         ]);
     }
 }

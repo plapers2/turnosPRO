@@ -54,7 +54,7 @@
         @endcan
 
         @can('gestionar clientes')
-        <x-sidebar-link route="costumers.index" pattern="costumers.*" icon="group">
+        <x-sidebar-link route="customers.index" pattern="customers.*" icon="group">
             Clientes
         </x-sidebar-link>
         @endcan

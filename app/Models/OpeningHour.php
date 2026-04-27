@@ -32,7 +32,9 @@ class OpeningHour extends Model
      * @var array<int, string>
      */
     protected $fillable = ['day_of_week', 'start_time', 'end_time', 'company_id'];
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function companies()
     {
         return $this->belongsTo(Company::class, 'company_id', 'id');

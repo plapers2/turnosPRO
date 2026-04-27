@@ -54,13 +54,25 @@ class User extends Authenticatable
             'deleted_at' => 'datetime',
         ];
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function companies()
     {
         return $this->belongsToMany(Company::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function disponibilidades()
     {
         return $this->hasMany(ProfessionalAvailability::class, 'user_id');
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function appointments()
+    {
+        return $this->belongsToMany(Appointment::class);
     }
 }

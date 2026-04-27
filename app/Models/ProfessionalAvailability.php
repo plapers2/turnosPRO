@@ -9,7 +9,9 @@ class ProfessionalAvailability extends Model
 {
     use SoftDeletes;
     protected $fillable = ['day_of_week', 'start_time', 'end_time', 'user_id'];
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function users()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

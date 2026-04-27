@@ -65,8 +65,18 @@ class Company extends Model
     {
         return $this->belongsToMany(User::class);
     }
-    public function costumers()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function customers()
     {
-        return $this->belongsTo(Costumer::class);
+        return $this->belongsTo(Customer::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function appointments()
+    {
+        return $this->belongsToMany(Appointment::class);
     }
 }

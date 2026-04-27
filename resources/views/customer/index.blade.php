@@ -54,7 +54,7 @@
                         <!-- TBODY -->
                         <tbody class="divide-y divide-outline-variant/10">
 
-                            @forelse ($costumers as $costumer)
+                            @forelse ($customers as $costumer)
                             <tr class="hover:bg-surface/40 transition">
 
                                 <!-- CLIENTE -->
@@ -91,11 +91,11 @@
                                 <!-- ACCIONES -->
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end gap-3">
-                                        <a href="{{ route('costumers.show', $costumer->id) }}"
+                                        <a href="{{ route('customers.show', $costumer->id) }}"
                                             class="text-secondary hover:text-primary transition">
                                             Ver
                                         </a>
-                                        <a href="{{ route('costumers.edit', $costumer->id) }}"
+                                        <a href="{{ route('customers.edit', $costumer->id) }}"
                                             class="text-primary hover:text-primary-container transition">
                                             Editar
                                         </a>
@@ -131,7 +131,7 @@
                 <!-- MOBILE -->
                 <div class="md:hidden space-y-4 p-4">
 
-                    @forelse ($costumers as $costumer)
+                    @forelse ($customers as $costumer)
                     <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-4 shadow-sm">
 
                         <!-- TOP -->
@@ -163,11 +163,11 @@
 
                         <!-- ACCIONES -->
                         <div class="flex justify-end gap-4 mt-4 border-t pt-3">
-                            <a href="{{ route('costumers.show', $costumer->id) }}"
+                            <a href="{{ route('customers.show', $costumer->id) }}"
                                 class="text-secondary text-sm">
                                 Ver
                             </a>
-                            <a href="{{ route('costumers.edit', $costumer->id) }}"
+                            <a href="{{ route('customers.edit', $costumer->id) }}"
                                 class="text-primary text-sm">
                                 Editar
                             </a>
@@ -190,7 +190,7 @@
 
                 <!-- PAGINACIÓN -->
                 <div class="px-6 py-4 border-t border-outline-variant/20">
-                    {!! $costumers->withQueryString()->links() !!}
+                    {!! $customers->withQueryString()->links() !!}
                 </div>
 
             </div>
@@ -216,7 +216,7 @@
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await fetch(`/costumers/${id}`, {
+                    await fetch(`/customers/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',

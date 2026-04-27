@@ -12,7 +12,7 @@
 
             <x-form.field label="Nombre" for="name">
                 <x-form.input id="name" name="name" type="text"
-                    :value="old('name', $costumer?->name)"
+                    :value="old('name', $customer?->name)"
                     placeholder="Ej. Salón Bella Vista"
                     class="focus:ring-primary/10 focus:border-primary/40" />
                 <x-input-error class="mt-2" :messages="$errors->get('name')" />
@@ -20,7 +20,7 @@
 
             <x-form.field label="Teléfono" for="phone">
                 <x-form.input id="phone" name="phone" type="text"
-                    :value="old('phone', $costumer?->phone)"
+                    :value="old('phone', $customer?->phone)"
                     placeholder="Ej. 3001234567"
                     class="focus:ring-secondary/10 focus:border-secondary/40" />
                 <x-input-error class="mt-2" :messages="$errors->get('phone')" />
@@ -28,7 +28,7 @@
 
             <x-form.field label="Correo electrónico" for="email">
                 <x-form.input id="email" name="email" type="email"
-                    :value="old('email', $costumer?->email)"
+                    :value="old('email', $customer?->email)"
                     placeholder="Ej. contacto@empresa.com"
                     class="focus:ring-primary/10 focus:border-primary/40" />
                 <x-input-error class="mt-2" :messages="$errors->get('email')" />

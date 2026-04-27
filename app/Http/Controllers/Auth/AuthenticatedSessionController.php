@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('company.select');
         }
 
-        if ($user->hasRole('costumer')) {
+        if ($user->hasRole('customer')) {
             return redirect()->route('dashboard');
         }
 
