@@ -42,11 +42,10 @@ class OpeningHourController extends Controller
         $data = $request->validate([
             'dia' => 'required',
             'hora_inicio' => 'required',
-            'hora_fin' => 'required|after:start_time',
-            'duracion' => 'required|integer|min:1',
+            'hora_fin' => 'required|after:hora_inicio',
         ]);
 
-        // VALIDAR SOLAPAMIENTO
+        // VALIDAR QUE NO CHOQUEN HORARIOS ENTRE SI
         $exists = OpeningHour::where('day_of_week', $data['dia'])
             ->where(function ($query) use ($data) {
                 $query->where('start_time', '<', $data['hora_fin'])
@@ -60,11 +59,13 @@ class OpeningHourController extends Controller
                 ->withInput();
         }
 
+        $companyId = session('active_company_id');
+
         OpeningHour::create([
             "day_of_week" => $data["dia"],
             'start_time' => $data["hora_inicio"],
             'end_time' => $data["hora_fin"],
-            'duration' => $data["duracion"]
+            'company_id' => $companyId
         ]);
 
         return redirect()->route('opening-hours.index')->with("success", "Horario de atencion creado");
@@ -99,7 +100,6 @@ class OpeningHourController extends Controller
             'dia' => 'required',
             'hora_inicio' => 'required',
             'hora_fin' => 'required|after:start_time',
-            'duracion' => 'required|integer|min:1',
         ]);
 
         $exists = OpeningHour::where('day_of_week', $data['dia'])
@@ -116,11 +116,13 @@ class OpeningHourController extends Controller
                 ->withInput();
         }
 
+        $company_id = session('active_company_id');
+
         $openingHour->update([
             "day_of_week" => $data["dia"],
             'start_time' => $data["hora_inicio"],
             'end_time' => $data["hora_fin"],
-            'duration' => $data["duracion"]
+            'company_id' => $company_id
         ]);
 
         return redirect()->route('opening-hours.index');

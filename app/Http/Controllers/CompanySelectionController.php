@@ -11,13 +11,14 @@ class CompanySelectionController extends Controller
         $user = auth()->user();
 
         $companies = $user->companies;
+
         if ($companies->count() > 1) {
             return view('auth.select-company', compact('companies'));
         }
         if ($companies->count() === 1) {
             $company = $companies->first();
             session([
-                'active_company_id' => $company->company_id
+                'active_company_id' => $company->pivot->company_id
             ]);
             return redirect()->route('dashboard');
         }
