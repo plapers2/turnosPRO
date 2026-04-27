@@ -65,4 +65,8 @@ class Company extends Model
     {
         return $this->belongsToMany(User::class);
     }
+    public function costumers()
+    {
+        return $this->belongsTo(Costumer::class);
+    }
 }
