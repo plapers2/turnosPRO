@@ -2,7 +2,6 @@
 // app/Rules/DentroHorarioEmpresa.php
 namespace App\Rules;
 
-use App\Models\HorarioEmpresa;
 use App\Models\OpeningHour;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -13,7 +12,7 @@ class DentroHorarioEmpresa implements ValidationRule
     public function __construct(
         private string $diaKey,
         private int    $companyId,
-        private bool   $validarDia = true  // ← nuevo parámetro
+        private bool   $validarDia = true
     ) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -23,12 +22,11 @@ class DentroHorarioEmpresa implements ValidationRule
             return;
         }
 
-        $horario = OpeningHour::where('company_id', $this->companyId)
+        $horarios = OpeningHour::where('company_id', $this->companyId)
             ->where('day_of_week', $this->diaKey)
-            ->first();
+            ->get();
 
-        if (!$horario) {
-            // Solo mostrar este error en hora_inicio
+        if ($horarios->isEmpty()) {
             if ($this->validarDia) {
                 $traducciones = [
                     'monday'    => 'lunes',
@@ -42,15 +40,28 @@ class DentroHorarioEmpresa implements ValidationRule
                 $diaLegible = $traducciones[$this->diaKey] ?? $this->diaKey;
                 $fail("La empresa no atiende los {$diaLegible}.");
             }
-            return;  // ← en ambos casos corta aquí
+            return;
         }
 
-        $valor    = Carbon::createFromFormat('H:i', substr($value, 0, 5));
-        $apertura = Carbon::createFromFormat('H:i', substr($horario->start_time, 0, 5));
-        $cierre   = Carbon::createFromFormat('H:i', substr($horario->end_time, 0, 5));
+        $valor = Carbon::createFromFormat('H:i', substr($value, 0, 5));
 
-        if ($valor->lt($apertura) || $valor->gt($cierre)) {
-            $fail("El horario debe estar entre {$apertura->format('H:i')} y {$cierre->format('H:i')}.");
+        // Verificar si el valor cae en CUALQUIERA de los rangos del día
+        foreach ($horarios as $horario) {
+            $apertura = Carbon::createFromFormat('H:i', substr($horario->start_time, 0, 5));
+            $cierre   = Carbon::createFromFormat('H:i', substr($horario->end_time, 0, 5));
+
+            if ($valor->between($apertura, $cierre)) {
+                return; // Cayó en un rango válido, pasa la validación
+            }
         }
+
+        // Si no cayó en ningún rango, construir mensaje descriptivo con todos los rangos
+        $rangosMensaje = $horarios->map(function ($h) {
+            $inicio = Carbon::createFromFormat('H:i', substr($h->start_time, 0, 5))->format('H:i');
+            $fin    = Carbon::createFromFormat('H:i', substr($h->end_time, 0, 5))->format('H:i');
+            return "{$inicio}–{$fin}";
+        })->join(', ', ' o ');
+
+        $fail("El horario debe estar dentro de los rangos permitidos: {$rangosMensaje}.");
     }
 }
