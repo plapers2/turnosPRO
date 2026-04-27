@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone');
             $table->foreignId('company_id')->constrained();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

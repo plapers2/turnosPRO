@@ -24,41 +24,42 @@
         </x-sidebar-link> --}}
 
         @can('gestionar empresas')
-            <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
-                Empresa
-            </x-sidebar-link>
+        <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
+            Empresa
+        </x-sidebar-link>
         @endcan
 
         @can('gestionar empresas')
-            <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="add_business">
-                Tipos de Empresa
-            </x-sidebar-link>
+        <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="add_business">
+            Tipos de Empresa
+        </x-sidebar-link>
         @endcan
 
         @can('gestionar empresas')
-            <x-sidebar-link route="opening-hours.index" pattern="opening-hours.*" icon="calendar_month">
+        <x-sidebar-link route="opening-hours.index" pattern="opening-hours.*" icon="calendar_month">
             Horarios de atención
         </x-sidebar-link>
         @endcan
 
         @can('gestionar servicios')
-            <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
-                Servicios
-            </x-sidebar-link>
+        <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
+            Servicios
+        </x-sidebar-link>
         @endcan
 
         @can('gestionar usuarios')
-            <x-sidebar-link route="users.index" pattern="users.*" icon="group">
-                Profesionales
-            </x-sidebar-link>
+        <x-sidebar-link route="users.index" pattern="users.*" icon="group">
+            Profesionales
+        </x-sidebar-link>
         @endcan
 
-
-        {{-- <x-sidebar-link route="clients.index" pattern="clients.*" icon="person">
+        @can('gestionar clientes')
+        <x-sidebar-link route="costumers.index" pattern="costumers.*" icon="group">
             Clientes
         </x-sidebar-link>
+        @endcan
 
-        <x-sidebar-link route="settings.index" pattern="settings.*" icon="settings">
+        {{--<x-sidebar-link route="settings.index" pattern="settings.*" icon="settings">
             Configuración
         </x-sidebar-link> --}}
 

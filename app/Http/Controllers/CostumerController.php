@@ -25,12 +25,12 @@ class CostumerController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
-    {
-        $costumer = new Costumer();
+    // public function create(): View
+    // {
+    //     $costumer = new Costumer();
 
-        return view('costumer.create', compact('costumer'));
-    }
+    //     return view('costumer.create', compact('costumer'));
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -48,7 +48,7 @@ class CostumerController extends Controller
      */
     public function show($id): View
     {
-        $costumer = Costumer::find($id);
+        $costumer = Costumer::findOrFail($id);
 
         return view('costumer.show', compact('costumer'));
     }

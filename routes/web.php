@@ -7,6 +7,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\CompanySelectionController;
 use App\Http\Controllers\OpeningHourController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CostumerController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 
@@ -45,6 +46,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::resource('/opening-hours', OpeningHourController::class);
     Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore']);
+
+    // Clientes
+    Route::resource('/costumers', CostumerController::class)->except(['create']);
 });
 
 require __DIR__ . '/auth.php';
