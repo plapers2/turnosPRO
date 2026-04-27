@@ -7,7 +7,7 @@
 
         <!-- Email Address -->
         <div class="flex flex-col gap-2">
-            <x-input-label for="email" :value="__('Email')" />
+            <x-input-label for="email" :value="__('Correo electrónico')" />
             <div class="relative group">
                 <span
                     class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors"
@@ -16,13 +16,11 @@
                     name="email" :value="old('email')" required autofocus autocomplete="username" />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
-
         </div>
 
         <!-- Password -->
         <div class="mt-4 flex flex-col gap-2">
-            <x-input-label for="password" :value="__('Password')" />
-
+            <x-input-label for="password" :value="__('Contraseña')" />
             <div class="relative group">
                 <span
                     class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors"
@@ -31,23 +29,26 @@
                     name="password" required autocomplete="current-password" />
                 <button
                     class="absolute right-4 top-1/2 mt-1 -translate-y-1/2 text-outline-variant hover:text-on-surface transition-colors"
-                    type="button">
+                    type="button"
+                    onclick="togglePassword('password', this)">
                     <span class="material-symbols-outlined" data-icon="visibility">visibility</span>
                 </button>
                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
             </div>
-
         </div>
 
         <div class="flex items-center justify-between px-1 my-3">
+            <a class="text-body-sm text-primary font-semibold hover:underline decoration-primary/30 underline-offset-4"
+                href="{{ route('register') }}">
+                {{ __('Registrarse') }}
+            </a>
             @if (Route::has('password.request'))
-                <a class="text-body-sm text-primary font-semibold hover:underline decoration-primary/30 underline-offset-4"
-                    href="{{ route('password.request') }}">
-                    {{ __('¿Olvidaste tú contraseña?') }}
-                </a>
+            <a class="text-body-sm text-primary font-semibold hover:underline decoration-primary/30 underline-offset-4"
+                href="{{ route('password.request') }}">
+                {{ __('¿Olvidaste tú contraseña?') }}
+            </a>
             @endif
         </div>
-
 
         <x-primary-button>
             {{ __('Ingresar') }}
@@ -56,3 +57,14 @@
 
     </form>
 </x-guest-layout>
+
+<script>
+    function togglePassword(fieldId, btn) {
+        const input = document.getElementById(fieldId);
+        const icon = btn.querySelector('.material-symbols-outlined');
+        const isPassword = input.type === 'password';
+
+        input.type = isPassword ? 'text' : 'password';
+        icon.textContent = isPassword ? 'visibility_off' : 'visibility';
+    }
+</script>

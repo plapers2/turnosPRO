@@ -28,7 +28,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('company.select');
+        $user = $request->user();
+
+        if ($user->hasRole('admin')) {
+            return redirect()->route('company.select');
+        }
+
+        if ($user->hasRole('costumer')) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->route('dashboard');
     }
 
     /**
