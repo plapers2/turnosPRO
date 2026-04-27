@@ -117,7 +117,7 @@
         const HORARIOS_EMPRESA = @json($horariosEmpresa);
         const ERRORES = @json($errors->toArray());
 
-        // ✅ Construir turnos ANTES de retornar el objeto reactivo
+        // Construir turnos ANTES de retornar el objeto reactivo
         const turnosIniciales = {};
         existentes.forEach(e => {
             if (!e.dia_semana) return;
@@ -128,7 +128,7 @@
             });
         });
 
-        // ✅ Construir errores indexados ANTES de retornar
+        // Construir errores indexados ANTES de retornar
         const erroresIniciales = {};
         Object.entries(ERRORES).forEach(([clave, msgs]) => {
             const match = clave.match(/^disponibilidad\.(\d+)\.(\w+)$/);
@@ -181,11 +181,11 @@
                 },
             ],
 
-            // ✅ Ya inicializados, Alpine NO los mutará al arrancar
+            // Ya inicializados, Alpine NO los mutará al arrancar
             turnos: turnosIniciales,
             erroresIndexados: erroresIniciales,
 
-            // ✅ init() ya no hace nada con datos, solo podría usarse para efectos secundarios
+            // init() ya no hace nada con datos, solo podría usarse para efectos secundarios
             init() {},
 
             tieneError(key, ti, campo) {
