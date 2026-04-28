@@ -84,11 +84,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Appointment::class);
     }
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function services()
-    {
-        return $this->belongsToMany(Service::class);
-    }
 }
