@@ -148,6 +148,11 @@ if (calendarEl) {
                     const h = ((ini - cursor) / total) * 100;
                     col.appendChild(crearOverlay(`${top}%`, `${h}%`));
                 }
+                const topVerde = ((ini - minGlobalMin) / total) * 100;
+                const hVerde = ((fin - ini) / total) * 100;
+                col.appendChild(
+                    crearOverlayDisponible(`${topVerde}%`, `${hVerde}%`),
+                );
                 cursor = Math.max(cursor, fin);
             });
 
@@ -182,6 +187,23 @@ if (calendarEl) {
         background-image:repeating-linear-gradient(
             45deg,transparent,transparent 5px,
             rgba(239,68,68,0.07) 5px,rgba(239,68,68,0.07) 10px);
+    `;
+        return overlay;
+    }
+    function crearOverlayDisponible(top, height) {
+        const overlay = document.createElement("div");
+        overlay.className = "slot-overlay";
+        overlay.style.cssText = `
+        position:absolute;
+        left:0;right:0;
+        top:${top};
+        height:${height};
+        pointer-events:none;
+        z-index:2;
+        background-color:rgba(34,197,94,0.08);
+        background-image:repeating-linear-gradient(
+            45deg,transparent,transparent 5px,
+            rgba(34,197,94,0.05) 5px,rgba(34,197,94,0.05) 10px);
     `;
         return overlay;
     }
