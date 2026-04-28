@@ -153,7 +153,7 @@ class OpeningHourController extends Controller
                 $query->where('start_time', '<', $hour->end_time)
                     ->where('end_time', '>', $hour->start_time);
             })
-            ->whereHas('users.companies', function ($q) use ($companyId) {
+            ->whereHas('user.companies', function ($q) use ($companyId) {
                 $q->where('companies.id', $companyId);
             })
             ->get();
