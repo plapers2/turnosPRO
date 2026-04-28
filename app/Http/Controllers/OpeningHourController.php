@@ -139,26 +139,45 @@ class OpeningHourController extends Controller
         $hour = OpeningHour::findOrFail($id);
         $companyId = session('active_company_id');
 
-        $exists = ProfessionalAvailability::where('day_of_week', $hour->day_of_week)
+        // Seguridad
+        if ($hour->company_id != $companyId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado'
+            ], 403);
+        }
+
+        // 1. Buscar disponibilidades afectadas
+        $availabilities = ProfessionalAvailability::where('day_of_week', $hour->day_of_week)
             ->where(function ($query) use ($hour) {
                 $query->where('start_time', '<', $hour->end_time)
                     ->where('end_time', '>', $hour->start_time);
             })
-            ->whereHas('users', function ($q) use ($companyId) {
-                // AJUSTA esto según tu relación real con empresa
-                $q->whereHas('companies', function ($q2) use ($companyId) {
-                    $q2->where('companies.id', $companyId);
-                });
+            ->whereHas('users.companies', function ($q) use ($companyId) {
+                $q->where('companies.id', $companyId);
             })
-            ->exists();
+            ->get();
 
-        if ($exists) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No puedes eliminar este horario porque hay profesionales asignados dentro de ese rango.'
-            ], 422);
+        foreach ($availabilities as $availability) {
+
+            // 2. Verificar si existe OTRO horario que cubra esta disponibilidad
+            $covered = OpeningHour::where('company_id', $companyId)
+                ->where('id', '!=', $hour->id)
+                ->where('day_of_week', $availability->day_of_week)
+                ->where('start_time', '<=', $availability->start_time)
+                ->where('end_time', '>=', $availability->end_time)
+                ->exists();
+
+            // 3. Si NO está cubierto → bloquear
+            if (!$covered) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No puedes eliminar este horario porque dejaría disponibilidades fuera del horario permitido.'
+                ], 422);
+            }
         }
 
+        // Eliminar
         $hour->delete();
 
         return response()->json([
@@ -166,6 +185,7 @@ class OpeningHourController extends Controller
             'message' => 'Horario eliminado correctamente'
         ]);
     }
+
     public function restore($id)
     {
         $hour = OpeningHour::withTrashed()->findOrFail($id);
