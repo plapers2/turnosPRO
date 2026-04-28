@@ -61,12 +61,21 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Company::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function services()
+    {
+        return $this->belongsToMany(Service::class);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function professionalAvailabilities()
     {
-        return $this->hasMany(ProfessionalAvailability::class, 'user_id');
+        return $this->hasMany(ProfessionalAvailability::class);
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
