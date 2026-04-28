@@ -83,12 +83,15 @@ class BookingController extends Controller
         $hora      = $request->hora;
         $duration  = (int) $request->duration;
 
-        $dayOfWeek = Carbon::parse($fecha)->format('l');
+        $dayOfWeek = Carbon::parse($fecha . ' 12:00:00')->format('l');
 
         $inicio = Carbon::parse("$fecha $hora:00");
         $fin    = $inicio->copy()->addMinutes($duration);
+        if ($inicio->isPast()) {
+            return response()->json(['profesionales' => []]);
+        }
 
-        $profesionales = User::whereHas('companies', function ($q) use ($companyId) {
+        $query = User::whereHas('companies', function ($q) use ($companyId) {
             $q->where('companies.id', $companyId);
         })
             ->whereHas('professionalAvailabilities', function ($q) use ($dayOfWeek, $hora, $fin) {
@@ -101,17 +104,17 @@ class BookingController extends Controller
                     $q2->where('start_time', '<', $fin)
                         ->where('end_time', '>', $inicio);
                 });
-            })
-            ->get(['id', 'name', 'phone', 'image']);
+            });
 
-        // ── NUEVO: horario disponible ese día específico ──────────────────
+        $profesionales = $query->get(['id', 'name', 'phone', 'image']);
+
+        // ── horario disponible ese día específico ──────────────────
         $horarioDelDia = \DB::table('professional_availabilities')
             ->whereIn('user_id', User::whereHas('companies', fn($q) =>
             $q->where('companies.id', $companyId))->pluck('id'))
             ->where('day_of_week', $dayOfWeek)
             ->selectRaw('MIN(start_time) as hora_inicio, MAX(end_time) as hora_fin')
             ->first();
-
         return response()->json([
             'profesionales' => $profesionales,
             'hora_inicio'   => $horarioDelDia->hora_inicio
@@ -188,43 +191,103 @@ class BookingController extends Controller
     }
     public function citasOcupadas(Request $request): JsonResponse
     {
+        $duration = (int) $request->duration;
         $companyId = $request->company_id;
         $start     = Carbon::parse($request->start);
         $end       = Carbon::parse($request->end);
+        if ($duration <= 0 || $start >= $end) {
+            return response()->json(['citas' => [], 'disponibles' => [], 'totalProfesionales' => 0]);
+        }
 
-        $totalProfesionales = User::whereHas(
-            'companies',
-            fn($q) =>
-            $q->where('companies.id', $companyId)
-        )->count();
-        \Log::info('debug-citas', [
-            'total_profesionales' => $totalProfesionales,
-            'total_citas_sin_filtro' => Appointment::whereHas('user.companies', fn($q) =>
-            $q->where('companies.id', $companyId))
-                ->whereBetween('start_time', [$start, $end])
-                ->count(),
-        ]);
-
-
-        // Citas agrupadas por fecha y hora de inicio/fin
-        // Solo devuelve slots donde el número de citas == total de profesionales
-        $citas = Appointment::whereHas('user.companies', fn($q) =>
+        // Todos los profesionales de la empresa con sus horarios
+        $profesionales = User::whereHas('companies', fn($q) =>
         $q->where('companies.id', $companyId))
-            ->whereBetween('start_time', [$start, $end])
-            ->select(
-                'start_time',
-                'end_time',
-                \DB::raw('COUNT(DISTINCT user_id) as ocupados')
-            )
-            ->groupBy('start_time', 'end_time')
-            ->having('ocupados', '>=', $totalProfesionales)
-            ->get()
-            ->map(fn($c) => [
-                'fecha'  => Carbon::parse($c->start_time)->format('Y-m-d'),
-                'inicio' => Carbon::parse($c->start_time)->format('H:i'),
-                'fin'    => Carbon::parse($c->end_time)->format('H:i'),
-            ]);
+            ->with('professionalAvailabilities')
+            ->get();
 
-        return response()->json(['citas' => $citas]);
+        $totalProfesionales = $profesionales->count();
+
+        // Citas existentes en el rango
+        $citasExistentes = Appointment::whereHas('user.companies', fn($q) =>
+        $q->where('companies.id', $companyId))
+            ->where('start_time', '<', $end)
+            ->where('end_time',   '>', $start)
+            ->get(['start_time', 'end_time', 'user_id']);
+
+        // Generar slots de 30 min para toda la semana
+        $horaMinGlobal = $profesionales->flatMap->professionalAvailabilities->min('start_time');
+        $horaMaxGlobal = $profesionales->flatMap->professionalAvailabilities->max('end_time');
+
+        $slots = [];
+        $cursorFecha = $start->copy();
+
+        while ($cursorFecha < $end) {
+
+            $cursor = Carbon::parse($cursorFecha->format('Y-m-d') . ' ' . $horaMinGlobal);
+            $diaFin = Carbon::parse($cursorFecha->format('Y-m-d') . ' ' . $horaMaxGlobal);
+
+            while ($cursor < $diaFin) {
+                $slotInicio = $cursor->copy();
+                $slotFin    = $cursor->copy()->addMinutes(30);
+                $dayOfWeek  = $slotInicio->format('l');
+                $horaInicio = $slotInicio->format('H:i:s');
+                $horaFin    = $slotFin->format('H:i:s');
+                $fecha      = $slotInicio->format('Y-m-d');
+
+                $slotFinReal = $slotInicio->copy()->addMinutes($duration)->format('H:i:s');
+
+                $disponibles = $profesionales->filter(function ($prof) use ($dayOfWeek, $horaInicio, $slotInicio, $slotFin, $citasExistentes, $slotFinReal, $duration) {
+                    $tieneHorario = $prof->professionalAvailabilities->contains(function ($pa) use ($dayOfWeek, $horaInicio, $slotFinReal) {
+                        return $pa->day_of_week === $dayOfWeek
+                            && $pa->start_time <= $horaInicio
+                            && $pa->end_time >= $slotFinReal;
+                    });
+                    if (!$tieneHorario) return false;
+
+                    $tieneCita = $citasExistentes->contains(function ($cita) use ($prof, $slotInicio, $duration) {
+                        $slotFinReal = $slotInicio->copy()->addMinutes($duration);
+                        return $cita->user_id === $prof->id
+                            && $cita->start_time < $slotFinReal
+                            && $cita->end_time > $slotInicio;
+                    });
+
+                    return !$tieneCita;
+                })->count();
+                $slots[] = [
+                    'fecha'       => $fecha,
+                    'inicio'      => $slotInicio->format('H:i'),
+                    'fin'         => $slotFin->format('H:i'),
+                    'disponibles' => $disponibles,
+                ];
+
+                $cursor->addMinutes(30);
+            }
+
+            $cursorFecha->addDay();
+        }
+
+        // Slots bloqueados = dentro del horario global pero sin disponibles
+        $horaMinStr = substr($horaMinGlobal, 0, 5);
+        $horaMaxStr = substr($horaMaxGlobal, 0, 5);
+
+        $bloqueados = collect($slots)->filter(function ($s) use ($horaMinStr, $horaMaxStr) {
+            return $s['disponibles'] === 0
+                && $s['inicio'] >= $horaMinStr
+                && $s['fin'] <= $horaMaxStr
+                && $s['fin'] !== '00:00';
+        })->map(fn($s) => [
+            'fecha'  => $s['fecha'],
+            'inicio' => $s['inicio'],
+            'fin'    => $s['fin'],
+        ])->values();
+
+        // Slots con disponibilidad parcial o total
+        $disponiblesPorSlot = collect($slots)->filter(fn($s) => $s['disponibles'] > 0)
+            ->values();
+        return response()->json([
+            'citas'              => $bloqueados,
+            'disponibles'        => $disponiblesPorSlot,
+            'totalProfesionales' => $totalProfesionales,
+        ]);
     }
 }

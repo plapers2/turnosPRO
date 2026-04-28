@@ -6,6 +6,9 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 
 // Variables globales del blade — las lee del DOM para no depender de window
 let citasOcupadas = {};
+let disponiblesPorFecha = {};
+let slotSeleccionado = null;
+let totalProfesionales = 0;
 const calendarEl = document.getElementById("calendar");
 if (calendarEl) {
     const totalDuration = parseInt(calendarEl.dataset.duration);
@@ -31,8 +34,20 @@ if (calendarEl) {
 
     async function init() {
         await cargarHorarios();
-        const { globalMin, globalMax } = getGlobalRange();
 
+        const hoy = new Date();
+        const dow = hoy.getDay();
+        const inicioSemana = new Date(hoy);
+        inicioSemana.setDate(hoy.getDate() - dow);
+        const finSemana = new Date(inicioSemana);
+        finSemana.setDate(inicioSemana.getDate() + 7);
+        await cargarCitasOcupadas(
+            formatDate(inicioSemana),
+            formatDate(finSemana),
+        );
+
+        const { globalMin, globalMax } = getGlobalRange();
+        let fetchId = 0;
         calendar = new Calendar(calendarEl, {
             plugins: [timeGridPlugin, interactionPlugin],
             locale: esLocale,
@@ -48,8 +63,8 @@ if (calendarEl) {
             slotMaxTime: globalMax,
             allDaySlot: false,
             nowIndicator: true,
-            selectable: true,
-            selectMirror: true,
+            selectable: false,
+            selectMirror: false,
             validRange: {
                 start: new Date(new Date().setDate(new Date().getDate() + 1)),
             },
@@ -58,10 +73,12 @@ if (calendarEl) {
                 if (slotPermitido(info.date)) onSlotSelected(info.date);
             },
             datesSet: async (info) => {
+                const myId = ++fetchId;
                 const start = info.startStr.substring(0, 10);
                 const end = info.endStr.substring(0, 10);
+                clearTimeout(paintTimer);
                 await cargarCitasOcupadas(start, end);
-                schedulePaint();
+                if (myId === fetchId) paintSlots();
             },
             events: [],
             eventColor: "#6366f1",
@@ -77,12 +94,7 @@ if (calendarEl) {
                 ),
             );
             if (!soloOverlays) schedulePaint();
-        }).observe(calendarEl, {
-            childList: true,
-            subtree: true,
-        });
-
-        schedulePaint();
+        }).observe(calendarEl, { childList: true, subtree: true });
     }
 
     function schedulePaint() {
@@ -110,13 +122,6 @@ if (calendarEl) {
 
         // Altura de cada slot en píxeles
         const primeraFila = filas[0];
-        const alturaSlot = primeraFila.getBoundingClientRect().height;
-        const totalFilas = filas.length;
-
-        // Limpiar overlays anteriores
-        document
-            .querySelectorAll("#calendar .slot-overlay")
-            .forEach((o) => o.remove());
 
         columnas.forEach((col) => {
             const fechaAttr = col.getAttribute("data-date");
@@ -139,20 +144,74 @@ if (calendarEl) {
             const tramosOrdenados = [...tramos].sort(
                 (a, b) => timeToMinutes(a.inicio) - timeToMinutes(b.inicio),
             );
+
+            // Precalcular qué minutos están ocupados y si son amarillos o rojos
+            const fechaStr = fechaAttr;
+            const ocupados = citasOcupadas[fechaStr] ?? [];
+            const parciales = disponiblesPorFecha[fechaStr] ?? [];
+
             let cursor = minGlobalMin;
             tramosOrdenados.forEach((t) => {
                 const ini = timeToMinutes(t.inicio);
                 const fin = timeToMinutes(t.fin);
+
                 if (ini > cursor) {
                     const top = ((cursor - minGlobalMin) / total) * 100;
                     const h = ((ini - cursor) / total) * 100;
                     col.appendChild(crearOverlay(`${top}%`, `${h}%`));
                 }
-                const topVerde = ((ini - minGlobalMin) / total) * 100;
-                const hVerde = ((fin - ini) / total) * 100;
-                col.appendChild(
-                    crearOverlayDisponible(`${topVerde}%`, `${hVerde}%`),
-                );
+
+                // Pintar el tramo verde por segmentos, saltando los ocupados
+                let segCursor = ini;
+                const ocupadosEnTramo = ocupados
+                    .filter(
+                        (c) =>
+                            timeToMinutes(c.inicio) >= ini &&
+                            timeToMinutes(c.fin) <= fin,
+                    )
+                    .sort(
+                        (a, b) =>
+                            timeToMinutes(a.inicio) - timeToMinutes(b.inicio),
+                    );
+
+                ocupadosEnTramo.forEach((c) => {
+                    const minIni = timeToMinutes(c.inicio);
+                    const minFin = timeToMinutes(c.fin);
+
+                    // Verde antes del ocupado
+                    if (minIni > segCursor) {
+                        const top = ((segCursor - minGlobalMin) / total) * 100;
+                        const h = ((minIni - segCursor) / total) * 100;
+                        col.appendChild(
+                            crearOverlayDisponible(`${top}%`, `${h}%`),
+                        );
+                    }
+
+                    // Amarillo o rojo según si hay disponibles
+                    const cubierto = parciales.some(
+                        (s) =>
+                            s.disponibles > 0 &&
+                            timeToMinutes(s.inicio) <= minIni &&
+                            timeToMinutes(s.inicio) + totalDuration >= minFin,
+                    );
+                    const top = ((minIni - minGlobalMin) / total) * 100;
+                    const h = ((minFin - minIni) / total) * 100;
+                    col.appendChild(
+                        cubierto
+                            ? crearOverlayOcupado(`${top}%`, `${h}%`)
+                            : crearOverlay(`${top}%`, `${h}%`),
+                    );
+
+                    segCursor = Math.max(segCursor, minFin);
+                });
+
+                // Verde restante después del último ocupado
+                if (segCursor < fin) {
+                    const top = ((segCursor - minGlobalMin) / total) * 100;
+                    const h = ((fin - segCursor) / total) * 100;
+                    col.appendChild(crearOverlayDisponible(`${top}%`, `${h}%`));
+                }
+
                 cursor = Math.max(cursor, fin);
             });
 
@@ -161,14 +220,62 @@ if (calendarEl) {
                 const h = ((minGlobalMax - cursor) / total) * 100;
                 col.appendChild(crearOverlay(`${top}%`, `${h}%`));
             }
-            const fechaStr = fechaAttr;
-            const ocupados = citasOcupadas[fechaStr] ?? [];
-            ocupados.forEach((c) => {
-                const minIni = timeToMinutes(c.inicio);
-                const minFin = timeToMinutes(c.fin);
-                const top = ((minIni - minGlobalMin) / total) * 100;
-                const h = ((minFin - minIni) / total) * 100;
+            if (cursor < minGlobalMax) {
+                const top = ((cursor - minGlobalMin) / total) * 100;
+                const h = ((minGlobalMax - cursor) / total) * 100;
                 col.appendChild(crearOverlay(`${top}%`, `${h}%`));
+            }
+
+            // ← AGREGAR ESTO
+            parciales.forEach((slot) => {
+                const slotIni = timeToMinutes(slot.inicio);
+                const slotFin = timeToMinutes(slot.fin);
+
+                const enTramo = tramosOrdenados.some(
+                    (t) =>
+                        slotIni >= timeToMinutes(t.inicio) &&
+                        slotFin <= timeToMinutes(t.fin),
+                );
+                if (!enTramo) return;
+                if (slot.disponibles === 0) return;
+
+                const topPct = ((slotIni - minGlobalMin) / total) * 100;
+                const label = document.createElement("div");
+                label.className = "slot-overlay";
+                label.style.cssText = `
+                    position:absolute;
+                    left:0;right:0;
+                    top:${topPct}%;
+                    height:20px;
+                    margin-top:8px;
+                    pointer-events:none;
+                    z-index:3;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                `;
+                label.innerHTML = `<span style="
+                    font-size:10px;
+                    font-weight:600;
+                    color:rgba(21,128,61,0.8);
+                    background:rgba(34,197,94,0.15);
+                    padding:2px 8px;
+                    border-radius:99px;
+                    border: 1px solid rgba(34,197,94,0.3);
+                ">${slot.disponibles} disponible${slot.disponibles > 1 ? "s" : ""}</span>`;
+
+                if (slotSeleccionado) {
+                    const fechaSel = formatDate(slotSeleccionado);
+                    const iniSel =
+                        slotSeleccionado.getHours() * 60 +
+                        slotSeleccionado.getMinutes();
+                    const finSel = iniSel + totalDuration;
+                    const esFechaAfectada = fechaAttr === fechaSel;
+                    const slotAfectado = slotIni < finSel && slotFin > iniSel;
+                    if (esFechaAfectada && slotAfectado) return;
+                }
+
+                col.appendChild(label);
             });
         });
     }
@@ -187,6 +294,23 @@ if (calendarEl) {
         background-image:repeating-linear-gradient(
             45deg,transparent,transparent 5px,
             rgba(239,68,68,0.07) 5px,rgba(239,68,68,0.07) 10px);
+    `;
+        return overlay;
+    }
+    function crearOverlayOcupado(top, height) {
+        const overlay = document.createElement("div");
+        overlay.className = "slot-overlay";
+        overlay.style.cssText = `
+        position:absolute;
+        left:0;right:0;
+        top:${top};
+        height:${height};
+        pointer-events:none;
+        z-index:2;
+        background-color:rgba(234,179,8,0.10);
+        background-image:repeating-linear-gradient(
+            45deg,transparent,transparent 5px,
+            rgba(234,179,8,0.07) 5px,rgba(234,179,8,0.07) 10px);
     `;
         return overlay;
     }
@@ -222,17 +346,14 @@ if (calendarEl) {
         );
         if (!dentroDeHorario) return false;
 
-        // Verificar que no esté bloqueado por citas ocupadas
         const fechaStr = formatDate(date);
-        const ocupados = citasOcupadas[fechaStr] ?? [];
-        const slotFin = slotMin + totalDuration;
-        const bloqueado = ocupados.some((c) => {
-            const ini = timeToMinutes(c.inicio);
-            const fin = timeToMinutes(c.fin);
-            return slotMin < fin && slotFin > ini;
-        });
+        const slotKey = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+        const disponibles = disponiblesPorFecha[fechaStr] ?? [];
+        const tieneDisponible = disponibles.some(
+            (s) => s.inicio === slotKey && s.disponibles > 0,
+        );
 
-        return !bloqueado;
+        return tieneDisponible;
     }
 
     async function cargarHorarios() {
@@ -262,10 +383,11 @@ if (calendarEl) {
         }
     }
     async function cargarCitasOcupadas(start, end) {
-        citasOcupadas = {};
+        const tempCitas = {}; // ← solo locales, sin tocar los globales
+        const tempDisp = {};
         try {
             const res = await fetch(
-                `/booking/citas-ocupadas?company_id=${companyId}&start=${start}&end=${end}`,
+                `/booking/citas-ocupadas?company_id=${companyId}&start=${start}&end=${end}&duration=${totalDuration}`,
                 {
                     headers: {
                         Accept: "application/json",
@@ -274,10 +396,26 @@ if (calendarEl) {
                 },
             );
             const data = await res.json();
+
+            totalProfesionales = data.totalProfesionales;
+
             data.citas.forEach((c) => {
-                if (!citasOcupadas[c.fecha]) citasOcupadas[c.fecha] = [];
-                citasOcupadas[c.fecha].push({ inicio: c.inicio, fin: c.fin });
+                if (!tempCitas[c.fecha]) tempCitas[c.fecha] = [];
+                tempCitas[c.fecha].push({ inicio: c.inicio, fin: c.fin });
             });
+
+            data.disponibles.forEach((c) => {
+                if (!tempDisp[c.fecha]) tempDisp[c.fecha] = [];
+                tempDisp[c.fecha].push({
+                    inicio: c.inicio,
+                    fin: c.fin,
+                    disponibles: c.disponibles,
+                });
+            });
+
+            // Solo asignar globalmente cuando todo está listo
+            citasOcupadas = tempCitas;
+            disponiblesPorFecha = tempDisp;
         } catch (e) {
             console.error("Error cargando citas ocupadas:", e);
         }
@@ -346,7 +484,7 @@ if (calendarEl) {
             backgroundColor: "#6366f1",
             borderColor: "transparent",
         });
-
+        actualizarBadgesSeleccion(startDate);
         buscarProfesionales(fecha, hora);
     }
 
@@ -463,6 +601,9 @@ if (calendarEl) {
         const [h, m] = t.split(":").map(Number);
         return h * 60 + m;
     }
-
+    function actualizarBadgesSeleccion(startDate) {
+        slotSeleccionado = startDate;
+        paintSlots();
+    }
     document.addEventListener("DOMContentLoaded", init);
 }
