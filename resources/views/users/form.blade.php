@@ -95,12 +95,6 @@
 <!-- SIDEBAR -->
 <div class="space-y-8">
 
-    {{--
-    CARD SERVICIOS — Tom Select (many-to-many)
-    Requiere: npm install tom-select
-    Importar en resources/js/app.js y resources/css/app.css (ver abajo)
---}}
-
     <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
 
         <div>
