@@ -143,35 +143,65 @@ class BookingController extends Controller
         $duration = $services->sum('duration');
         $fin      = $inicio->copy()->addMinutes($duration);
 
-        // Crear o encontrar customer a partir del usuario autenticado
-        $user     = auth()->user();
-        $customer = Customer::firstOrCreate(
-            [
-                'email'      => $user->email,
-                'company_id' => $request->company_id,
-            ],
-            [
-                'name'       => $user->name,
-                'phone'      => $user->phone ?? '',
-                'company_id' => $request->company_id,
-            ]
-        );
+        try {
+            $appointment = \DB::transaction(function () use ($request, $inicio, $fin, $services, $duration) {
 
-        // Crear la cita — columnas según tabla appointments del MER
-        $appointment = Appointment::create([
-            'start_time'  => $inicio,
-            'end_time'    => $fin,
-            'customer_id' => $customer->id,
-            'user_id'     => $request->user_id,
-            'company_id'  => $request->company_id,
-            'notes'       => $request->notas,
-        ]);
+                // Bloquear las citas del profesional para evitar concurrencia
+                $conflicto = Appointment::where('user_id', $request->user_id)
+                    ->where('start_time', '<', $fin)
+                    ->where('end_time', '>', $inicio)
+                    ->lockForUpdate()
+                    ->exists();
 
-        // Asociar servicios en la tabla pivot appointment_service
-        $appointment->services()->attach($request->services);
+                if ($conflicto) {
+                    throw new \Exception('slot_ocupado');
+                }
 
-        return redirect()->route('appointment.index')
-            ->with('success', '¡Cita agendada correctamente!');
+                // Verificar que el profesional sigue perteneciendo a la empresa
+                $profesional = User::whereHas('companies', fn($q) =>
+                $q->where('companies.id', $request->company_id))
+                    ->where('id', $request->user_id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $user     = auth()->user();
+                $customer = Customer::firstOrCreate(
+                    [
+                        'email'      => $user->email,
+                        'company_id' => $request->company_id,
+                    ],
+                    [
+                        'name'       => $user->name,
+                        'phone'      => $user->phone ?? '',
+                        'company_id' => $request->company_id,
+                    ]
+                );
+
+                $appointment = Appointment::create([
+                    'start_time'  => $inicio,
+                    'end_time'    => $fin,
+                    'customer_id' => $customer->id,
+                    'user_id'     => $request->user_id,
+                    'company_id'  => $request->company_id,
+                    'notes'       => $request->notas,
+                ]);
+
+                $appointment->services()->attach($request->services);
+
+                return $appointment;
+            });
+
+            return redirect()->route('appointment.index')
+                ->with('success', '¡Cita agendada correctamente!');
+        } catch (\Exception $e) {
+            $mensaje = $e->getMessage() === 'slot_ocupado'
+                ? 'Este horario acaba de ser reservado por otra persona. Por favor selecciona otro.'
+                : 'Ocurrió un error al agendar la cita. Intenta de nuevo.';
+
+            return redirect()->back()
+                ->with('error', $mensaje)
+                ->withInput();
+        }
     }
     // En BookingController, agregar este método:
     public function horariosEmpresa(Request $request): JsonResponse
