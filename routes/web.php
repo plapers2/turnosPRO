@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'role:cliente'])->group(function () {
     // Citas
+    Route::get('/booking/citas-ocupadas', [BookingController::class, 'citasOcupadas']);
+    Route::get('/booking/horarios-empresa', [BookingController::class, 'horariosEmpresa']);
     Route::get('/appointments', [BookingController::class, 'selectCompany'])->name('appointment.index');
     Route::get('/booking/{company}/services', [BookingController::class, 'selectServices'])->name('appointments.selectServices');
     Route::get('/booking/confirm', [BookingController::class, 'prepareCreate'])->name('booking.prepareCreate');
