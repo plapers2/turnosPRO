@@ -40,7 +40,23 @@ class Appointment extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['start_time', 'end_time', 'cancellation_reason', 'payment_expires_at', 'notes', 'cancel_token', 'cancel_token_expires_at', 'customer_id', 'user_id', 'company_id'];
+    protected $fillable = [
+        'start_time',
+        'end_time',
+        'cancellation_reason',
+        'payment_expires_at',
+        'notes',
+        'cancel_token',
+        'cancel_token_expires_at',
+        'customer_id',
+        'user_id',
+        'company_id',
+        'booking_group'
+    ];
+    protected $casts = [
+        'start_time' => 'datetime',
+        'end_time'   => 'datetime',
+    ];
 
 
     /**
@@ -50,7 +66,7 @@ class Appointment extends Model
     {
         return $this->belongsTo(\App\Models\Company::class, 'company_id', 'id');
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -58,7 +74,7 @@ class Appointment extends Model
     {
         return $this->belongsTo(\App\Models\Customer::class, 'customer_id', 'id');
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -70,5 +86,4 @@ class Appointment extends Model
     {
         return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
     }
-    
 }
