@@ -79,7 +79,8 @@
                         <!-- FullCalendar container -->
                         <div id="calendar"
                             data-duration="{{ $totalDuration }}"
-                            data-company="{{ $company->id }}">
+                            data-company="{{ $company->id }}"
+                            data-services="{{ $services->pluck('id')->join(',') }}">
                         </div>
                     </div>
 

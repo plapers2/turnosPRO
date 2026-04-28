@@ -99,11 +99,12 @@ class BookingController extends Controller
                     ->where('start_time', '<=', $hora . ':00')
                     ->where('end_time',   '>=', $fin->format('H:i:s'));
             })
+            ->whereHas('services', function ($q) use ($request) {
+                $q->whereIn('services.id', (array) $request->services);
+            })
             ->whereDoesntHave('appointments', function ($q) use ($inicio, $fin) {
-                $q->where(function ($q2) use ($inicio, $fin) {
-                    $q2->where('start_time', '<', $fin)
-                        ->where('end_time', '>', $inicio);
-                });
+                $q->where('start_time', '<', $fin)
+                    ->where('end_time', '>', $inicio);
             });
 
         $profesionales = $query->get(['id', 'name', 'phone', 'image']);
@@ -232,6 +233,9 @@ class BookingController extends Controller
         // Todos los profesionales de la empresa con sus horarios
         $profesionales = User::whereHas('companies', fn($q) =>
         $q->where('companies.id', $companyId))
+            ->whereHas('services', function ($q) use ($request) {
+                $q->whereIn('services.id', (array) $request->services);
+            })
             ->with('professionalAvailabilities')
             ->get();
 

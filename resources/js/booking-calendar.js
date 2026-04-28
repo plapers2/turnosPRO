@@ -10,6 +10,9 @@ let disponiblesPorFecha = {};
 let slotSeleccionado = null;
 let totalProfesionales = 0;
 const calendarEl = document.getElementById("calendar");
+const totalDuration = parseInt(calendarEl.dataset.duration);
+const companyId = parseInt(calendarEl.dataset.company);
+const serviceIds = calendarEl.dataset.services.split(",").map(Number); // ← agregar
 if (calendarEl) {
     const totalDuration = parseInt(calendarEl.dataset.duration);
     const companyId = parseInt(calendarEl.dataset.company);
@@ -220,11 +223,6 @@ if (calendarEl) {
                 const h = ((minGlobalMax - cursor) / total) * 100;
                 col.appendChild(crearOverlay(`${top}%`, `${h}%`));
             }
-            if (cursor < minGlobalMax) {
-                const top = ((cursor - minGlobalMin) / total) * 100;
-                const h = ((minGlobalMax - cursor) / total) * 100;
-                col.appendChild(crearOverlay(`${top}%`, `${h}%`));
-            }
 
             // ← AGREGAR ESTO
             parciales.forEach((slot) => {
@@ -386,15 +384,20 @@ if (calendarEl) {
         const tempCitas = {}; // ← solo locales, sin tocar los globales
         const tempDisp = {};
         try {
-            const res = await fetch(
-                `/booking/citas-ocupadas?company_id=${companyId}&start=${start}&end=${end}&duration=${totalDuration}`,
-                {
-                    headers: {
-                        Accept: "application/json",
-                        "X-CSRF-TOKEN": csrfToken,
-                    },
+            const params = new URLSearchParams({
+                company_id: companyId,
+                start,
+                end,
+                duration: totalDuration,
+            });
+            serviceIds.forEach((id) => params.append("services[]", id));
+
+            const res = await fetch(`/booking/citas-ocupadas?${params}`, {
+                headers: {
+                    Accept: "application/json",
+                    "X-CSRF-TOKEN": csrfToken,
                 },
-            );
+            });
             const data = await res.json();
 
             totalProfesionales = data.totalProfesionales;
@@ -485,10 +488,10 @@ if (calendarEl) {
             borderColor: "transparent",
         });
         actualizarBadgesSeleccion(startDate);
-        buscarProfesionales(fecha, hora);
+        buscarProfesionales(fecha, hora, serviceIds);
     }
 
-    async function buscarProfesionales(fecha, hora) {
+    async function buscarProfesionales(fecha, hora, serviceIds) {
         [
             "profesionalPlaceholder",
             "sinDisponibilidad",
@@ -502,8 +505,16 @@ if (calendarEl) {
         updateConfirmButton();
 
         try {
+            const params = new URLSearchParams({
+                company_id: companyId,
+                fecha,
+                hora,
+                duration: totalDuration,
+            });
+            serviceIds.forEach((id) => params.append("services[]", id));
+
             const res = await fetch(
-                `/booking/profesionales-disponibles?company_id=${companyId}&fecha=${fecha}&hora=${hora}&duration=${totalDuration}`,
+                `/booking/profesionales-disponibles?${params}`,
                 {
                     headers: {
                         Accept: "application/json",
