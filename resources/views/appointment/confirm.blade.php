@@ -80,15 +80,16 @@
                         <div id="calendar"
                             data-duration="{{ $totalDuration }}"
                             data-company="{{ $company->id }}"
-                            data-services="{{ $services->pluck('id')->join(',') }}">
+                            data-services="{{ $services->pluck('id')->join(',') }}"
+                            data-services-json="{{ $services->map(fn($s) => ['id' => $s->id, 'name' => $s->name, 'duration' => $s->duration])->toJson() }}">
                         </div>
                     </div>
 
                     <!-- PROFESIONAL -->
                     <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
                         <div>
-                            <h3 class="text-base font-bold text-on-surface font-headline">Profesional</h3>
-                            <p class="text-xs text-on-surface-variant mt-0.5">Elige quién te atenderá — selecciona primero un horario</p>
+                            <h3 class="text-base font-bold text-on-surface font-headline">Profesionales</h3>
+                            <p class="text-xs text-on-surface-variant mt-0.5">Elige un profesional por cada servicio — selecciona primero un horario</p>
                         </div>
 
                         <div id="profesionalPlaceholder" class="flex flex-col items-center justify-center py-8 text-center">
@@ -101,17 +102,18 @@
                             <p class="text-xs text-on-surface-variant">Buscando disponibilidad...</p>
                         </div>
 
-                        <div id="profesionalesGrid" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-
                         <div id="sinDisponibilidad" class="hidden flex-col items-center justify-center py-8 text-center">
                             <span class="material-symbols-outlined text-error/50 text-4xl mb-2">event_busy</span>
                             <p class="text-sm font-semibold text-on-surface mb-1">Sin disponibilidad</p>
-                            <p class="text-xs text-on-surface-variant">No hay profesionales disponibles en este horario. Intenta otro.</p>
+                            <p class="text-xs text-on-surface-variant">No hay combinación de profesionales disponibles en este horario. Intenta otro.</p>
                         </div>
 
-                        <input type="hidden" name="user_id" id="user_id" required />
-                        @error('user_id') <p class="text-xs text-error">{{ $message }}</p> @enderror
+                        <!-- Una sección por servicio, generada dinámicamente por JS -->
+                        <div id="serviciosProfesionales" class="hidden space-y-6"></div>
                     </div>
+
+                    <!-- Hidden inputs para profesionales (uno por servicio, generados por JS) -->
+                    <div id="profesionalesHiddenInputs"></div>
 
                     <!-- NOTAS -->
                     <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">

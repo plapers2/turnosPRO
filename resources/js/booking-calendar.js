@@ -252,15 +252,16 @@ if (calendarEl) {
                     align-items:center;
                     justify-content:center;
                 `;
+                const esCritico = slot.disponibles === 1;
                 label.innerHTML = `<span style="
                     font-size:10px;
                     font-weight:600;
-                    color:rgba(21,128,61,0.8);
-                    background:rgba(34,197,94,0.15);
+                    color:${esCritico ? "rgba(161,98,7,0.9)" : "rgba(21,128,61,0.8)"};
+                    background:${esCritico ? "rgba(234,179,8,0.15)" : "rgba(34,197,94,0.15)"};
                     padding:2px 8px;
                     border-radius:99px;
-                    border: 1px solid rgba(34,197,94,0.3);
-                ">${slot.disponibles} disponible${slot.disponibles > 1 ? "s" : ""}</span>`;
+                    border: 1px solid ${esCritico ? "rgba(234,179,8,0.4)" : "rgba(34,197,94,0.3)"};
+                ">${esCritico ? "‼️ Último slot" : "✅ Disponible"}</span>`;
 
                 if (slotSeleccionado) {
                     const fechaSel = formatDate(slotSeleccionado);
@@ -488,45 +489,81 @@ if (calendarEl) {
             borderColor: "transparent",
         });
         actualizarBadgesSeleccion(startDate);
-        buscarProfesionales(fecha, hora, serviceIds);
+        buscarProfesionales(fecha, hora);
     }
 
-    async function buscarProfesionales(fecha, hora, serviceIds) {
+    const servicesData = JSON.parse(calendarEl.dataset.servicesJson);
+
+    async function buscarProfesionales(fecha, hora) {
         [
             "profesionalPlaceholder",
             "sinDisponibilidad",
-            "profesionalesGrid",
+            "serviciosProfesionales",
         ].forEach((id) => document.getElementById(id).classList.add("hidden"));
 
         const loading = document.getElementById("profesionalLoading");
         loading.classList.remove("hidden");
         loading.classList.add("flex");
-        document.getElementById("user_id").value = "";
+
+        // Limpiar inputs hidden anteriores
+        document.getElementById("profesionalesHiddenInputs").innerHTML = "";
         updateConfirmButton();
 
         try {
-            const params = new URLSearchParams({
-                company_id: companyId,
-                fecha,
-                hora,
-                duration: totalDuration,
-            });
-            serviceIds.forEach((id) => params.append("services[]", id));
+            // Cargar profesionales para cada servicio de forma consecutiva
+            let cursorHora = hora;
+            let todosValidos = true;
+            const secciones = [];
 
-            const res = await fetch(
-                `/booking/profesionales-disponibles?${params}`,
-                {
-                    headers: {
-                        Accept: "application/json",
-                        "X-CSRF-TOKEN": csrfToken,
+            for (const servicio of servicesData) {
+                const params = new URLSearchParams({
+                    company_id: companyId,
+                    fecha,
+                    hora: cursorHora,
+                    service_id: servicio.id,
+                    // Excluir profesionales ya elegidos en servicios anteriores
+                    ...Object.fromEntries(
+                        secciones
+                            .map((s, i) => [
+                                `excluir_users[${i}]`,
+                                s.selectedUserId ?? "",
+                            ])
+                            .filter(([, v]) => v),
+                    ),
+                });
+
+                const res = await fetch(
+                    `/booking/profesionales-disponibles?${params}`,
+                    {
+                        headers: {
+                            Accept: "application/json",
+                            "X-CSRF-TOKEN": csrfToken,
+                        },
                     },
-                },
-            );
-            const data = await res.json();
+                );
+                const data = await res.json();
+
+                if (!data.profesionales?.length) {
+                    todosValidos = false;
+                    break;
+                }
+
+                secciones.push({
+                    servicio,
+                    profesionales: data.profesionales,
+                    horaInicio: cursorHora,
+                    horaFin: data.hora_fin,
+                    selectedUserId: null,
+                });
+
+                // El siguiente servicio empieza donde termina este
+                cursorHora = data.hora_fin;
+            }
+
             loading.classList.add("hidden");
             loading.classList.remove("flex");
 
-            if (!data.profesionales?.length) {
+            if (!todosValidos) {
                 document
                     .getElementById("sinDisponibilidad")
                     .classList.remove("hidden");
@@ -535,7 +572,8 @@ if (calendarEl) {
                     .classList.add("flex");
                 return;
             }
-            renderProfesionales(data.profesionales);
+
+            renderSecciones(secciones);
         } catch (e) {
             loading.classList.add("hidden");
             document
@@ -545,56 +583,114 @@ if (calendarEl) {
         }
     }
 
-    function renderProfesionales(profesionales) {
-        const grid = document.getElementById("profesionalesGrid");
-        grid.innerHTML = "";
+    function renderSecciones(secciones) {
+        const contenedor = document.getElementById("serviciosProfesionales");
+        const inputsContenedor = document.getElementById(
+            "profesionalesHiddenInputs",
+        );
+        contenedor.innerHTML = "";
+        inputsContenedor.innerHTML = "";
 
-        profesionales.forEach((prof) => {
-            const card = document.createElement("label");
-            card.className =
-                "profesional-card flex items-center gap-3 p-3 rounded-xl border-2 border-outline-variant/20 cursor-pointer transition-all hover:border-primary/40";
-            card.innerHTML = `
-            <input type="radio" name="_profesional_radio" value="${prof.id}" class="sr-only profesional-radio" />
-            <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-primary/10 flex items-center justify-center border border-outline-variant/20">
-                ${
-                    prof.image
-                        ? `<img src="${prof.image}" alt="${prof.name}" class="w-full h-full object-cover" />`
-                        : `<span class="text-sm font-bold text-primary/50">${prof.name.substring(0, 2).toUpperCase()}</span>`
-                }
+        secciones.forEach((seccion, index) => {
+            // Input hidden para este profesional
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = `asignaciones[${index}][user_id]`;
+            input.id = `user_id_${index}`;
+            input.value = "";
+            inputsContenedor.appendChild(input);
+
+            // Input hidden para el service_id
+            const inputService = document.createElement("input");
+            inputService.type = "hidden";
+            inputService.name = `asignaciones[${index}][service_id]`;
+            inputService.value = seccion.servicio.id;
+            inputsContenedor.appendChild(inputService);
+
+            // Input hidden para hora de inicio
+            const inputHora = document.createElement("input");
+            inputHora.type = "hidden";
+            inputHora.name = `asignaciones[${index}][hora_inicio]`;
+            inputHora.value = seccion.horaInicio;
+            inputsContenedor.appendChild(inputHora);
+
+            // Sección visual
+            const seccionEl = document.createElement("div");
+            seccionEl.className = "space-y-3";
+            seccionEl.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-on-surface">${seccion.servicio.name}</p>
+                    <p class="text-xs text-on-surface-variant">${seccion.horaInicio} → ${seccion.horaFin} · ${seccion.servicio.duration} min</p>
+                </div>
             </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-on-surface line-clamp-1">${prof.name}</p>
-                <p class="text-xs text-on-surface-variant">${prof.phone || ""}</p>
-            </div>`;
-            grid.appendChild(card);
-        });
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 profesionales-grid-${index}"></div>
+        `;
+            contenedor.appendChild(seccionEl);
 
-        grid.classList.remove("hidden");
-        grid.classList.add("grid");
+            const grid = seccionEl.querySelector(
+                `.profesionales-grid-${index}`,
+            );
 
-        grid.querySelectorAll(".profesional-radio").forEach((radio) => {
-            radio.addEventListener("change", () => {
-                grid.querySelectorAll(".profesional-card").forEach((c) => {
-                    c.classList.remove("border-primary", "bg-primary/5");
-                    c.classList.add("border-outline-variant/20");
-                });
-                radio
-                    .closest(".profesional-card")
-                    .classList.add("border-primary", "bg-primary/5");
-                radio
-                    .closest(".profesional-card")
-                    .classList.remove("border-outline-variant/20");
-                document.getElementById("user_id").value = radio.value;
-                updateConfirmButton();
+            seccion.profesionales.forEach((prof) => {
+                const card = document.createElement("label");
+                card.className =
+                    "profesional-card flex items-center gap-3 p-3 rounded-xl border-2 border-outline-variant/20 cursor-pointer transition-all hover:border-primary/40";
+                card.innerHTML = `
+                <input type="radio" name="prof_radio_${index}" value="${prof.id}" class="sr-only prof-radio" data-index="${index}" />
+                <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-primary/10 flex items-center justify-center border border-outline-variant/20">
+                    ${
+                        prof.image
+                            ? `<img src="${prof.image}" alt="${prof.name}" class="w-full h-full object-cover" />`
+                            : `<span class="text-sm font-bold text-primary/50">${prof.name.substring(0, 2).toUpperCase()}</span>`
+                    }
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-on-surface line-clamp-1">${prof.name}</p>
+                    <p class="text-xs text-on-surface-variant">${prof.phone || ""}</p>
+                </div>`;
+
+                card.querySelector(".prof-radio").addEventListener(
+                    "change",
+                    (e) => {
+                        // Desmarcar otras cards del mismo grupo
+                        grid.querySelectorAll(".profesional-card").forEach(
+                            (c) => {
+                                c.classList.remove(
+                                    "border-primary",
+                                    "bg-primary/5",
+                                );
+                                c.classList.add("border-outline-variant/20");
+                            },
+                        );
+                        card.classList.add("border-primary", "bg-primary/5");
+                        card.classList.remove("border-outline-variant/20");
+                        document.getElementById(`user_id_${index}`).value =
+                            e.target.value;
+                        updateConfirmButton();
+                    },
+                );
+
+                grid.appendChild(card);
             });
         });
+
+        contenedor.classList.remove("hidden");
     }
 
     function updateConfirmButton() {
-        const ok =
-            document.getElementById("fecha").value &&
-            document.getElementById("hora").value &&
-            document.getElementById("user_id").value;
+        const fecha = document.getElementById("fecha").value;
+        const hora = document.getElementById("hora").value;
+
+        // Verificar que todos los servicios tienen profesional asignado
+        const totalServicios = servicesData.length;
+        let asignados = 0;
+        for (let i = 0; i < totalServicios; i++) {
+            const input = document.getElementById(`user_id_${i}`);
+            if (input && input.value) asignados++;
+        }
+
+        const ok = fecha && hora && asignados === totalServicios;
         const btn = document.getElementById("btnConfirmar");
         btn.disabled = !ok;
         btn.className = ok

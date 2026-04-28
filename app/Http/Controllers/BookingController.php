@@ -78,52 +78,39 @@ class BookingController extends Controller
     // ─── API: Profesionales disponibles (AJAX) ──────────────────────────
     public function profesionalesDisponibles(Request $request): JsonResponse
     {
-        $companyId = $request->company_id;
-        $fecha     = $request->fecha;
-        $hora      = $request->hora;
-        $duration  = (int) $request->duration;
+        $companyId    = $request->company_id;
+        $fecha        = $request->fecha;
+        $hora         = $request->hora; // hora de inicio de ESTE servicio
+        $serviceId    = (int) $request->service_id;
+        $excluirUsers = (array) ($request->excluir_users ?? []);
 
-        $dayOfWeek = Carbon::parse($fecha . ' 12:00:00')->format('l');
+        $service   = Service::findOrFail($serviceId);
+        $dayOfWeek = Carbon::parse("$fecha 12:00:00")->format('l');
+        $inicio    = Carbon::parse("$fecha $hora:00");
+        $fin       = $inicio->copy()->addMinutes($service->duration);
 
-        $inicio = Carbon::parse("$fecha $hora:00");
-        $fin    = $inicio->copy()->addMinutes($duration);
         if ($inicio->isPast()) {
             return response()->json(['profesionales' => []]);
         }
 
-        $query = User::whereHas('companies', function ($q) use ($companyId) {
-            $q->where('companies.id', $companyId);
-        })
-            ->whereHas('professionalAvailabilities', function ($q) use ($dayOfWeek, $hora, $fin) {
-                $q->where('day_of_week', $dayOfWeek)
-                    ->where('start_time', '<=', $hora . ':00')
-                    ->where('end_time',   '>=', $fin->format('H:i:s'));
-            })
-            ->whereHas('services', function ($q) use ($request) {
-                $q->whereIn('services.id', (array) $request->services);
-            })
-            ->whereDoesntHave('appointments', function ($q) use ($inicio, $fin) {
-                $q->where('start_time', '<', $fin)
-                    ->where('end_time', '>', $inicio);
-            });
+        $profesionales = User::whereHas('companies', fn($q) =>
+        $q->where('companies.id', $companyId))
+            ->whereHas('services', fn($q) =>
+            $q->where('services.id', $serviceId))
+            ->whereHas('professionalAvailabilities', fn($q) =>
+            $q->where('day_of_week', $dayOfWeek)
+                ->where('start_time', '<=', $inicio->format('H:i:s'))
+                ->where('end_time',   '>=', $fin->format('H:i:s')))
+            ->whereDoesntHave('appointments', fn($q) =>
+            $q->where('start_time', '<', $fin)
+                ->where('end_time',   '>', $inicio))
+            ->whereNotIn('id', $excluirUsers) // excluir profesionales ya asignados
+            ->get(['id', 'name', 'phone', 'image']);
 
-        $profesionales = $query->get(['id', 'name', 'phone', 'image']);
-
-        // ── horario disponible ese día específico ──────────────────
-        $horarioDelDia = \DB::table('professional_availabilities')
-            ->whereIn('user_id', User::whereHas('companies', fn($q) =>
-            $q->where('companies.id', $companyId))->pluck('id'))
-            ->where('day_of_week', $dayOfWeek)
-            ->selectRaw('MIN(start_time) as hora_inicio, MAX(end_time) as hora_fin')
-            ->first();
         return response()->json([
             'profesionales' => $profesionales,
-            'hora_inicio'   => $horarioDelDia->hora_inicio
-                ? Carbon::parse($horarioDelDia->hora_inicio)->format('H:i')
-                : null,
-            'hora_fin'      => $horarioDelDia->hora_fin
-                ? Carbon::parse($horarioDelDia->hora_fin)->format('H:i')
-                : null,
+            'hora_inicio'   => $inicio->format('H:i'),
+            'hora_fin'      => $fin->format('H:i'),
         ]);
     }
 
@@ -131,77 +118,63 @@ class BookingController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'company_id'  => 'required|exists:companies,id',
-            'fecha'       => 'required|date|after:today',
-            'hora'        => 'required',
-            'user_id'     => 'required|exists:users,id',
-            'services'    => 'required|array|min:1',
-            'services.*'  => 'exists:services,id',
+            'company_id'              => 'required|exists:companies,id',
+            'fecha'                   => 'required|date|after:today',
+            'hora'                    => 'required',
+            'asignaciones'            => 'required|array|min:1',
+            'asignaciones.*.user_id'  => 'required|exists:users,id',
+            'asignaciones.*.service_id' => 'required|exists:services,id',
+            'asignaciones.*.hora_inicio' => 'required',
         ]);
 
-        $inicio   = Carbon::parse("{$request->fecha} {$request->hora}:00");
-        $services = Service::whereIn('id', $request->services)->get();
-        $duration = $services->sum('duration');
-        $fin      = $inicio->copy()->addMinutes($duration);
-
         try {
-            $appointment = \DB::transaction(function () use ($request, $inicio, $fin, $services, $duration) {
-
-                // Bloquear las citas del profesional para evitar concurrencia
-                $conflicto = Appointment::where('user_id', $request->user_id)
-                    ->where('start_time', '<', $fin)
-                    ->where('end_time', '>', $inicio)
-                    ->lockForUpdate()
-                    ->exists();
-
-                if ($conflicto) {
-                    throw new \Exception('slot_ocupado');
-                }
-
-                // Verificar que el profesional sigue perteneciendo a la empresa
-                $profesional = User::whereHas('companies', fn($q) =>
-                $q->where('companies.id', $request->company_id))
-                    ->where('id', $request->user_id)
-                    ->lockForUpdate()
-                    ->firstOrFail();
+            \DB::transaction(function () use ($request) {
+                $bookingGroup = \Str::uuid();
+                $fecha        = $request->fecha;
+                $companyId    = $request->company_id;
 
                 $user     = auth()->user();
                 $customer = Customer::firstOrCreate(
-                    [
-                        'email'      => $user->email,
-                        'company_id' => $request->company_id,
-                    ],
-                    [
-                        'name'       => $user->name,
-                        'phone'      => $user->phone ?? '',
-                        'company_id' => $request->company_id,
-                    ]
+                    ['email' => $user->email, 'company_id' => $companyId],
+                    ['name'  => $user->name, 'phone' => $user->phone ?? '', 'company_id' => $companyId]
                 );
 
-                $appointment = Appointment::create([
-                    'start_time'  => $inicio,
-                    'end_time'    => $fin,
-                    'customer_id' => $customer->id,
-                    'user_id'     => $request->user_id,
-                    'company_id'  => $request->company_id,
-                    'notes'       => $request->notas,
-                ]);
+                foreach ($request->asignaciones as $asignacion) {
+                    $servicio  = Service::findOrFail($asignacion['service_id']);
+                    $inicio    = Carbon::parse("$fecha {$asignacion['hora_inicio']}:00");
+                    $fin       = $inicio->copy()->addMinutes($servicio->duration);
 
-                $appointment->services()->attach($request->services);
+                    // Verificar conflicto con bloqueo pesimista
+                    $conflicto = Appointment::where('user_id', $asignacion['user_id'])
+                        ->where('start_time', '<', $fin)
+                        ->where('end_time', '>', $inicio)
+                        ->lockForUpdate()
+                        ->exists();
 
-                return $appointment;
+                    if ($conflicto) throw new \Exception('slot_ocupado');
+
+                    $appointment = Appointment::create([
+                        'start_time'   => $inicio,
+                        'end_time'     => $fin,
+                        'customer_id'  => $customer->id,
+                        'user_id'      => $asignacion['user_id'],
+                        'company_id'   => $companyId,
+                        'notes'        => $request->notas,
+                        'booking_group' => $bookingGroup,
+                    ]);
+
+                    $appointment->services()->attach($asignacion['service_id']);
+                }
             });
 
             return redirect()->route('appointment.index')
                 ->with('success', '¡Cita agendada correctamente!');
         } catch (\Exception $e) {
             $mensaje = $e->getMessage() === 'slot_ocupado'
-                ? 'Este horario acaba de ser reservado por otra persona. Por favor selecciona otro.'
+                ? 'Un horario fue reservado mientras confirmabas. Por favor selecciona otro.'
                 : 'Ocurrió un error al agendar la cita. Intenta de nuevo.';
 
-            return redirect()->back()
-                ->with('error', $mensaje)
-                ->withInput();
+            return redirect()->back()->with('error', $mensaje)->withInput();
         }
     }
     // En BookingController, agregar este método:
@@ -222,76 +195,100 @@ class BookingController extends Controller
     }
     public function citasOcupadas(Request $request): JsonResponse
     {
-        $duration = (int) $request->duration;
-        $companyId = $request->company_id;
-        $start     = Carbon::parse($request->start);
-        $end       = Carbon::parse($request->end);
-        if ($duration <= 0 || $start >= $end) {
+        $companyId  = $request->company_id;
+        $start      = Carbon::parse($request->start);
+        $end        = Carbon::parse($request->end);
+        $serviceIds = (array) $request->services;
+
+        $services = Service::whereIn('id', $serviceIds)->orderBy('id')->get();
+
+        if ($services->isEmpty() || $start >= $end) {
             return response()->json(['citas' => [], 'disponibles' => [], 'totalProfesionales' => 0]);
         }
 
-        // Todos los profesionales de la empresa con sus horarios
+        // Profesionales de la empresa con sus horarios y servicios
         $profesionales = User::whereHas('companies', fn($q) =>
         $q->where('companies.id', $companyId))
-            ->whereHas('services', function ($q) use ($request) {
-                $q->whereIn('services.id', (array) $request->services);
-            })
-            ->with('professionalAvailabilities')
+            ->whereHas('services', fn($q) =>
+            $q->whereIn('services.id', $serviceIds))
+            ->with(['professionalAvailabilities', 'services'])
             ->get();
 
-        $totalProfesionales = $profesionales->count();
+        $horaMinGlobal = $profesionales->flatMap->professionalAvailabilities->min('start_time');
+        $horaMaxGlobal = $profesionales->flatMap->professionalAvailabilities->max('end_time');
+
+        if (!$horaMinGlobal || !$horaMaxGlobal) {
+            return response()->json(['citas' => [], 'disponibles' => [], 'totalProfesionales' => 0]);
+        }
 
         // Citas existentes en el rango
         $citasExistentes = Appointment::whereHas('user.companies', fn($q) =>
         $q->where('companies.id', $companyId))
             ->where('start_time', '<', $end)
-            ->where('end_time',   '>', $start)
+            ->where('end_time', '>', $start)
             ->get(['start_time', 'end_time', 'user_id']);
 
-        // Generar slots de 30 min para toda la semana
-        $horaMinGlobal = $profesionales->flatMap->professionalAvailabilities->min('start_time');
-        $horaMaxGlobal = $profesionales->flatMap->professionalAvailabilities->max('end_time');
+        // Contar profesionales que realmente pueden participar en al menos una cadena válida
+        $dayOfWeekHoy = $start->format('l');
+        $totalProfesionales = $profesionales->filter(function ($prof) use (
+            $services,
+            $profesionales,
+            $citasExistentes,
+            $start,
+            $dayOfWeekHoy
+        ) {
+            // ¿Puede este profesional cubrir al menos un servicio en su ventana?
+            foreach ($services as $index => $servicio) {
+                $horaIni = $start->format('H:i:s');
+                $horaFin = $start->copy()->addMinutes($servicio->duration)->format('H:i:s');
 
-        $slots = [];
+                $tieneServicio = $prof->services->contains('id', $servicio->id);
+                $tieneHorario  = $prof->professionalAvailabilities->contains(
+                    fn($pa) =>
+                    $pa->day_of_week === $dayOfWeekHoy
+                        && $pa->start_time <= $horaIni
+                        && $pa->end_time   >= $horaFin
+                );
+
+                if ($tieneServicio && $tieneHorario) return true;
+            }
+            return false;
+        })->count();
+
+        $slots     = [];
         $cursorFecha = $start->copy();
 
         while ($cursorFecha < $end) {
-
-            $cursor = Carbon::parse($cursorFecha->format('Y-m-d') . ' ' . $horaMinGlobal);
-            $diaFin = Carbon::parse($cursorFecha->format('Y-m-d') . ' ' . $horaMaxGlobal);
+            $fecha   = $cursorFecha->format('Y-m-d');
+            $cursor  = Carbon::parse("$fecha $horaMinGlobal");
+            $diaFin  = Carbon::parse("$fecha $horaMaxGlobal");
 
             while ($cursor < $diaFin) {
                 $slotInicio = $cursor->copy();
-                $slotFin    = $cursor->copy()->addMinutes(30);
                 $dayOfWeek  = $slotInicio->format('l');
-                $horaInicio = $slotInicio->format('H:i:s');
-                $horaFin    = $slotFin->format('H:i:s');
-                $fecha      = $slotInicio->format('Y-m-d');
 
-                $slotFinReal = $slotInicio->copy()->addMinutes($duration)->format('H:i:s');
+                // Verificar si existe combinación válida de profesionales consecutivos
+                $combinacionValida = $this->verificarCadenaConsecutiva(
+                    $services,
+                    $profesionales,
+                    $citasExistentes,
+                    $slotInicio,
+                    $dayOfWeek
+                );
 
-                $disponibles = $profesionales->filter(function ($prof) use ($dayOfWeek, $horaInicio, $slotInicio, $slotFin, $citasExistentes, $slotFinReal, $duration) {
-                    $tieneHorario = $prof->professionalAvailabilities->contains(function ($pa) use ($dayOfWeek, $horaInicio, $slotFinReal) {
-                        return $pa->day_of_week === $dayOfWeek
-                            && $pa->start_time <= $horaInicio
-                            && $pa->end_time >= $slotFinReal;
-                    });
-                    if (!$tieneHorario) return false;
+                $combinaciones = $this->verificarCadenaConsecutiva(
+                    $services,
+                    $profesionales,
+                    $citasExistentes,
+                    $slotInicio,
+                    $dayOfWeek
+                );
 
-                    $tieneCita = $citasExistentes->contains(function ($cita) use ($prof, $slotInicio, $duration) {
-                        $slotFinReal = $slotInicio->copy()->addMinutes($duration);
-                        return $cita->user_id === $prof->id
-                            && $cita->start_time < $slotFinReal
-                            && $cita->end_time > $slotInicio;
-                    });
-
-                    return !$tieneCita;
-                })->count();
                 $slots[] = [
                     'fecha'       => $fecha,
                     'inicio'      => $slotInicio->format('H:i'),
-                    'fin'         => $slotFin->format('H:i'),
-                    'disponibles' => $disponibles,
+                    'fin'         => $slotInicio->copy()->addMinutes(30)->format('H:i'),
+                    'disponibles' => $combinaciones,
                 ];
 
                 $cursor->addMinutes(30);
@@ -300,28 +297,160 @@ class BookingController extends Controller
             $cursorFecha->addDay();
         }
 
-        // Slots bloqueados = dentro del horario global pero sin disponibles
         $horaMinStr = substr($horaMinGlobal, 0, 5);
         $horaMaxStr = substr($horaMaxGlobal, 0, 5);
 
-        $bloqueados = collect($slots)->filter(function ($s) use ($horaMinStr, $horaMaxStr) {
-            return $s['disponibles'] === 0
+        $bloqueados = collect($slots)->filter(
+            fn($s) =>
+            $s['disponibles'] === 0
                 && $s['inicio'] >= $horaMinStr
-                && $s['fin'] <= $horaMaxStr
-                && $s['fin'] !== '00:00';
-        })->map(fn($s) => [
-            'fecha'  => $s['fecha'],
-            'inicio' => $s['inicio'],
-            'fin'    => $s['fin'],
-        ])->values();
-
-        // Slots con disponibilidad parcial o total
-        $disponiblesPorSlot = collect($slots)->filter(fn($s) => $s['disponibles'] > 0)
+                && $s['fin']    <= $horaMaxStr
+                && $s['fin']    !== '00:00'
+        )->map(fn($s) => ['fecha' => $s['fecha'], 'inicio' => $s['inicio'], 'fin' => $s['fin']])
             ->values();
+
+        $disponiblesPorSlot = collect($slots)->filter(fn($s) => $s['disponibles'] > 0)->values();
+
         return response()->json([
             'citas'              => $bloqueados,
             'disponibles'        => $disponiblesPorSlot,
             'totalProfesionales' => $totalProfesionales,
         ]);
+    }
+
+    // ─── Helper: verificar si existe cadena consecutiva válida ──────────
+    private function verificarCadenaConsecutiva(
+        $services,
+        $profesionales,
+        $citasExistentes,
+        Carbon $slotInicio,
+        string $dayOfWeek
+    ): int {
+        $contador = 0;
+        $this->contarCadenas(
+            0,
+            $services,
+            $profesionales,
+            $citasExistentes,
+            $slotInicio,
+            $dayOfWeek,
+            [],
+            $contador
+        );
+        // \Log::info('Slot ' . $slotInicio->format('H:i') . ' → combinaciones: ' . $contador);
+        return $contador;
+    }
+
+    private function contarCadenas(
+        int $index,
+        $services,
+        $profesionales,
+        $citasExistentes,
+        Carbon $cursor,
+        string $dayOfWeek,
+        array $asignados,
+        int &$contador
+    ): void {
+        if ($index >= $services->count()) {
+            $contador++;
+            return;
+        }
+
+        $servicio   = $services[$index];
+        $inicio     = $cursor->copy();
+        $fin        = $inicio->copy()->addMinutes($servicio->duration);
+        $horaIniStr = $inicio->format('H:i:s');
+        $horaFinStr = $fin->format('H:i:s');
+
+        foreach ($profesionales as $prof) {
+            if (!$prof->services->contains('id', $servicio->id)) continue;
+            if (in_array($prof->id, $asignados)) continue;
+
+            $tieneHorario = $prof->professionalAvailabilities->contains(
+                fn($pa) =>
+                $pa->day_of_week === $dayOfWeek
+                    && $pa->start_time <= $horaIniStr
+                    && $pa->end_time   >= $horaFinStr
+            );
+            if (!$tieneHorario) continue;
+
+            $ocupado = $citasExistentes->contains(
+                fn($cita) =>
+                Carbon::parse($cita->start_time) < $fin
+                    && Carbon::parse($cita->end_time) > $inicio
+                    && $cita->user_id === $prof->id
+            );
+            if ($ocupado) continue;
+
+            $this->contarCadenas(
+                $index + 1,
+                $services,
+                $profesionales,
+                $citasExistentes,
+                $fin,
+                $dayOfWeek,
+                [...$asignados, $prof->id],
+                $contador
+            );
+        }
+    }
+
+    private function asignarServicio(
+        int $index,
+        $services,
+        $profesionales,
+        $citasExistentes,
+        Carbon $cursor,
+        string $dayOfWeek,
+        array $asignados
+    ): bool {
+        // Todos los servicios asignados → combinación válida encontrada
+        if ($index >= $services->count()) return true;
+
+        $servicio  = $services[$index];
+        $duration  = $servicio->duration;
+        $inicio    = $cursor->copy();
+        $fin       = $inicio->copy()->addMinutes($duration);
+        $horaIniStr = $inicio->format('H:i:s');
+        $horaFinStr = $fin->format('H:i:s');
+
+        foreach ($profesionales as $prof) {
+            // El profesional debe manejar este servicio
+            if (!$prof->services->contains('id', $servicio->id)) continue;
+
+            // No puede estar ya asignado en esta cadena (mismo profesional, dos servicios simultáneos)
+            if (in_array($prof->id, $asignados)) continue;
+
+            // Debe tener horario ese día cubriendo esta ventana
+            $tieneHorario = $prof->professionalAvailabilities->contains(
+                fn($pa) =>
+                $pa->day_of_week === $dayOfWeek
+                    && $pa->start_time <= $horaIniStr
+                    && $pa->end_time   >= $horaFinStr
+            );
+            if (!$tieneHorario) continue;
+
+            // No debe tener cita en esa ventana
+            $ocupado = $citasExistentes->contains(
+                fn($cita) =>
+                Carbon::parse($cita->start_time) < $fin
+                    && Carbon::parse($cita->end_time) > $inicio
+                    && $cita->user_id === $prof->id
+            );
+            if ($ocupado) continue;
+
+            // Este profesional es válido → intentar asignar el siguiente servicio
+            if ($this->asignarServicio(
+                $index + 1,
+                $services,
+                $profesionales,
+                $citasExistentes,
+                $fin,
+                $dayOfWeek,
+                [...$asignados, $prof->id]
+            )) return true;
+        }
+
+        return false;
     }
 }
