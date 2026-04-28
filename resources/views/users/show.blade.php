@@ -66,16 +66,17 @@
 
                         @php
                             $dias = [
-                                'monday' => 'Lunes',
-                                'tuesday' => 'Martes',
-                                'wednesday' => 'Miércoles',
-                                'thursday' => 'Jueves',
-                                'friday' => 'Viernes',
-                                'saturday' => 'Sábado',
-                                'sunday' => 'Domingo',
+                                'Monday' => 'Lunes',
+                                'Tuesday' => 'Martes',
+                                'Wednesday' => 'Miércoles',
+                                'Thursday' => 'Jueves',
+                                'Friday' => 'Viernes',
+                                'Saturday' => 'Sábado',
+                                'Sunday' => 'Domingo',
                             ];
 
-                            $agrupados = $user->disponibilidades->groupBy('day_of_week');
+
+                            $agrupados = $user->professionalAvailabilities->groupBy('day_of_week');
                         @endphp
 
                         <div class="space-y-4">
@@ -88,7 +89,8 @@
                                     @if ($agrupados->has($key))
                                         <div class="flex flex-wrap gap-2">
                                             @foreach ($agrupados[$key] as $horario)
-                                                <span class="px-3 py-1 mt-1 text-xs rounded-full bg-primary/10 text-primary">
+                                                <span
+                                                    class="px-3 py-1 mt-1 text-xs rounded-full bg-primary/10 text-primary">
                                                     {{ \Carbon\Carbon::parse($horario->start_time)->format('g:i A') }}
                                                     -
                                                     {{ \Carbon\Carbon::parse($horario->end_time)->format('g:i A') }}

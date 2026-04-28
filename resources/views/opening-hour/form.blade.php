@@ -17,13 +17,13 @@
         <x-form.field label="Día de la semana" for="dia">
             <x-form.select name="dia" id="dia">
                 @foreach ([
-        'monday' => 'Lunes',
-        'tuesday' => 'Martes',
-        'wednesday' => 'Miércoles',
-        'thursday' => 'Jueves',
-        'friday' => 'Viernes',
-        'saturday' => 'Sábado',
-        'sunday' => 'Domingo',
+        'Monday' => 'Lunes',
+        'Tuesday' => 'Martes',
+        'Wednesday' => 'Miércoles',
+        'Thursday' => 'Jueves',
+        'Friday' => 'Viernes',
+        'Saturday' => 'Sábado',
+        'Sunday' => 'Domingo',
     ] as $value => $label)
                     <option value="{{ $value }}"
                         {{ old('dia', $openingHour->day_of_week ?? '') == $value ? 'selected' : '' }}>

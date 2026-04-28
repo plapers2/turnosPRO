@@ -29,13 +29,13 @@ class DentroHorarioEmpresa implements ValidationRule
         if ($horarios->isEmpty()) {
             if ($this->validarDia) {
                 $traducciones = [
-                    'monday'    => 'lunes',
-                    'tuesday'   => 'martes',
-                    'wednesday' => 'miércoles',
-                    'thursday'  => 'jueves',
-                    'friday'    => 'viernes',
-                    'saturday'  => 'sábado',
-                    'sunday'    => 'domingo',
+                    'Monday'    => 'lunes',
+                    'Tuesday'   => 'martes',
+                    'Wednesday' => 'miércoles',
+                    'Thursday'  => 'jueves',
+                    'Friday'    => 'viernes',
+                    'Saturday'  => 'sábado',
+                    'Sunday'    => 'domingo',
                 ];
                 $diaLegible = $traducciones[$this->diaKey] ?? $this->diaKey;
                 $fail("La empresa no atiende los {$diaLegible}.");

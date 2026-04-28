@@ -84,7 +84,7 @@
             </p>
         </div>
         @include('components.form.disponibilidad', [
-            'disponibilidades' => $user->disponibilidades ?? collect(),
+            'disponibilidades' => $user->professionalAvailabilities ?? collect(),
             'horariosEmpresa' => $horariosEmpresa,
         ])
     </div>

@@ -145,37 +145,37 @@
                 return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
             }),
             dias: [{
-                    key: 'monday',
+                    key: 'Monday',
                     label: 'Lun',
                     nombre: 'Lunes'
                 },
                 {
-                    key: 'tuesday',
+                    key: 'Tuesday',
                     label: 'Mar',
                     nombre: 'Martes'
                 },
                 {
-                    key: 'wednesday',
+                    key: 'Wednesday',
                     label: 'Mié',
                     nombre: 'Miércoles'
                 },
                 {
-                    key: 'thursday',
+                    key: 'Thursday',
                     label: 'Jue',
                     nombre: 'Jueves'
                 },
                 {
-                    key: 'friday',
+                    key: 'Friday',
                     label: 'Vie',
                     nombre: 'Viernes'
                 },
                 {
-                    key: 'saturday',
+                    key: 'Saturday',
                     label: 'Sáb',
                     nombre: 'Sábado'
                 },
                 {
-                    key: 'sunday',
+                    key: 'Sunday',
                     label: 'Dom',
                     nombre: 'Domingo'
                 },

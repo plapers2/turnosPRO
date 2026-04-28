@@ -23,8 +23,12 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
+        $companyId = session('active_company_id');
         $users = User::withTrashed()
             ->where('id', '!=', auth()->id())
+            ->whereHas('companies', function ($query) use ($companyId) {
+                $query->where('companies.id', $companyId);
+            })
             ->orderByRaw('deleted_at IS NOT NULL')
             ->paginate();
 
@@ -75,7 +79,7 @@ class UserController extends Controller
             $slotRules["disponibilidad.{$i}.dia_semana"] = [
                 'required',
                 'string',
-                'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+                'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             ];
             $slotRules["disponibilidad.{$i}.hora_inicio"] = [
                 'required',
@@ -105,7 +109,12 @@ class UserController extends Controller
             'image'    => $imagePath,
         ]);
 
+        // Asignar el rol del usuario
         $user->assignRole($data['role']);
+
+        // Asignar la empresa al usuario
+        $user->companies()->attach($companyId);
+
 
         foreach ($slots as $slot) {
             $user->professionalAvailabilities()->create([
@@ -175,7 +184,7 @@ class UserController extends Controller
             $slotRules["disponibilidad.{$i}.dia_semana"] = [
                 'required',
                 'string',
-                'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+                'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             ];
             $slotRules["disponibilidad.{$i}.hora_inicio"] = [
                 'required',
