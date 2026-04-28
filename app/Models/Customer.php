@@ -28,7 +28,11 @@ class Customer extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name', 'email', 'phone'];
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'company_id',];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

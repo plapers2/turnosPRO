@@ -59,6 +59,12 @@
         </x-sidebar-link>
         @endcan
 
+        @can('gestionar citas')
+        <x-sidebar-link route="appointment.index" pattern="appointment.*" icon="group">
+            Reservar Cita
+        </x-sidebar-link>
+        @endcan
+
         {{--<x-sidebar-link route="settings.index" pattern="settings.*" icon="settings">
             Configuración
         </x-sidebar-link> --}}

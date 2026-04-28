@@ -79,4 +79,11 @@ class Company extends Model
     {
         return $this->belongsToMany(Appointment::class);
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
 }

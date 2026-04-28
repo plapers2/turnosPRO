@@ -108,7 +108,7 @@ class UserController extends Controller
         $user->assignRole($data['role']);
 
         foreach ($slots as $slot) {
-            $user->disponibilidades()->create([
+            $user->professionalAvailabilities()->create([
                 'day_of_week' => $slot['dia_semana'],
                 'start_time'  => $slot['hora_inicio'],
                 'end_time'    => $slot['hora_fin'],
@@ -217,9 +217,9 @@ class UserController extends Controller
 
         $user->syncRoles([$data['role']]);
 
-        $user->disponibilidades()->forceDelete();
+        $user->professionalAvailabilities()->forceDelete();
         foreach ($slots as $slot) {
-            $user->disponibilidades()->create([
+            $user->professionalAvailabilities()->create([
                 'day_of_week' => $slot['dia_semana'],
                 'start_time'  => $slot['hora_inicio'],
                 'end_time'    => $slot['hora_fin'],
@@ -233,7 +233,7 @@ class UserController extends Controller
     public function destroy(Request $request, User $user)
     {
         // Solo hace soft delete (NO borra imagen)
-        $user->disponibilidades()->delete();
+        $user->professionalAvailabilities()->delete();
         $user->delete();
 
         // Si es AJAX (fetch)
@@ -253,7 +253,7 @@ class UserController extends Controller
     {
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
-        $user->disponibilidades()->onlyTrashed()->restore();
+        $user->professionalAvailabilities()->onlyTrashed()->restore();
 
         return redirect()->route('users.index')
             ->with('success', 'Usuario restaurado correctamente');

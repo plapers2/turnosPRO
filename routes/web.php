@@ -8,6 +8,7 @@ use App\Http\Controllers\CompanySelectionController;
 use App\Http\Controllers\OpeningHourController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\BookingController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 
@@ -23,6 +24,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'role:cliente'])->group(function () {
+    // Citas
+    Route::get('/appointments', [BookingController::class, 'selectCompany'])->name('appointment.index');
+    Route::get('/booking/{company}/services', [BookingController::class, 'selectServices'])->name('appointments.selectServices');
+    Route::get('/booking/confirm', [BookingController::class, 'prepareCreate'])->name('booking.prepareCreate');
+    Route::post('/booking/store', [BookingController::class, 'store'])->name('appointments.store');
+    Route::get('/booking/profesionales-disponibles', [BookingController::class, 'profesionalesDisponibles'])->name('booking.profesionales');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

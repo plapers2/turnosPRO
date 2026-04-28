@@ -66,5 +66,9 @@ class Appointment extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
     }
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
+    }
     
 }

@@ -13,7 +13,15 @@ return new class extends Migration
     {
         Schema::create('professional_availabilities', function (Blueprint $table) {
             $table->id();
-            $table->enum("day_of_week", ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
+            $table->enum("day_of_week", [
+                'Monday',
+                'Tuesday',
+                'Wednesday',
+                'Thursday',
+                'Friday',
+                'Saturday',
+                'Sunday'
+            ]);
             $table->time("start_time");
             $table->time("end_time");
             $table->foreignId('user_id')->constrained();

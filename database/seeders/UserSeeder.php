@@ -29,8 +29,16 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             'name' => "Empleado",
             'email' => "empleado@gmail.com",
-            'password' => Hash::make("54321"),
+            'password' => Hash::make("12345"),
             'phone' => "987654321",
+            'image' => "https://placehold.co/600x400"
+        ]);
+        // User 3
+        DB::table('users')->insert([
+            'name' => "Cliente",
+            'email' => "cliente@gmail.com",
+            'password' => Hash::make("12345"),
+            'phone' => "0192837465",
             'image' => "https://placehold.co/600x400"
         ]);
         $users = [
@@ -51,9 +59,8 @@ class UserSeeder extends Seeder
             "Cherice",
             "Gerda",
             "Leann",
-            "Elsie"
         ];
-        // Users 3 - cantidad de arreglo (en este caso 18, por ende 20 usuarios en total)
+        // Users 3 - cantidad de arreglo (en este caso 17 + 3 usuarios base, por ende 20 usuarios en total)
         $faker = Faker::create();
         foreach ($users as $user) {
             DB::table('users')->insert([
@@ -69,7 +76,14 @@ class UserSeeder extends Seeder
         $admin = User::find(1);
         $admin->assignRole('admin');
 
-        for ($i = 2; $i < 20; $i++) {
+        $admin = User::find(2);
+        $admin->assignRole('empleado');
+
+        $admin = User::find(3);
+        $admin->assignRole('cliente');
+
+        // Si se cambia la cantidad de usuarios en total se cambia el limite del ciclo, OJO!
+        for ($i = 3; $i < 20; $i++) {
             $empleado = User::find($i);
             $empleado->assignRole('empleado');
         }
