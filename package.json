@@ -23,6 +23,7 @@
     "dependencies": {
         "chart.js": "^4.5.1",
         "fullcalendar": "^6.1.20",
-        "sweetalert2": "^11.26.24"
+        "sweetalert2": "^11.26.24",
+        "tom-select": "^2.6.0"
     }
 }

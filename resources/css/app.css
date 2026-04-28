@@ -1,14 +1,19 @@
+/* 1. IMPORTS (SIEMPRE ARRIBA) */
+@import "tom-select/dist/css/tom-select.css";
+@import "tom-select-custom.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* 2. SOURCES */
 @source "../**/*.blade.php";
 @source "../**/*.js";
 @source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
 @source "../../storage/framework/views/*.php";
+
+/* 3. PLUGINS */
 @plugin "daisyui";
-@import '@fullcalendar/core/main.css';
-@import '@fullcalendar/timegrid/main.css';
 @plugin "daisyui" {
     themes: cmyk;
 }

@@ -2,6 +2,7 @@ import "./bootstrap";
 import "./booking-calendar";
 import Alpine from "alpinejs";
 import Chart from "chart.js/auto";
+import TomSelect from "tom-select";
 
 window.Alpine = Alpine;
 
@@ -52,3 +53,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     overlay.addEventListener("click", closeSidebar);
 });
+
+
+// Inicializa Tom Select en todos los <select> con id="services"
+// Usa document ready para compatibilidad con Livewire / navegación SPA
+document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('services');
+    if (!el) return;
+
+    new TomSelect(el, {
+        plugins: ['remove_button', 'clear_button'],
+        placeholder:  'Buscar servicio...',
+        maxOptions:   null,       // sin límite — escala a cualquier cantidad
+        closeAfterSelect: false,  // mantiene el dropdown abierto para seleccionar varios
+        render: {
+            // Cada tag/item seleccionado
+            item: (data, escape) =>
+                `<div class="ts-item">${escape(data.text)}</div>`,
+            // Cada opción en el dropdown
+            option: (data, escape) =>
+                `<div class="ts-option">${escape(data.text)}</div>`,
+            // Mensaje cuando no hay resultados
+            no_results: () =>
+                `<div class="ts-no-results">Sin resultados</div>`,
+        },
+    });
+});
+

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\OpeningHour;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class UserController extends Controller
                 $query->where('companies.id', $companyId);
             })
             ->orderByRaw('deleted_at IS NOT NULL')
-            ->paginate(10);
+            ->paginate(5);
 
         return view('users.index', compact('users'))
             ->with('i', ($request->input('page', 1) - 1) * $users->perPage());
@@ -45,11 +46,12 @@ class UserController extends Controller
 
         $user = new User();
         $roles = Role::all();
+        $services = Service::where("company_id", $companyId)->get();
         $horariosEmpresa = OpeningHour::where("company_id", $companyId)->where('deleted_at', true)
             ->get()
             ->keyBy('day_of_week');
 
-        return view('users.create', compact('user', 'roles', 'horariosEmpresa'));
+        return view('users.create', compact('user', 'roles', 'horariosEmpresa', 'services'));
     }
 
     /**
@@ -66,16 +68,20 @@ class UserController extends Controller
             'password' => ['required', Password::min(8), 'confirmed'],
             'archivo'  => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'role'     => 'required|exists:roles,name',
+            'services'     => 'required|array',
+            'services.*'   => 'exists:services,id',
         ]);
 
-        $slots     = $request->input('disponibilidad', []);
+        // Disponibilidad
+        $slots = $request->input('disponibilidad', []);
         $companyId = session('active_company_id');
 
         abort_if(!$companyId, 403, 'No hay empresa activa en sesión.');
 
         $slotRules = [];
+        // Verificar que todos los campos cumplan con lo requerido
         foreach ($slots as $i => $slot) {
-            $dia     = $slot['dia_semana'] ?? '';
+            $dia = $slot['dia_semana'] ?? '';
 
             $slotRules["disponibilidad.{$i}.dia_semana"] = [
                 'required',
@@ -100,6 +106,7 @@ class UserController extends Controller
             $request->validate($slotRules);
         }
 
+        // Imagen
         $imagePath = $request->file('archivo')->store('users', 'public');
 
         $user = User::create([
@@ -115,6 +122,9 @@ class UserController extends Controller
 
         // Asignar la empresa al usuario
         $user->companies()->attach($companyId);
+
+        // Asingar los servicios al usuario
+        $user->services()->sync($data['services'] ?? []);
 
 
         foreach ($slots as $slot) {
@@ -147,11 +157,12 @@ class UserController extends Controller
         $companyId = session('active_company_id');
         $user = User::find($id);
         $roles = Role::all();
+        $services = Service::where("company_id", $companyId)->get();
         $horariosEmpresa = OpeningHour::where("company_id", $companyId)->where('deleted_at', true)
             ->get()
             ->keyBy('day_of_week');
 
-        return view('users.edit', compact('user', 'roles', 'horariosEmpresa'));
+        return view('users.edit', compact('user', 'roles', 'horariosEmpresa', 'services'));
     }
 
     /**
@@ -172,6 +183,8 @@ class UserController extends Controller
             'password' => ['nullable', Password::min(8), 'confirmed'],
             'archivo'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'role'     => 'required|exists:roles,name',
+            'services'     => 'required|array',
+            'services.*'   => 'exists:services,id',
         ]);
 
         $slots     = $request->input('disponibilidad', []);
@@ -226,7 +239,12 @@ class UserController extends Controller
             $user->save();
         }
 
+        // Sincronizar roles — sync() añade los nuevos y elimina los que se quitaron
         $user->syncRoles([$data['role']]);
+
+        // Sincronizar servicios — sync() añade los nuevos y elimina los que se quitaron
+        $user->services()->sync($data['services'] ?? []);
+
 
         $user->professionalAvailabilities()->forceDelete();
         foreach ($slots as $slot) {

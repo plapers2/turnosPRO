@@ -89,27 +89,45 @@
         ])
     </div>
 
-    <!-- BOTONES -->
-    <div class="flex justify-end gap-4 pt-4">
-
-        <a href="{{ route('users.index') }}"
-            class="px-5 py-2.5 rounded-lg text-sm font-semibold
-                       bg-surface-container hover:bg-surface-container-high transition">
-            Cancelar
-        </a>
-
-        <button type="submit"
-            class="px-6 py-2.5 rounded-lg text-sm font-semibold
-                       bg-primary text-white hover:bg-primary/90 transition shadow-md hover:shadow-lg">
-            Guardar usuario
-        </button>
-
-    </div>
 
 </div>
 
 <!-- SIDEBAR -->
 <div class="space-y-8">
+
+    {{--
+    CARD SERVICIOS — Tom Select (many-to-many)
+    Requiere: npm install tom-select
+    Importar en resources/js/app.js y resources/css/app.css (ver abajo)
+--}}
+
+    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+
+        <div>
+            <h2 class="text-lg font-semibold text-primary mb-1">Servicios asignados</h2>
+            <p class="text-sm text-on-surface-variant">
+                Busca y selecciona los servicios que este profesional puede gestionar
+            </p>
+        </div>
+
+        <select name="services[]" id="services" multiple placeholder="Buscar servicio..." autocomplete="off">
+            @forelse ($services as $service)
+                @php
+                    $selected = in_array($service->id, old('services', $user->services->pluck('id')->toArray() ?? []));
+                @endphp
+                <option value="{{ $service->id }}" {{ $selected ? 'selected' : '' }}>
+                    {{ $service->name }}
+                </option>
+            @empty
+                <option disabled>No hay servicios registrados.</option>
+            @endforelse
+        </select>
+
+        @error('services')
+            <p class="text-xs text-error mt-1">{{ $message }}</p>
+        @enderror
+
+    </div>
 
     <!-- IMAGEN -->
     <div class="bg-surface-container rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
@@ -135,6 +153,24 @@
             <li>• Verifica que el correo sea válido</li>
             <li>• Completa el teléfono correctamente</li>
         </ul>
+    </div>
+
+
+    <!-- BOTONES -->
+    <div class="flex justify-end gap-4 pt-4">
+
+        <button type="submit"
+            class="px-6 py-2.5 rounded-lg text-sm font-semibold
+                       bg-primary text-white hover:bg-primary/90 transition shadow-md hover:shadow-lg">
+            Guardar usuario
+        </button>
+
+        <a href="{{ route('users.index') }}"
+            class="px-5 py-2.5 rounded-lg text-sm font-semibold
+                       bg-surface-container hover:bg-surface-container-high transition">
+            Cancelar
+        </a>
+
     </div>
 
 </div>
