@@ -30,7 +30,7 @@ class UserController extends Controller
                 $query->where('companies.id', $companyId);
             })
             ->orderByRaw('deleted_at IS NOT NULL')
-            ->paginate();
+            ->paginate(10);
 
         return view('users.index', compact('users'))
             ->with('i', ($request->input('page', 1) - 1) * $users->perPage());
@@ -58,6 +58,7 @@ class UserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Validación base del usuario
+        // ! FALTA CORREGIR LA VALIDACION DEL EMAIL CON ESTADO
         $data = $request->validate([
             'nombre'   => 'required|string|max:255',
             'email'    => 'required|string|max:255|unique:users,email',
@@ -158,6 +159,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // ! FALTA CORREGIR LA VALIDACION DEL EMAIL CON ESTADO
         $data = $request->validate([
             'nombre'   => 'required|string|max:255',
             'email'    => [

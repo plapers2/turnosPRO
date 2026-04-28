@@ -100,10 +100,13 @@
 
                     </div>
                 @endempty
-
-
-
         </div>
+
+
+        <div class="mt-10">
+            {{ $services->links() }}
+        </div>
+
     </div>
 </main>
 </x-app-layout>

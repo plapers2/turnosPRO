@@ -26,7 +26,7 @@ class ServiceController extends Controller
             $query->where('company_id', $companyId);
         }
 
-        $services = $query->paginate(10);
+        $services = $query->paginate(9);
 
         return view('services.index', compact('services'))
             ->with('i', ($request->input('page', 1) - 1) * $services->perPage());
