@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Exception;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -42,7 +43,11 @@ class RolesAndPermissionsSeeder extends Seeder
         //* Asignar 
 
         // Administradores
-        $admin->givePermissionTo(Permission::all());
+        $admin->syncPermissions(
+            Permission::whereNotIn('name', [
+                'gestionar citas'
+            ])->get()
+        );
 
         // Empleados
         $employee->givePermissionTo([
