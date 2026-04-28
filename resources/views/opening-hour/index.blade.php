@@ -64,12 +64,12 @@
                                                         <span class="text-on-surface-variant font-normal mx-1">—</span>
                                                         {{ \Carbon\Carbon::parse($hour->end_time)->format('h:i A') }}
                                                     </div>
+                                                </div>
 
-                                                    <div
-                                                        class="text-xs px-2 py-1 rounded-md bg-primary/10 text-primary font-medium whitespace-nowrap">
-                                                        {{ $hour->duration }} min
-                                                    </div>
-
+                                                {{-- ESTADO --}}
+                                                <div class="text-xs px-2 py-1 w-1/4 text-center rounded-md  {{ $hour->deleted_at ? 'bg-error/20 text-on-error-container' : 'bg-indigo-400/20 text-indigo-700' }}"
+                                                    font-medium whitespace-nowrap">
+                                                    {{ $hour->deleted_at ? 'Inactivo' : 'Activo' }}
                                                 </div>
 
                                                 <!-- ACCIONES -->
@@ -159,7 +159,7 @@
     }
 
 
-    function deleteHour(id) {
+    async function deleteHour(id) {
 
         Swal.fire({
             title: '¿Eliminar horario?',
@@ -173,11 +173,6 @@
             reverseButtons: true,
             background: '#fcf9f3',
             color: '#1c1c19',
-            customClass: {
-                popup: 'rounded-xl shadow-lg',
-                confirmButton: 'px-4 py-2 rounded-lg font-semibold',
-                cancelButton: 'px-4 py-2 rounded-lg'
-            },
         }).then(async (result) => {
 
             if (!result.isConfirmed) return;
@@ -191,11 +186,14 @@
                     }
                 });
 
-                if (!response.ok) throw new Error();
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error desconocido');
+                }
 
                 Swal.fire({
                     title: 'Eliminado',
-                    text: 'El horario fue eliminado',
+                    text: data.message || 'El horario fue eliminado',
                     icon: 'success',
                     timer: 1200,
                     showConfirmButton: false,
@@ -206,11 +204,13 @@
             } catch (error) {
                 Swal.fire({
                     title: 'Error',
-                    text: 'No se pudo eliminar el horario',
+                    text: error.message,
                     icon: 'error',
                     background: '#fcf9f3',
-                    color: '#1c1c19'
-                });
+                    color: '#1c1c19',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
             }
 
         });

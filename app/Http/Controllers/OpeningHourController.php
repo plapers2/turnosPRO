@@ -6,6 +6,7 @@ use App\Models\OpeningHour;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\OpeningHourRequest;
+use App\Models\ProfessionalAvailability;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -47,7 +48,9 @@ class OpeningHourController extends Controller
         ]);
 
         // VALIDAR QUE NO CHOQUEN HORARIOS ENTRE SI
-        $exists = OpeningHour::where('day_of_week', $data['dia'])
+        $companyId = session('active_company_id');
+        $exists = OpeningHour::where('company_id', $companyId)
+            ->where('day_of_week', $data['dia'])
             ->where(function ($query) use ($data) {
                 $query->where('start_time', '<', $data['hora_fin'])
                     ->where('end_time', '>', $data['hora_inicio']);
@@ -103,11 +106,13 @@ class OpeningHourController extends Controller
             'hora_fin' => 'required|after:start_time',
         ]);
 
-        $exists = OpeningHour::where('day_of_week', $data['dia'])
-            ->where('id', '!=', $openingHour->id)
+        // VALIDAR QUE NO CHOQUEN HORARIOS ENTRE SI
+        $companyId = session('active_company_id');
+        $exists = OpeningHour::where('company_id', $companyId)
+            ->where('day_of_week', $data['dia'])
             ->where(function ($query) use ($data) {
-                $query->where('start_time', '<', $data['hora_inicio'])
-                    ->where('end_time', '>', $data['hora_fin']);
+                $query->where('start_time', '<', $data['hora_fin'])
+                    ->where('end_time', '>', $data['hora_inicio']);
             })
             ->exists();
 
@@ -132,11 +137,35 @@ class OpeningHourController extends Controller
     public function destroy($id)
     {
         $hour = OpeningHour::findOrFail($id);
+        $companyId = session('active_company_id');
+
+        $exists = ProfessionalAvailability::where('day_of_week', $hour->day_of_week)
+            ->where(function ($query) use ($hour) {
+                $query->where('start_time', '<', $hour->end_time)
+                    ->where('end_time', '>', $hour->start_time);
+            })
+            ->whereHas('users', function ($q) use ($companyId) {
+                // AJUSTA esto según tu relación real con empresa
+                $q->whereHas('companies', function ($q2) use ($companyId) {
+                    $q2->where('companies.id', $companyId);
+                });
+            })
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes eliminar este horario porque hay profesionales asignados dentro de ese rango.'
+            ], 422);
+        }
+
         $hour->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Horario eliminado correctamente'
+        ]);
     }
-
     public function restore($id)
     {
         $hour = OpeningHour::withTrashed()->findOrFail($id);
