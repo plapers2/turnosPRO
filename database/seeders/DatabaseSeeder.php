@@ -3,14 +3,18 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\TypeCompanySeeder;
 use Database\Seeders\CompanySeeder;
-use Database\Seeders\RolesAndPermissionsSeeder;
-use Database\Seeders\AppointmentSeeder;
-use Database\Seeders\ProfessionalAvailabilitiesSeeder;
 use Database\Seeders\CustomerSeeder;
+use Database\Seeders\ServicesSeeder;
+use Database\Seeders\CompaniesUsersSeeder;
+use Database\Seeders\ServiceUserSeeder;
+use Database\Seeders\ProfessionalAvailabilitiesSeeder;
 use Database\Seeders\OpeningHourSeeder;
+use Database\Seeders\AppointmentSeeder;
+use Database\Seeders\AppointmentServiceSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -30,9 +34,11 @@ class DatabaseSeeder extends Seeder
             CustomerSeeder::class,
             ServicesSeeder::class,
             CompaniesUsersSeeder::class,
+            ServiceUserSeeder::class,
             ProfessionalAvailabilitiesSeeder::class,
             OpeningHourSeeder::class,
             AppointmentSeeder::class,
+            AppointmentServiceSeeder::class,
         ]);
     }
 }
