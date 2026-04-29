@@ -24,10 +24,10 @@
             <img alt="Admin Avatar"
                 class="w-10 h-10 rounded-full object-cover shadow-sm group-hover:scale-105 transition-transform"
                 data-alt="professional portrait of male administrator in soft lighting"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLWYEj_C0m-SUbpl8eco4NCcYiwDTQZAIHna4GfNOuzEwQhSpYCRRioJjNZKFWY6vnXv5_IrgEZlWqEd1fS528d6zZGq_2ReK_aWID6n482hrvwLxSicpQpVWG8XRlpL2PNkJwpBdgc2WaAd0k2Xv89P5CetVWISRSuBE1PRJtoMSbdWLE5aGqSIxcNxn2uex8OKAzs2tB-SNf_a5Yb5hv5jgdkJ77zybgANcRIhdkId24eTLLE6GYKknKRvxGONDyi3GbEM8O2dwH" />
+                src="{{ asset('storage/' . auth()->user()->image) }}" />
             <div class="flex flex-col">
-                <span class="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">Admin
-                    Usuario</span>
+                <span
+                    class="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">{{ auth()->user()->name }}</span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button
