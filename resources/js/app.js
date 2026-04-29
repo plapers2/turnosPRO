@@ -59,6 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // Usa document ready para compatibilidad con Livewire / navegación SPA
 document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById('services');
+    console.log(el);
+    console.log("...")
     if (!el) return;
 
     new TomSelect(el, {
