@@ -4,18 +4,17 @@ import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import dayGridPlugin from "@fullcalendar/daygrid";
 
-// Variables globales del blade — las lee del DOM para no depender de window
-let citasOcupadas = {};
-let disponiblesPorFecha = {};
-let slotSeleccionado = null;
-let totalProfesionales = 0;
+
 const calendarEl = document.getElementById("calendar");
-const totalDuration = parseInt(calendarEl.dataset.duration);
-const companyId = parseInt(calendarEl.dataset.company);
-const serviceIds = calendarEl.dataset.services.split(",").map(Number); // ← agregar
 if (calendarEl) {
+    // Variables globales del blade — las lee del DOM para no depender de window
+    let citasOcupadas = {};
+    let disponiblesPorFecha = {};
+    let slotSeleccionado = null;
+    let totalProfesionales = 0;
     const totalDuration = parseInt(calendarEl.dataset.duration);
     const companyId = parseInt(calendarEl.dataset.company);
+    const serviceIds = calendarEl.dataset.services.split(",").map(Number); // ← agregar
     const csrfToken = document
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
