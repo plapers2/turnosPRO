@@ -19,6 +19,19 @@
             Dashboard
         </x-sidebar-link>
 
+
+        @can('gestionar usuarios')
+            <x-sidebar-link route="users.index" pattern="users.*" icon="workspace_premium">
+                Profesionales
+            </x-sidebar-link>
+        @endcan
+
+        @can('gestionar servicios')
+            <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
+                Servicios
+            </x-sidebar-link>
+        @endcan
+
         {{-- <x-sidebar-link route="appointments.index" pattern="appointments.*" icon="calendar_month">
             Citas
         </x-sidebar-link> --}}
@@ -41,17 +54,6 @@
             </x-sidebar-link>
         @endcan
 
-        @can('gestionar servicios')
-            <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
-                Servicios
-            </x-sidebar-link>
-        @endcan
-
-        @can('gestionar usuarios')
-            <x-sidebar-link route="users.index" pattern="users.*" icon="server_person">
-                Profesionales
-            </x-sidebar-link>
-        @endcan
 
         @can('gestionar clientes')
             <x-sidebar-link route="customers.index" pattern="customers.*" icon="groups">

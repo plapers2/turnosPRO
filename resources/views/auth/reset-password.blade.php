@@ -5,7 +5,7 @@
         {{-- Header --}}
         <div class="flex items-center gap-3 mb-2">
             <div
-                class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-content-center flex items-center justify-center">
+                class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-content-center justify-center">
                 <span class="material-symbols-outlined text-primary text-xl">lock_reset</span>
             </div>
             <div>
