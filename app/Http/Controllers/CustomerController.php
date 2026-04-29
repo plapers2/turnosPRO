@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CustomerRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\UpdateCustomerProfileRequest;
 
 class CustomerController extends Controller
 {
@@ -80,5 +82,26 @@ class CustomerController extends Controller
 
         return Redirect::route('customers.index')
             ->with('success', 'Customer deleted successfully');
+    }
+    public function editProfile()
+    {
+        $cliente = auth()->user();
+        return view('customer.edit-profile', compact('cliente'));
+    }
+
+    public function updateProfile(UpdateCustomerProfileRequest $request)
+    {
+        $cliente = auth()->user();
+
+        $cliente->name  = $request->name;
+        $cliente->phone = $request->phone;
+
+        if ($request->filled('new_password')) {
+            $cliente->password = Hash::make($request->new_password);
+        }
+
+        $cliente->save();
+
+        return redirect()->route('dashboard')->with('success', 'Perfil actualizado correctamente.');
     }
 }
