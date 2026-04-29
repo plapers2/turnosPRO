@@ -13,7 +13,6 @@
 @source "../../storage/framework/views/*.php";
 
 /* 3. PLUGINS */
-@plugin "daisyui";
 @plugin "daisyui" {
-    themes: cmyk;
+    themes: false; /* ← deshabilita todos los temas de DaisyUI */
 }
