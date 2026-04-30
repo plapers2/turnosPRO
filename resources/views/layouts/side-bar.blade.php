@@ -67,6 +67,12 @@
             </x-sidebar-link>
         @endcan
 
+        @role('admin')
+            <x-sidebar-link route="appointment-manager.index" pattern="appointment-manager.*" icon="event_note">
+                Gestión de Citas
+            </x-sidebar-link>
+        @endrole
+
         {{-- <x-sidebar-link route="settings.index" pattern="settings.*" icon="settings">
             Configuración
         </x-sidebar-link> --}}

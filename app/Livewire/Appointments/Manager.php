@@ -181,7 +181,7 @@ class Manager extends Component
     // ── Computed: profesionales ──────────────────────────────
     public function getProfessionalsProperty()
     {
-        return User::role('professional')->orderBy('name')->get();
+        return User::role('empleado')->orderBy('name')->get();
     }
 
     // ── Computed: eventos del calendario ────────────────────
@@ -210,7 +210,7 @@ class Manager extends Component
 
     public function render()
     {
-        return view('livewire.appointments.manager', [
+        return view('livewire.appointments.⚡manager', [
             'appointments'   => $this->appointments,
             'stats'          => $this->stats,
             'professionals'  => $this->professionals,

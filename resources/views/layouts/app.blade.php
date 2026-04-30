@@ -21,6 +21,8 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        @stack('styles') {{-- antes de </head> --}}
     </head>
 
     <body
@@ -55,6 +57,7 @@
             </script>
         @endif
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @stack('scripts') {{-- antes de </body> --}}
     </body>
 
     </html>
