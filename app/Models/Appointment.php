@@ -52,6 +52,8 @@ class Appointment extends Model
         'user_id',
         'company_id',
         'status',
+        'reminder_24h_sent',
+        'reminder_1h_sent',
         'booking_group'
     ];
     protected $casts = [

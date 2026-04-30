@@ -24,6 +24,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('company_id')->constrained();
             $table->enum('status', ['pendiente', 'confirmada', 'cancelada'])->default('pendiente');
+            $table->boolean('reminder_24h_sent')->default(false);
+            $table->boolean('reminder_1h_sent')->default(false);
             $table->uuid('booking_group')->nullable()->index();
             $table->softDeletes();
             $table->timestamps();
