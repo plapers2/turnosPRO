@@ -66,4 +66,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/customers', CustomerController::class)->except(['create']);
 });
 
+
+// ⚠️ Solo para pruebas — eliminar en producción
+Route::get('/test-mail', function () {
+    $appointment = \App\Models\Appointment::with(['customer', 'user', 'company', 'services'])->latest()->first();
+
+    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentConfirmationMail($appointment));
+
+    return 'Email enviado — revisa Mailtrap o el log';
+});
+
 require __DIR__ . '/auth.php';

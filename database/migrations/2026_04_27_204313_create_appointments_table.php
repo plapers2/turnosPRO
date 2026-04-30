@@ -23,6 +23,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('company_id')->constrained();
+            $table->enum('status', ['pendiente', 'confirmada', 'cancelada'])->default('pendiente');
             $table->uuid('booking_group')->nullable()->index();
             $table->softDeletes();
             $table->timestamps();

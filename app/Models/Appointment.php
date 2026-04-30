@@ -51,6 +51,7 @@ class Appointment extends Model
         'customer_id',
         'user_id',
         'company_id',
+        'status',
         'booking_group'
     ];
     protected $casts = [

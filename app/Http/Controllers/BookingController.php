@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AppointmentConfirmationMail;
+use App\Mail\AppointmentAdminNotificationMail;
 use App\Models\Company;
 use App\Models\Service;
 use App\Models\User;
@@ -12,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class BookingController extends Controller
@@ -161,9 +165,26 @@ class BookingController extends Controller
                         'company_id'   => $companyId,
                         'notes'        => $request->notas,
                         'booking_group' => $bookingGroup,
+                        'status'        => 'pendiente',
+                        'cancel_token'  => Str::random(40),
+                        'cancel_token_expires_at' => now()->addDays(7)
                     ]);
 
                     $appointment->services()->attach($asignacion['service_id']);
+                    
+                    // Cargar relaciones para el email
+                    $appointment->load(['customer', 'user', 'company', 'services']);
+
+                    // Email al cliente
+                    Mail::to($appointment->customer->email)
+                        ->send(new AppointmentConfirmationMail($appointment));
+
+                    // Email al admin de la empresa
+                    $adminEmail = $appointment->company->email;
+                    if ($adminEmail) {
+                        Mail::to($adminEmail)
+                            ->send(new AppointmentAdminNotificationMail($appointment));
+                    }
                 }
             });
 
