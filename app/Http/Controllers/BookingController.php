@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\AppointmentConfirmationMail;
 use App\Mail\AppointmentAdminNotificationMail;
+use App\Mail\AppointmentCancelledAdminMail;
 use App\Models\Company;
 use App\Models\Service;
 use App\Models\User;
@@ -492,10 +493,20 @@ class BookingController extends Controller
             return view('appointment.cancel-expired');
         }
 
+        if (now()->gt($appointment->start_time->subHours(2))) {
+            return view('appointment.cancel-toolate');
+        }
+
         $appointment->update([
             'status' => 'cancelada',
             'cancellation_reason' => 'Cancelada por el cliente desde el enlace del correo.',
         ]);
+
+        $appointment->load(['customer', 'user', 'company', 'services']);
+        $adminEmail = $appointment->company->email;
+        if ($adminEmail) {
+            Mail::to($adminEmail)->send(new AppointmentCancelledAdminMail($appointment));
+        }
 
         return view('appointment.cancel-success', compact('appointment'));
     }
