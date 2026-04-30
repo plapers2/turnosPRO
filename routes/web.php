@@ -66,6 +66,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('/customers', CustomerController::class)->except(['create']);
 });
 
+// Ruta para cancelar cita desde email
+Route::get('/appointments/cancel/{token}', [BookingController::class, 'cancelByToken'])->name('appointments.cancel');
 
 // ⚠️ Solo para pruebas — eliminar en producción
 Route::get('/test-mail', function () {

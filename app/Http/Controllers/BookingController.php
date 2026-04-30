@@ -474,4 +474,29 @@ class BookingController extends Controller
 
         return false;
     }
+    public function cancelByToken(string $token)
+    {
+        $appointment = Appointment::where('cancel_token', $token)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (!$appointment) {
+            return view('appointment.cancel-invalid');
+        }
+
+        if ($appointment->status === 'cancelada') {
+            return view('appointment.cancel-already');
+        }
+
+        if ($appointment->cancel_token_expires_at && now()->gt($appointment->cancel_token_expires_at)) {
+            return view('appointment.cancel-expired');
+        }
+
+        $appointment->update([
+            'status' => 'cancelada',
+            'cancellation_reason' => 'Cancelada por el cliente desde el enlace del correo.',
+        ]);
+
+        return view('appointment.cancel-success', compact('appointment'));
+    }
 }
