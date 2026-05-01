@@ -276,26 +276,42 @@ class Manager extends Component
     #[Computed]
     public function calendarEvents(): array
     {
-        $start = Carbon::parse($this->calendarMonth . '-01')->startOfMonth();
-        $end   = $start->copy()->endOfMonth();
-
         return $this->baseQuery()
-            ->whereBetween('start_time', [$start, $end])
             ->get()
             ->map(fn($a) => [
                 'id'    => $a->id,
-                'title' => $a->customer->name . ' ' . $a->start_time->format('H:i'),
+
+                // Título visible en el evento
+                'title' => $a->customer->name . ' · ' . $a->start_time->format('H:i'),
+
                 'start' => $a->start_time->toIso8601String(),
                 'end'   => $a->end_time->toIso8601String(),
-                'color' => match ($a->status) {
+
+                // Color de fondo según estado
+                'backgroundColor' => match ($a->status) {
                     'confirmed' => '#1D9E75',
                     'cancelled' => '#E24B4A',
                     'completed' => '#378ADD',
-                    default     => '#BA7517',
+                    default     => '#BA7517',   // pending
                 },
+                'borderColor' => match ($a->status) {
+                    'confirmed' => '#0F6E56',
+                    'cancelled' => '#A32D2D',
+                    'completed' => '#185FA5',
+                    default     => '#854F0B',
+                },
+                'textColor' => '#ffffff',
+
+                // Datos extra para el eventContent de semana/día
+                'extendedProps' => [
+                    'professional' => $a->user->name,
+                    'services'     => $a->services->pluck('name')->join(', '),
+                    'status'       => $a->status,
+                ],
             ])
             ->toArray();
     }
+
 
     public function confirmAndClose(int $id): void
     {
