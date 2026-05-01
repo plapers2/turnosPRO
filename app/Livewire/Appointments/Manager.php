@@ -238,7 +238,7 @@ class Manager extends Component
     {
         return $this->baseQuery()
             ->orderByDesc('start_time')
-            ->paginate(15);
+            ->paginate(10);
     }
 
     // ── Computed: stats ──────────────────────────────────────
