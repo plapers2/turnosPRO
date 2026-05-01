@@ -5,24 +5,23 @@
         const saved = localStorage.getItem('appt_view');
         if (saved && ['list', 'calendar'].includes(saved)) {
             this.view = saved;
-            {{-- NO llamar $wire.set aquí, el $watch lo hace --}}
         }
         this.$watch('view', (val) => {
             localStorage.setItem('appt_view', val);
             $wire.set('view', val);
-
             if (val === 'calendar') {
                 this.$nextTick(() => {
-                    if (window._calendarInstance) {
-                        window._calendarInstance.updateSize();
-                    } else if (window._mountCalendarWithEvents) {
-                        window._mountCalendarWithEvents([]);
-                    }
+                    window.dispatchEvent(new CustomEvent('calendar-view-shown'));
                 });
             }
         });
+        if (this.view === 'calendar') {
+            this.$nextTick(() => {
+                window.dispatchEvent(new CustomEvent('calendar-view-shown'));
+            });
+        }
     }
-}" x-init="init()" class="appt-manager">
+}" class="appt-manager">
 
     @include('livewire.appointments.partials.toast')
     @include('livewire.appointments.partials.header', ['total' => $stats['total']])
@@ -43,7 +42,6 @@
     {{-- Vista Calendario --}}
     <div x-show="view === 'calendar'">
         @include('livewire.appointments.calendar.nav', ['calendarMonth' => $calendarMonth])
-
         <div wire:ignore>
             @include('livewire.appointments.calendar.view', ['calendarEvents' => $calendarEvents])
         </div>
@@ -59,7 +57,6 @@
 
 </div>
 
-
 @push('scripts')
     <script>
         document.addEventListener('livewire:initialized', () => {
@@ -70,6 +67,18 @@
                     new CustomEvent('calendar-events-updated', {
                         detail: {
                             events
+                        }
+                    })
+                );
+            });
+
+            Livewire.on('calendarMonthChanged', ({
+                month
+            }) => {
+                window.dispatchEvent(
+                    new CustomEvent('calendar-month-changed', {
+                        detail: {
+                            month
                         }
                     })
                 );

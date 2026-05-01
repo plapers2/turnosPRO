@@ -104,9 +104,25 @@ class Manager extends Component
 
     public function closeModal(): void
     {
+        $this->dispatch('close-modal');
+        // Esperar que termine la animación (150ms) antes de limpiar
+        $this->js("setTimeout(() => \$wire.call('destroyModal'), 160)");
+    }
+
+    public function closeCancelModal(): void
+    {
+        $this->showCancelConfirm  = false;
+        $this->cancelTargetId     = null;
+        $this->cancellationReason = '';
+        $this->resetErrorBag();
+    }
+
+    public function destroyModal(): void
+    {
         $this->showModal    = false;
         $this->selectedAppt = null;
     }
+
 
     // ── Confirmar cita ───────────────────────────────────────
     public function confirmAppointment(int $id): void
@@ -121,17 +137,25 @@ class Manager extends Component
     {
         $this->cancelTargetId     = $id;
         $this->cancellationReason = '';
+        $this->resetErrorBag();
         $this->showCancelConfirm  = true;
     }
 
     // ── Ejecutar cancelación ─────────────────────────────────
     public function cancelAppointment(): void
     {
+        $this->validate([
+            'cancellationReason' => 'required|min:5',
+        ], [
+            'cancellationReason.required' => 'El motivo de cancelación es obligatorio.',
+            'cancellationReason.min'      => 'El motivo debe tener al menos 5 caracteres.',
+        ]);
+
         if (! $this->cancelTargetId) return;
 
         Appointment::findOrFail($this->cancelTargetId)->update([
             'status'              => 'cancelled',
-            'cancellation_reason' => $this->cancellationReason ?: null,
+            'cancellation_reason' => $this->cancellationReason,
         ]);
 
         $this->showCancelConfirm  = false;
@@ -147,6 +171,7 @@ class Manager extends Component
     {
         $this->calendarMonth = Carbon::parse($this->calendarMonth . '-01')
             ->subMonth()->format('Y-m');
+        $this->dispatch('calendarMonthChanged', month: $this->calendarMonth);
         $this->refreshCalendarEvents();
     }
 
@@ -154,6 +179,7 @@ class Manager extends Component
     {
         $this->calendarMonth = Carbon::parse($this->calendarMonth . '-01')
             ->addMonth()->format('Y-m');
+        $this->dispatch('calendarMonthChanged', month: $this->calendarMonth);
         $this->refreshCalendarEvents();
     }
 
@@ -219,7 +245,7 @@ class Manager extends Component
             ])
             ->toArray();
     }
-    
+
     public function confirmAndClose(int $id): void
     {
         $this->confirmAppointment($id);
