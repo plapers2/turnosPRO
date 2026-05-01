@@ -16,6 +16,9 @@ class Manager extends Component
     // ── Vista ────────────────────────────────────────────────
     public string $view = 'list';
 
+    // ── Rol ─────────────────────────────────────────────────
+    public bool $isAdmin = false;
+
     // ── Filtros ──────────────────────────────────────────────
     public string $search = '';
     public ?int $filterProfessional = null;
@@ -38,6 +41,14 @@ class Manager extends Component
     public function mount(): void
     {
         $this->calendarMonth = now()->format('Y-m');
+
+        $user = auth()->user();
+        $this->isAdmin = $user->hasRole('admin');
+
+        // Si es empleado, pre-filtrar sus propias citas y no permitir cambio
+        if (! $this->isAdmin) {
+            $this->filterProfessional = $user->id;
+        }
     }
 
     // ── Query base reutilizable con todos los filtros ────────
@@ -67,6 +78,11 @@ class Manager extends Component
 
     public function updatedFilterProfessional(): void
     {
+        // Empleado no puede alterar su propio filtro
+        if (! $this->isAdmin) {
+            $this->filterProfessional = auth()->id();
+        }
+
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
@@ -98,7 +114,11 @@ class Manager extends Component
     // ── Detalle de cita ──────────────────────────────────────
     public function viewAppointment(int $id): void
     {
-        $this->selectedAppt = Appointment::with(['customer', 'user', 'services'])->findOrFail($id);
+        // Empleado solo puede ver sus propias citas
+        $query = Appointment::with(['customer', 'user', 'services'])
+            ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()));
+
+        $this->selectedAppt = $query->findOrFail($id);
         $this->showModal = true;
     }
 
@@ -123,10 +143,11 @@ class Manager extends Component
         $this->selectedAppt = null;
     }
 
-
     // ── Confirmar cita ───────────────────────────────────────
     public function confirmAppointment(int $id): void
     {
+        $this->authorizeAppointmentAction($id);
+
         Appointment::findOrFail($id)->update(['status' => 'confirmed']);
         $this->refreshCalendarEvents();
         $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
@@ -135,6 +156,8 @@ class Manager extends Component
     // ── Abrir modal de cancelación ───────────────────────────
     public function openCancelModal(int $id): void
     {
+        $this->authorizeAppointmentAction($id);
+
         $this->cancelTargetId     = $id;
         $this->cancellationReason = '';
         $this->resetErrorBag();
@@ -152,6 +175,8 @@ class Manager extends Component
         ]);
 
         if (! $this->cancelTargetId) return;
+
+        $this->authorizeAppointmentAction($this->cancelTargetId);
 
         Appointment::findOrFail($this->cancelTargetId)->update([
             'status'              => 'cancelled',
@@ -189,6 +214,24 @@ class Manager extends Component
         $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents());
     }
 
+    // ── Helper: autorizar acción sobre cita ──────────────────
+    /**
+     * Empleado solo puede actuar sobre sus propias citas.
+     * Admin puede actuar sobre cualquiera.
+     */
+    protected function authorizeAppointmentAction(int $id): void
+    {
+        if ($this->isAdmin) return;
+
+        $appt = Appointment::findOrFail($id);
+
+        abort_if(
+            $appt->user_id !== auth()->id(),
+            403,
+            'No tienes permiso para modificar esta cita.'
+        );
+    }
+
     // ── Computed: citas paginadas ────────────────────────────
     #[Computed]
     public function appointments()
@@ -202,7 +245,10 @@ class Manager extends Component
     #[Computed]
     public function stats(): array
     {
-        $counts = Appointment::selectRaw('status, count(*) as total')
+        $counts = Appointment::query()
+            // Empleado solo ve sus propias estadísticas
+            ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))
+            ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
@@ -218,6 +264,11 @@ class Manager extends Component
     #[Computed]
     public function professionals()
     {
+        // Empleado no necesita la lista de otros profesionales
+        if (! $this->isAdmin) {
+            return collect();
+        }
+
         return User::role('empleado')->orderBy('name')->get();
     }
 
@@ -265,6 +316,7 @@ class Manager extends Component
             'stats'          => $this->stats(),
             'professionals'  => $this->professionals(),
             'calendarEvents' => $this->calendarEvents(),
+            'isAdmin'        => $this->isAdmin,   // <-- nuevo: pasa el rol a la vista
         ]);
     }
 }

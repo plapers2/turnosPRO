@@ -1,5 +1,5 @@
 {{-- resources/views/livewire/appointments/partials/filters-bar.blade.php --}}
-{{-- Props: $professionals (Collection<User>) --}}
+{{-- Props: $professionals (Collection<User>), $isAdmin (bool) --}}
 <section class="filters-bar">
 
     {{-- Búsqueda --}}
@@ -11,20 +11,22 @@
         <input
             wire:model.live.debounce.300ms="search"
             type="search"
-            placeholder="Buscar cliente o profesional…"
+            placeholder="Buscar cliente…"
             class="filter-input filter-input--search"
         />
     </div>
 
-    {{-- Profesional --}}
-    <div class="filter-group">
-        <select wire:model.live="filterProfessional" class="filter-select">
-            <option value="">Todos los profesionales</option>
-            @foreach ($professionals as $pro)
-                <option value="{{ $pro->id }}">{{ $pro->name }}</option>
-            @endforeach
-        </select>
-    </div>
+    {{-- Profesional: solo visible para admin --}}
+    @if ($isAdmin)
+        <div class="filter-group">
+            <select wire:model.live="filterProfessional" class="filter-select">
+                <option value="">Todos los profesionales</option>
+                @foreach ($professionals as $pro)
+                    <option value="{{ $pro->id }}">{{ $pro->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    @endif
 
     {{-- Estado --}}
     <div class="filter-group">
@@ -56,7 +58,7 @@
 
     {{-- Reset --}}
     <button
-        wire:click="$set('filterProfessional', null); $set('filterStatus', ''); $set('search', ''); $set('filterDateFrom', ''); $set('filterDateTo', '')"
+        wire:click="$set('filterStatus', ''); $set('search', ''); $set('filterDateFrom', ''); $set('filterDateTo', '')"
         class="btn-reset"
         title="Limpiar filtros"
     >

@@ -62,11 +62,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Clientes
     Route::resource('/customers', CustomerController::class)->except(['create']);
-
-    // Manejador de citas
-    Route::get('/citas', function () {
-        return view('appointment-manager.index'); // ← nombre real de tu carpeta
-    })->name('appointment-manager.index'); // ← igual que el sidebar
 });
 
+Route::middleware(['auth', 'role:admin|empleado'])->group(
+    function () {
+        // Manejador de citas
+        Route::get('/citas', function () {
+            return view('appointment-manager.index');
+        })->name('appointment-manager.index');
+    }
+);
 require __DIR__ . '/auth.php';
