@@ -5,6 +5,7 @@ namespace App\Livewire\Appointments;
 use App\Models\Appointment;
 use App\Models\User;
 use Carbon\Carbon;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -34,39 +35,58 @@ class Manager extends Component
     // ── Calendario ───────────────────────────────────────────
     public string $calendarMonth;
 
-    // ── Listeners ────────────────────────────────────────────
-    protected $listeners = [];
-
-    // ── Emits ────────────────────────────────────────────────
-    // viewChanged         → persiste vista en localStorage (JS)
-    // calendarEventsUpdated → refresca FullCalendar (JS)
-    // notify              → toast de feedback (Alpine)
-
     public function mount(): void
     {
         $this->calendarMonth = now()->format('Y-m');
     }
 
-    // ── Reset paginación cuando cambian filtros ──────────────
+    // ── Query base reutilizable con todos los filtros ────────
+    private function baseQuery()
+    {
+        return Appointment::with(['customer', 'user', 'services'])
+            ->when(
+                $this->search,
+                fn($q) => $q->where(
+                    fn($q) => $q
+                        ->whereHas('customer', fn($c) => $c->where('name', 'like', "%{$this->search}%"))
+                        ->orWhereHas('user',   fn($u) => $u->where('name', 'like', "%{$this->search}%"))
+                )
+            )
+            ->when($this->filterProfessional, fn($q) => $q->where('user_id', $this->filterProfessional))
+            ->when($this->filterStatus,       fn($q) => $q->where('status',  $this->filterStatus))
+            ->when($this->filterDateFrom,     fn($q) => $q->whereDate('start_time', '>=', $this->filterDateFrom))
+            ->when($this->filterDateTo,       fn($q) => $q->whereDate('start_time', '<=', $this->filterDateTo));
+    }
+
+    // ── Reset paginación + refresco calendario al filtrar ────
     public function updatedSearch(): void
     {
         $this->resetPage();
+        $this->refreshCalendarEvents();
     }
+
     public function updatedFilterProfessional(): void
     {
         $this->resetPage();
+        $this->refreshCalendarEvents();
     }
+
     public function updatedFilterStatus(): void
     {
         $this->resetPage();
+        $this->refreshCalendarEvents();
     }
+
     public function updatedFilterDateFrom(): void
     {
         $this->resetPage();
+        $this->refreshCalendarEvents();
     }
+
     public function updatedFilterDateTo(): void
     {
         $this->resetPage();
+        $this->refreshCalendarEvents();
     }
 
     // ── Cambio de vista ──────────────────────────────────────
@@ -84,16 +104,14 @@ class Manager extends Component
 
     public function closeModal(): void
     {
-        $this->showModal   = false;
+        $this->showModal    = false;
         $this->selectedAppt = null;
     }
 
     // ── Confirmar cita ───────────────────────────────────────
     public function confirmAppointment(int $id): void
     {
-        $appt = Appointment::findOrFail($id);
-        $appt->update(['status' => 'confirmed']);
-
+        Appointment::findOrFail($id)->update(['status' => 'confirmed']);
         $this->refreshCalendarEvents();
         $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
     }
@@ -101,9 +119,9 @@ class Manager extends Component
     // ── Abrir modal de cancelación ───────────────────────────
     public function openCancelModal(int $id): void
     {
-        $this->cancelTargetId      = $id;
-        $this->cancellationReason  = '';
-        $this->showCancelConfirm   = true;
+        $this->cancelTargetId     = $id;
+        $this->cancellationReason = '';
+        $this->showCancelConfirm  = true;
     }
 
     // ── Ejecutar cancelación ─────────────────────────────────
@@ -139,32 +157,24 @@ class Manager extends Component
         $this->refreshCalendarEvents();
     }
 
-    // ── Helpers ──────────────────────────────────────────────
+    // ── Helper: refrescar eventos del calendario ─────────────
     protected function refreshCalendarEvents(): void
     {
         $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents());
     }
 
     // ── Computed: citas paginadas ────────────────────────────
-    public function getAppointmentsProperty()
+    #[Computed]
+    public function appointments()
     {
-        return Appointment::with(['customer', 'user', 'services'])
-            ->when(
-                $this->search,
-                fn($q) =>
-                $q->whereHas('customer', fn($c) => $c->where('name', 'like', "%{$this->search}%"))
-                    ->orWhereHas('user',   fn($u) => $u->where('name', 'like', "%{$this->search}%"))
-            )
-            ->when($this->filterProfessional, fn($q) => $q->where('user_id', $this->filterProfessional))
-            ->when($this->filterStatus,       fn($q) => $q->where('status',  $this->filterStatus))
-            ->when($this->filterDateFrom,     fn($q) => $q->whereDate('start_time', '>=', $this->filterDateFrom))
-            ->when($this->filterDateTo,       fn($q) => $q->whereDate('start_time', '<=', $this->filterDateTo))
+        return $this->baseQuery()
             ->orderByDesc('start_time')
             ->paginate(15);
     }
 
     // ── Computed: stats ──────────────────────────────────────
-    public function getStatsProperty(): array
+    #[Computed]
+    public function stats(): array
     {
         $counts = Appointment::selectRaw('status, count(*) as total')
             ->groupBy('status')
@@ -179,18 +189,20 @@ class Manager extends Component
     }
 
     // ── Computed: profesionales ──────────────────────────────
-    public function getProfessionalsProperty()
+    #[Computed]
+    public function professionals()
     {
         return User::role('empleado')->orderBy('name')->get();
     }
 
     // ── Computed: eventos del calendario ────────────────────
-    public function getCalendarEventsProperty(): array
+    #[Computed]
+    public function calendarEvents(): array
     {
         $start = Carbon::parse($this->calendarMonth . '-01')->startOfMonth();
         $end   = $start->copy()->endOfMonth();
 
-        return Appointment::with('customer')
+        return $this->baseQuery()
             ->whereBetween('start_time', [$start, $end])
             ->get()
             ->map(fn($a) => [
@@ -207,14 +219,26 @@ class Manager extends Component
             ])
             ->toArray();
     }
+    
+    public function confirmAndClose(int $id): void
+    {
+        $this->confirmAppointment($id);
+        $this->closeModal();
+    }
+
+    public function openCancelAndClose(int $id): void
+    {
+        $this->openCancelModal($id);
+        $this->closeModal();
+    }
 
     public function render()
     {
         return view('livewire.appointments.⚡manager', [
-            'appointments'   => $this->appointments,
-            'stats'          => $this->stats,
-            'professionals'  => $this->professionals,
-            'calendarEvents' => $this->calendarEvents,
+            'appointments'   => $this->appointments(),
+            'stats'          => $this->stats(),
+            'professionals'  => $this->professionals(),
+            'calendarEvents' => $this->calendarEvents(),
         ]);
     }
 }

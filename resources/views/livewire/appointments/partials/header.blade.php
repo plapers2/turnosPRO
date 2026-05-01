@@ -7,7 +7,7 @@
     </div>
 
     <div class="view-toggle">
-        <button wire:click="$set('view', 'list')" class="view-toggle__btn"
+        <button @click="view = 'list'" class="view-toggle__btn"
             :class="{ 'view-toggle__btn--active': view === 'list' }" title="Vista lista">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <rect x="1" y="3" width="14" height="2" rx="1" fill="currentColor" />
@@ -17,7 +17,7 @@
             <span>Lista</span>
         </button>
 
-        <button wire:click="$set('view', 'calendar')" class="view-toggle__btn"
+        <button @click="view = 'calendar'" class="view-toggle__btn"
             :class="{ 'view-toggle__btn--active': view === 'calendar' }" title="Vista calendario">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <rect x="1" y="2" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"

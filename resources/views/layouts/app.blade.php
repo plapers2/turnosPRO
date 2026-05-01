@@ -6,7 +6,6 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-
         <title>{{ config('app.name', 'TurnosPro') }}</title>
 
         <!-- Fonts -->
@@ -19,10 +18,15 @@
             href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
             rel="stylesheet" />
 
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-        @stack('styles') {{-- antes de </head> --}}
+        <style>
+            [x-cloak] {
+                display: none !important;
+            }
+        </style>
+        @stack('styles')
     </head>
 
     <body
@@ -34,7 +38,6 @@
             {{ $slot }}
         </main>
 
-        @livewireScripts
         <!-- Scripts -->
         <x-toast />
 
@@ -57,7 +60,9 @@
             </script>
         @endif
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        @stack('scripts') {{-- antes de </body> --}}
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+        @stack('scripts')
+        @livewireScripts
     </body>
 
     </html>

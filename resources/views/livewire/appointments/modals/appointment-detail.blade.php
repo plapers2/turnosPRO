@@ -1,5 +1,4 @@
 {{-- resources/views/livewire/appointments/modals/appointment-detail.blade.php --}}
-{{-- Props: $appt (Appointment con relaciones cargadas) --}}
 <div class="modal-backdrop" wire:click.self="closeModal">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-detail">
 
@@ -7,21 +6,19 @@
             <h2 class="modal__title" id="modal-title-detail">Detalle de cita</h2>
             <button wire:click="closeModal" class="modal__close" aria-label="Cerrar">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                 </svg>
             </button>
         </div>
 
         <div class="modal__body">
+            {{-- mismo contenido interno, sin cambios --}}
             <div class="detail-grid">
-
                 {{-- Cliente --}}
                 <div class="detail-section">
                     <p class="detail-label">Cliente</p>
                     <div class="cell-person">
-                        <div class="avatar">
-                            {{ strtoupper(substr($appt->customer->name, 0, 2)) }}
-                        </div>
+                        <div class="avatar">{{ strtoupper(substr($appt->customer->name, 0, 2)) }}</div>
                         <div>
                             <p class="cell-person__name">{{ $appt->customer->name }}</p>
                             <p class="cell-person__sub">{{ $appt->customer->email }}</p>
@@ -34,9 +31,7 @@
                 <div class="detail-section">
                     <p class="detail-label">Profesional</p>
                     <div class="cell-person">
-                        <div class="avatar avatar--pro">
-                            {{ strtoupper(substr($appt->user->name, 0, 2)) }}
-                        </div>
+                        <div class="avatar avatar--pro">{{ strtoupper(substr($appt->user->name, 0, 2)) }}</div>
                         <div>
                             <p class="cell-person__name">{{ $appt->user->name }}</p>
                             <p class="cell-person__sub">{{ $appt->user->email }}</p>
@@ -72,7 +67,6 @@
                     </div>
                 </div>
 
-                {{-- Notas --}}
                 @if ($appt->notes)
                     <div class="detail-section detail-section--full">
                         <p class="detail-label">Notas</p>
@@ -80,38 +74,55 @@
                     </div>
                 @endif
 
-                {{-- Motivo de cancelación --}}
                 @if ($appt->cancellation_reason)
                     <div class="detail-section detail-section--full">
                         <p class="detail-label">Motivo de cancelación</p>
                         <p class="detail-notes detail-notes--danger">{{ $appt->cancellation_reason }}</p>
                     </div>
                 @endif
-
             </div>
         </div>
 
         <div class="modal__footer">
+
             @if ($appt->status === 'pending')
-                <button
-                    wire:click="confirmAppointment({{ $appt->id }}); closeModal()"
-                    class="btn btn--success"
-                >
-                    Confirmar cita
+                <button wire:click="confirmAndClose({{ $appt->id }})" wire:loading.attr="disabled"
+                    wire:target="confirmAndClose({{ $appt->id }})" class="btn btn--success">
+                    <span wire:loading.remove wire:target="confirmAndClose({{ $appt->id }})">
+                        Confirmar cita
+                    </span>
+                    <span wire:loading wire:target="confirmAndClose({{ $appt->id }})"
+                        class="inline-flex items-center gap-1.5">
+                        <svg class="animate-spin w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
+                            <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"
+                                stroke-dasharray="20" stroke-dashoffset="10" stroke-linecap="round" />
+                        </svg>
+                        Confirmando…
+                    </span>
                 </button>
             @endif
 
             @if (in_array($appt->status, ['pending', 'confirmed']))
-                <button
-                    wire:click="openCancelModal({{ $appt->id }}); closeModal()"
-                    class="btn btn--danger"
-                >
-                    Cancelar cita
+                <button wire:click="openCancelAndClose({{ $appt->id }})" wire:loading.attr="disabled"
+                    wire:target="openCancelAndClose({{ $appt->id }})" class="btn btn--danger">
+                    <span wire:loading.remove wire:target="openCancelAndClose({{ $appt->id }})">
+                        Cancelar cita
+                    </span>
+                    <span wire:loading wire:target="openCancelAndClose({{ $appt->id }})"
+                        class="inline-flex items-center gap-1.5">
+                        <svg class="animate-spin w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
+                            <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"
+                                stroke-dasharray="20" stroke-dashoffset="10" stroke-linecap="round" />
+                        </svg>
+                        Procesando…
+                    </span>
                 </button>
             @endif
 
-            <button wire:click="closeModal" class="btn btn--secondary">Cerrar</button>
-        </div>
+            <button wire:click="closeModal" wire:loading.attr="disabled" class="btn btn--secondary">
+                Cerrar
+            </button>
 
+        </div>
     </div>
 </div>
