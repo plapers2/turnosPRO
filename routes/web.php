@@ -59,6 +59,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
     Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
 
+    // Horarios de empresa
     Route::resource('/opening-hours', OpeningHourController::class);
     Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore']);
 
@@ -78,4 +79,12 @@ Route::get('/test-mail', function () {
     return 'Email enviado — revisa Mailtrap o el log';
 });
 
+Route::middleware(['auth', 'role:admin|empleado'])->group(
+    function () {
+        // Manejador de citas
+        Route::get('/citas', function () {
+            return view('appointment-manager.index');
+        })->name('appointment-manager.index');
+    }
+);
 require __DIR__ . '/auth.php';

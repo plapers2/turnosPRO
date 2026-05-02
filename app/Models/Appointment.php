@@ -54,13 +54,31 @@ class Appointment extends Model
         'status',
         'reminder_24h_sent',
         'reminder_1h_sent',
-        'booking_group'
+        'booking_group',
     ];
     protected $casts = [
         'start_time' => 'datetime',
         'end_time'   => 'datetime',
     ];
 
+
+    // ─── Status constants ─────────────────────────────────────────────────────
+
+    const STATUS_PENDING   = 'pending';
+    const STATUS_CONFIRMED = 'confirmed';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_CANCELLED = 'cancelled';
+
+    const STATUSES = [
+        self::STATUS_PENDING,
+        self::STATUS_CONFIRMED,
+        self::STATUS_COMPLETED,
+        self::STATUS_CANCELLED,
+    ];
+
+
+
+       // ─── Relaciones ───────────────────────────────────────────────────────────
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -88,5 +106,47 @@ class Appointment extends Model
     public function services()
     {
         return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
+    }
+
+
+    // ─── Scopes ───────────────────────────────────────────────────────────────
+
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function scopeConfirmed($query)
+    {
+        return $query->where('status', self::STATUS_CONFIRMED);
+    }
+
+    public function scopeForCompany($query, int $companyId)
+    {
+        return $query->where('company_id', $companyId);
+    }
+
+    public function scopeDateRange($query, ?string $from, ?string $to)
+    {
+        if ($from) $query->whereDate('start_time', '>=', $from);
+        if ($to)   $query->whereDate('start_time', '<=', $to);
+        return $query;
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    public function getDurationInMinutes(): int
+    {
+        return $this->start_time->diffInMinutes($this->end_time);
+    }
+
+    public function isCancellable(): bool
+    {
+        return in_array($this->status, [self::STATUS_PENDING, self::STATUS_CONFIRMED]);
+    }
+
+    public function isConfirmable(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
     }
 }

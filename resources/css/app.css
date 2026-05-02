@@ -1,6 +1,7 @@
 /* 1. IMPORTS (SIEMPRE ARRIBA) */
 @import "tom-select/dist/css/tom-select.css";
 @import "tom-select-custom.css";
+@import "./appointments.css";
 
 @tailwind base;
 @tailwind components;
@@ -15,4 +16,77 @@
 /* 3. PLUGINS */
 @plugin "daisyui" {
     themes: false; /* ← deshabilita todos los temas de DaisyUI */
+}
+
+/* Spinner animado para botones con wire:loading */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.btn__spinner {
+    display: inline-block;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.btn--loading {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+
+/* ── Loading bar ─────────────────────────────────────────── */
+.loading-bar {
+    position: fixed; /* fuera del flujo, no mueve nada */
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    z-index: 9999; /* encima de todo */
+    background: transparent;
+    pointer-events: none; /* no interfiere con clicks */
+}
+
+.loading-bar__progress {
+    height: 100%;
+    width: 100%;
+    background: #ba7517; /* tu color primary/pending */
+    transform-origin: left center;
+    animation: loading-bar-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes loading-bar-slide {
+    0% {
+        transform: scaleX(0) translateX(0);
+    }
+    50% {
+        transform: scaleX(0.6) translateX(60%);
+    }
+    100% {
+        transform: scaleX(0) translateX(200%);
+    }
+}
+
+.loading-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 9999;
+    background: transparent;
+    pointer-events: none;
+    /* aparece solo si el loading dura más de 150ms */
+    animation: loading-bar-appear 0s 150ms both;
+}
+
+@keyframes loading-bar-appear {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
