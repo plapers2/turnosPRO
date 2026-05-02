@@ -106,7 +106,7 @@
 
             {{-- Confirmar --}}
             @if ($appt->status === 'pending')
-                <button wire:click="confirmAppointment({{ $appt->id }})" title="Confirmar cita"
+                <button wire:click="openConfirmModal({{ $appt->id }})" title="Confirmar cita"
                     class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
                            bg-[#E1F5EE] border border-[#9FE1CB] text-[#0F6E56]
                            hover:bg-[#1D9E75] hover:text-white hover:border-[#1D9E75] transition-colors duration-150">

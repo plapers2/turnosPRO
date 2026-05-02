@@ -36,6 +36,10 @@ class Manager extends Component
     public ?int $cancelTargetId = null;
     public string $cancellationReason = '';
 
+    // ── Modal confirmar ──────────────────────────────────────
+    public bool $showConfirmConfirm = false;
+    public ?int $confirmTargetId = null;
+
     // ── Modal completar (RF-26) ──────────────────────────────
     public bool $showCompleteConfirm = false;
     public ?int $completeTargetId = null;
@@ -131,6 +135,52 @@ class Manager extends Component
         $this->selectedAppt = null;
     }
 
+    // ── Confirmación ─────────────────────────────────────────
+    public function openConfirmModal(int $id): void
+    {
+        $this->authorizeAppointmentAction($id);
+
+        $appointment = Appointment::findOrFail($id);
+        abort_if($appointment->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
+
+        $this->confirmTargetId    = $id;
+        $this->showConfirmConfirm = true;
+    }
+
+    public function closeConfirmModal(): void
+    {
+        $this->showConfirmConfirm = false;
+        $this->confirmTargetId   = null;
+    }
+
+    public function confirmAppointment(): void
+    {
+        if (! $this->confirmTargetId) return;
+
+        $this->authorizeAppointmentAction($this->confirmTargetId);
+
+        $appointment = Appointment::findOrFail($this->confirmTargetId);
+        abort_if($appointment->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
+
+        $appointment->update(['status' => 'confirmed']);
+
+        $this->showConfirmConfirm = false;
+        $this->confirmTargetId   = null;
+
+        if ($this->showModal && $this->selectedAppt?->id === $appointment->id) {
+            $this->selectedAppt = $appointment->fresh(['customer', 'user', 'services']);
+        }
+
+        $this->refreshCalendarEvents();
+        $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
+    }
+
+    public function openConfirmAndClose(int $id): void
+    {
+        $this->openConfirmModal($id);
+        $this->closeModal();
+    }
+
     // ── Cancelación ──────────────────────────────────────────
     public function closeCancelModal(): void
     {
@@ -138,18 +188,6 @@ class Manager extends Component
         $this->cancelTargetId     = null;
         $this->cancellationReason = '';
         $this->resetErrorBag();
-    }
-
-    public function confirmAppointment(int $id): void
-    {
-        $this->authorizeAppointmentAction($id);
-
-        $appointment = Appointment::findOrFail($id);
-        abort_if($appointment->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
-        $appointment->update(['status' => 'confirmed']);
-
-        $this->refreshCalendarEvents();
-        $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
     }
 
     public function openCancelModal(int $id): void
@@ -199,7 +237,7 @@ class Manager extends Component
         $this->dispatch('notify', type: 'warning', message: 'Cita cancelada.');
     }
 
-    // ── RF-26: Completar ─────────────────────────────────────
+    // ── Completar ─────────────────────────────────────────────
     public function openCompleteModal(int $id): void
     {
         $this->authorizeAppointmentAction($id);
@@ -315,7 +353,7 @@ class Manager extends Component
             'pending'   => $counts->get('pending',   0),
             'confirmed' => $counts->get('confirmed', 0),
             'cancelled' => $counts->get('cancelled', 0),
-            'completed' => $counts->get('completed', 0), // RF-26
+            'completed' => $counts->get('completed', 0),
         ];
     }
 
@@ -356,12 +394,6 @@ class Manager extends Component
                 ],
             ])
             ->toArray();
-    }
-
-    public function confirmAndClose(int $id): void
-    {
-        $this->confirmAppointment($id);
-        $this->closeModal();
     }
 
     public function openCancelAndClose(int $id): void

@@ -86,7 +86,7 @@
         </div>
     @endif
 
-    {{-- Acciones: grid adaptativo según cuántos botones hay --}}
+    {{-- Acciones --}}
     <div class="grid {{ $gridCols }} gap-1.5 pt-2 border-t border-outline-variant/20">
 
         {{-- Ver --}}
@@ -104,7 +104,7 @@
 
         {{-- Confirmar --}}
         @if ($canConfirm)
-            <button wire:click="confirmAppointment({{ $appt->id }})"
+            <button wire:click="openConfirmModal({{ $appt->id }})"
                 class="flex items-center justify-center gap-1 py-2 px-2 rounded-lg
                        text-[11px] font-semibold text-[#0F6E56]
                        bg-[#E1F5EE] border border-[#9FE1CB]

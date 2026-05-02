@@ -51,6 +51,10 @@
         @include('livewire.appointments.modals.appointment-detail', ['appt' => $selectedAppt])
     @endif
 
+    @if ($showConfirmConfirm)
+        @include('livewire.appointments.modals.confirm-confirm')
+    @endif
+
     @if ($showCancelConfirm)
         @include('livewire.appointments.modals.cancel-confirm')
     @endif

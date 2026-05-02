@@ -20,6 +20,12 @@
         </x-sidebar-link>
 
 
+        @role(['admin', 'empleado'])
+            <x-sidebar-link route="appointment-manager.index" pattern="appointment-manager.*" icon="event_note">
+                Citas
+            </x-sidebar-link>
+        @endrole
+
         @can('gestionar usuarios')
             <x-sidebar-link route="users.index" pattern="users.*" icon="workspace_premium">
                 Profesionales
@@ -32,9 +38,11 @@
             </x-sidebar-link>
         @endcan
 
-        {{-- <x-sidebar-link route="appointments.index" pattern="appointments.*" icon="calendar_month">
-            Citas
-        </x-sidebar-link> --}}
+          @can('gestionar clientes')
+            <x-sidebar-link route="customers.index" pattern="customers.*" icon="groups">
+                Clientes
+            </x-sidebar-link>
+        @endcan
 
         @can('gestionar empresas')
             <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
@@ -54,28 +62,11 @@
             </x-sidebar-link>
         @endcan
 
-
-        @can('gestionar clientes')
-            <x-sidebar-link route="customers.index" pattern="customers.*" icon="groups">
-                Clientes
-            </x-sidebar-link>
-        @endcan
-
         @can('gestionar citas')
             <x-sidebar-link route="appointment.index" pattern="appointment.*" icon="calendar_add_on">
                 Reservar Cita
             </x-sidebar-link>
         @endcan
-
-        @role(['admin', 'empleado'])
-            <x-sidebar-link route="appointment-manager.index" pattern="appointment-manager.*" icon="event_note">
-                Gestión de Citas
-            </x-sidebar-link>
-        @endrole
-
-        {{-- <x-sidebar-link route="settings.index" pattern="settings.*" icon="settings">
-            Configuración
-        </x-sidebar-link> --}}
 
     </div>
 

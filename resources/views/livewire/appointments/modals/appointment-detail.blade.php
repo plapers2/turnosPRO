@@ -185,20 +185,21 @@
 
             {{-- Confirmar (solo pendientes) --}}
             @if ($appt->status === 'pending')
-                <button wire:click="confirmAndClose({{ $appt->id }})" wire:loading.attr="disabled"
-                    wire:target="confirmAndClose({{ $appt->id }})"
+                <button wire:click="openConfirmAndClose({{ $appt->id }})" wire:loading.attr="disabled"
+                    wire:target="openConfirmAndClose({{ $appt->id }})"
                     class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold
                    bg-[#E1F5EE] text-[#0F6E56] border border-[#9FE1CB]
                    hover:bg-[#1D9E75] hover:text-white hover:border-[#1D9E75]
                    disabled:opacity-50 transition-colors duration-150">
-                    <span wire:loading.remove wire:target="confirmAndClose({{ $appt->id }})">Confirmar cita</span>
-                    <span wire:loading wire:target="confirmAndClose({{ $appt->id }})"
+                    <span wire:loading.remove wire:target="openConfirmAndClose({{ $appt->id }})">Confirmar
+                        cita</span>
+                    <span wire:loading wire:target="openConfirmAndClose({{ $appt->id }})"
                         class="inline-flex items-center gap-1.5">
                         <svg class="animate-spin w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
                             <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"
                                 stroke-dasharray="20" stroke-dashoffset="10" stroke-linecap="round" />
                         </svg>
-                        Confirmando…
+                        Cargando…
                     </span>
                 </button>
             @endif
