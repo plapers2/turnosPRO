@@ -132,17 +132,17 @@
                 </button>
             @endif
 
-            {{-- RF-26: Completar deshabilitado (aún en curso) --}}
+            {{-- Completar deshabilitado (aún en curso) --}}
             @if ($pendingEnd)
                 <button disabled title="Disponible al finalizar la cita ({{ $appt->end_time->format('H:i') }})"
                     class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
                            bg-surface-container border border-outline-variant/20
                            text-on-surface-variant/30 cursor-not-allowed">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M1.5 7.5l3 3 8-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"
-                            stroke-dasharray="2.5 2" />
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-[#185FA5]">
+                        <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"
+                            stroke-dasharray="3 2" />
+                        <path d="M4.5 8.2l2.8 2.8 4.2-5.2" stroke="currentColor" stroke-width="1.6"
+                            stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
             @endif

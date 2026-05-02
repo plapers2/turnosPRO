@@ -117,18 +117,18 @@
             </button>
         @endif
 
-        {{-- RF-26: Completar --}}
+        {{-- Completar --}}
         @if ($canComplete)
             <button wire:click="openCompleteModal({{ $appt->id }})"
                 class="flex items-center justify-center gap-1 py-2 px-2 rounded-lg
                        text-[11px] font-semibold text-[#185FA5]
                        bg-[#E6F1FB] border border-[#9EC8F0]
                        hover:bg-[#378ADD] hover:text-white hover:border-[#378ADD] transition-colors duration-150">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M1 6.5l2.5 2.5 7-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-[#185FA5]">
+                    <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"
+                        stroke-dasharray="3 2" />
+                    <path d="M4.5 8.2l2.8 2.8 4.2-5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
                         stroke-linejoin="round" />
-                    <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"
-                        stroke-dasharray="2.5 1.8" />
                 </svg>
                 Completar
             </button>

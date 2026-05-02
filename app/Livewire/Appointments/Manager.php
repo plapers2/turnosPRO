@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,6 +20,9 @@ class Manager extends Component
 
     // ── Rol ─────────────────────────────────────────────────
     public bool $isAdmin = false;
+
+    // ── Empresa activa ───────────────────────────────────────
+    public ?int $companyId = null;
 
     // ── Filtros ──────────────────────────────────────────────
     public string $search = '';
@@ -50,6 +54,7 @@ class Manager extends Component
     public function mount(): void
     {
         $this->calendarMonth = now()->format('Y-m');
+        $this->companyId     = session('active_company_id');
 
         $user = auth()->user();
         $this->isAdmin = $user->hasRole('admin');
@@ -59,10 +64,33 @@ class Manager extends Component
         }
     }
 
+    // ── Escucha cambio de empresa activa ─────────────────────
+    #[On('active-company-changed')]
+    public function onCompanyChanged(): void
+    {
+        $this->companyId = session('active_company_id');
+        $this->resetPage();
+        $this->refreshCalendarEvents();
+    }
+
+    // ── Scope de empresa (reutilizable) ──────────────────────
+    private function scopeCompany($query)
+    {
+        return $query->when(
+            $this->companyId,
+            fn($q) => $q->whereHas(
+                'company',
+                fn($c) => $c->where('companies.id', $this->companyId)
+            )
+        );
+    }
+
     // ── Query base ───────────────────────────────────────────
     private function baseQuery()
     {
-        return Appointment::with(['customer', 'user', 'services'])
+        return $this->scopeCompany(
+            Appointment::with(['customer', 'user', 'services'])
+        )
             ->when(
                 $this->search,
                 fn($q) => $q->where(
@@ -83,16 +111,19 @@ class Manager extends Component
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
+
     public function updatedFilterStatus(): void
     {
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
+
     public function updatedFilterDateFrom(): void
     {
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
+
     public function updatedFilterDateTo(): void
     {
         $this->resetPage();
@@ -116,10 +147,11 @@ class Manager extends Component
     // ── Detalle ──────────────────────────────────────────────
     public function viewAppointment(int $id): void
     {
-        $query = Appointment::with(['customer', 'user', 'services'])
-            ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()));
+        $this->selectedAppt = $this->scopeCompany(
+            Appointment::with(['customer', 'user', 'services'])
+                ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))
+        )->findOrFail($id);
 
-        $this->selectedAppt = $query->findOrFail($id);
         $this->showModal = true;
     }
 
@@ -220,7 +252,9 @@ class Manager extends Component
 
         $this->authorizeAppointmentAction($this->cancelTargetId);
 
-        $appointment = Appointment::with(['customer', 'user', 'services'])->findOrFail($this->cancelTargetId);
+        $appointment = Appointment::with(['customer', 'user', 'services'])
+            ->findOrFail($this->cancelTargetId);
+
         $appointment->update([
             'status'              => 'cancelled',
             'cancellation_reason' => $this->cancellationReason,
@@ -235,6 +269,12 @@ class Manager extends Component
 
         $this->refreshCalendarEvents();
         $this->dispatch('notify', type: 'warning', message: 'Cita cancelada.');
+    }
+
+    public function openCancelAndClose(int $id): void
+    {
+        $this->openCancelModal($id);
+        $this->closeModal();
     }
 
     // ── Completar ─────────────────────────────────────────────
@@ -319,10 +359,21 @@ class Manager extends Component
 
     protected function authorizeAppointmentAction(int $id): void
     {
-        if ($this->isAdmin) return;
-
         $appt = Appointment::findOrFail($id);
 
+        // Verifica que la cita pertenezca a la empresa activa
+        if ($this->companyId) {
+            abort_if(
+                ! $appt->company()->where('companies.id', $this->companyId)->exists(),
+                403,
+                'Esta cita no pertenece a la empresa activa.'
+            );
+        }
+
+        // Si es admin de la empresa, puede operar cualquier cita de ella
+        if ($this->isAdmin) return;
+
+        // El empleado solo puede operar sus propias citas
         abort_if(
             $appt->user_id !== auth()->id(),
             403,
@@ -342,7 +393,7 @@ class Manager extends Component
     #[Computed]
     public function stats(): array
     {
-        $counts = Appointment::query()
+        $counts = $this->scopeCompany(Appointment::query())
             ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
@@ -361,7 +412,17 @@ class Manager extends Component
     public function professionals()
     {
         if (! $this->isAdmin) return collect();
-        return User::role('empleado')->orderBy('name')->get();
+
+        return User::role('empleado')
+            ->when(
+                $this->companyId,
+                fn($q) => $q->whereHas(
+                    'companies',
+                    fn($c) => $c->where('companies.id', $this->companyId)
+                )
+            )
+            ->orderBy('name')
+            ->get();
     }
 
     #[Computed]
@@ -394,12 +455,6 @@ class Manager extends Component
                 ],
             ])
             ->toArray();
-    }
-
-    public function openCancelAndClose(int $id): void
-    {
-        $this->openCancelModal($id);
-        $this->closeModal();
     }
 
     public function render()
