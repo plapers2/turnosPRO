@@ -36,8 +36,11 @@ class Manager extends Component
     public ?int $cancelTargetId = null;
     public string $cancellationReason = '';
 
-    // ── Calendario: solo necesitamos el mes para la query inicial
-    //    La navegación mes/semana/día la maneja FullCalendar en el cliente.
+    // ── Modal completar (RF-26) ──────────────────────────────
+    public bool $showCompleteConfirm = false;
+    public ?int $completeTargetId = null;
+
+    // ── Calendario ───────────────────────────────────────────
     public string $calendarMonth;
 
     public function mount(): void
@@ -52,7 +55,7 @@ class Manager extends Component
         }
     }
 
-    // ── Query base reutilizable con todos los filtros ────────
+    // ── Query base ───────────────────────────────────────────
     private function baseQuery()
     {
         return Appointment::with(['customer', 'user', 'services'])
@@ -70,7 +73,7 @@ class Manager extends Component
             ->when($this->filterDateTo,       fn($q) => $q->whereDate('start_time', '<=', $this->filterDateTo));
     }
 
-    // ── Reset paginación + refresco calendario al filtrar ────
+    // ── Watchers filtros ─────────────────────────────────────
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -101,13 +104,12 @@ class Manager extends Component
         $this->refreshCalendarEvents();
     }
 
-    // ── Cambio de vista ──────────────────────────────────────
     public function updatedView(string $value): void
     {
         $this->dispatch('viewChanged', view: $value);
     }
 
-    // ── Detalle de cita ──────────────────────────────────────
+    // ── Detalle ──────────────────────────────────────────────
     public function viewAppointment(int $id): void
     {
         $query = Appointment::with(['customer', 'user', 'services'])
@@ -123,6 +125,13 @@ class Manager extends Component
         $this->js("setTimeout(() => \$wire.call('destroyModal'), 160)");
     }
 
+    public function destroyModal(): void
+    {
+        $this->showModal    = false;
+        $this->selectedAppt = null;
+    }
+
+    // ── Cancelación ──────────────────────────────────────────
     public function closeCancelModal(): void
     {
         $this->showCancelConfirm  = false;
@@ -131,22 +140,18 @@ class Manager extends Component
         $this->resetErrorBag();
     }
 
-    public function destroyModal(): void
-    {
-        $this->showModal    = false;
-        $this->selectedAppt = null;
-    }
-
-    // ── Confirmar cita ───────────────────────────────────────
     public function confirmAppointment(int $id): void
     {
         $this->authorizeAppointmentAction($id);
 
+        $appointment = Appointment::findOrFail($id);
+        abort_if($appointment->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
+        $appointment->update(['status' => 'confirmed']);
+
         $this->refreshCalendarEvents();
-        $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente, se ha enviado un email al cliente.');
+        $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
     }
 
-    // ── Abrir modal de cancelación ───────────────────────────
     public function openCancelModal(int $id): void
     {
         $this->authorizeAppointmentAction($id);
@@ -164,7 +169,6 @@ class Manager extends Component
         $this->showCancelConfirm  = true;
     }
 
-    // ── Ejecutar cancelación ─────────────────────────────────
     public function cancelAppointment(): void
     {
         $this->validate([
@@ -187,7 +191,6 @@ class Manager extends Component
         Mail::to($appointment->customer->email)
             ->send(new AppointmentCancelledByEmployeeMail($appointment));
 
-
         $this->showCancelConfirm  = false;
         $this->cancelTargetId     = null;
         $this->cancellationReason = '';
@@ -196,7 +199,60 @@ class Manager extends Component
         $this->dispatch('notify', type: 'warning', message: 'Cita cancelada.');
     }
 
-    // ── Reset de filtros ─────────────────────────────────────
+    // ── RF-26: Completar ─────────────────────────────────────
+    public function openCompleteModal(int $id): void
+    {
+        $this->authorizeAppointmentAction($id);
+
+        $appointment = Appointment::findOrFail($id);
+
+        abort_if($appointment->status !== 'confirmed', 422, 'Solo se pueden completar citas confirmadas.');
+        abort_if(now()->lt($appointment->end_time), 422, 'La cita aún no ha finalizado.');
+
+        $this->completeTargetId    = $id;
+        $this->showCompleteConfirm = true;
+    }
+
+    public function closeCompleteModal(): void
+    {
+        $this->showCompleteConfirm = false;
+        $this->completeTargetId   = null;
+    }
+
+    public function completeAppointment(): void
+    {
+        if (! $this->completeTargetId) return;
+
+        $this->authorizeAppointmentAction($this->completeTargetId);
+
+        $appointment = Appointment::findOrFail($this->completeTargetId);
+
+        abort_if($appointment->status !== 'confirmed', 422, 'Solo se pueden completar citas confirmadas.');
+        abort_if(now()->lt($appointment->end_time), 422, 'La cita aún no ha finalizado.');
+
+        $appointment->update([
+            'status'       => 'completed',
+            'completed_at' => now(),
+        ]);
+
+        $this->showCompleteConfirm = false;
+        $this->completeTargetId   = null;
+
+        if ($this->showModal && $this->selectedAppt?->id === $appointment->id) {
+            $this->selectedAppt = $appointment->fresh(['customer', 'user', 'services']);
+        }
+
+        $this->refreshCalendarEvents();
+        $this->dispatch('notify', type: 'success', message: 'Cita marcada como completada.');
+    }
+
+    public function openCompleteAndClose(int $id): void
+    {
+        $this->openCompleteModal($id);
+        $this->closeModal();
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
     public function resetFilters(): void
     {
         $this->search         = '';
@@ -204,8 +260,6 @@ class Manager extends Component
         $this->filterDateFrom = '';
         $this->filterDateTo   = '';
 
-        // Admin puede limpiar el filtro de profesional.
-        // Empleado siempre mantiene el suyo forzado.
         if ($this->isAdmin) {
             $this->filterProfessional = null;
         }
@@ -214,20 +268,17 @@ class Manager extends Component
         $this->refreshCalendarEvents();
     }
 
-    // ── Navegación de mes (solo desde vista mes del nav) ─────
     public function goToMonth(string $month): void
     {
         $this->calendarMonth = $month;
         $this->refreshCalendarEvents();
     }
 
-    // ── Helper: refrescar eventos del calendario ─────────────
     protected function refreshCalendarEvents(): void
     {
         $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents());
     }
 
-    // ── Helper: autorizar acción sobre cita ──────────────────
     protected function authorizeAppointmentAction(int $id): void
     {
         if ($this->isAdmin) return;
@@ -241,7 +292,7 @@ class Manager extends Component
         );
     }
 
-    // ── Computed: citas paginadas ────────────────────────────
+    // ── Computed ─────────────────────────────────────────────
     #[Computed]
     public function appointments()
     {
@@ -250,7 +301,6 @@ class Manager extends Component
             ->paginate(15);
     }
 
-    // ── Computed: stats ──────────────────────────────────────
     #[Computed]
     public function stats(): array
     {
@@ -265,42 +315,32 @@ class Manager extends Component
             'pending'   => $counts->get('pending',   0),
             'confirmed' => $counts->get('confirmed', 0),
             'cancelled' => $counts->get('cancelled', 0),
+            'completed' => $counts->get('completed', 0), // RF-26
         ];
     }
 
-    // ── Computed: profesionales ──────────────────────────────
     #[Computed]
     public function professionals()
     {
         if (! $this->isAdmin) return collect();
-
         return User::role('empleado')->orderBy('name')->get();
     }
 
-    // ── Computed: eventos del calendario ────────────────────
-    // Para el calendario global cargamos TODOS los eventos que pasen
-    // los filtros activos, sin limitar al mes (FullCalendar maneja
-    // la navegación en el cliente con las 3 vistas).
     #[Computed]
     public function calendarEvents(): array
     {
         return $this->baseQuery()
             ->get()
             ->map(fn($a) => [
-                'id'    => $a->id,
-
-                // Título visible en el evento
-                'title' => $a->customer->name . ' · ' . $a->start_time->format('H:i'),
-
-                'start' => $a->start_time->toIso8601String(),
-                'end'   => $a->end_time->toIso8601String(),
-
-                // Color de fondo según estado
+                'id'              => $a->id,
+                'title'           => $a->customer->name . ' · ' . $a->start_time->format('H:i'),
+                'start'           => $a->start_time->toIso8601String(),
+                'end'             => $a->end_time->toIso8601String(),
                 'backgroundColor' => match ($a->status) {
                     'confirmed' => '#1D9E75',
                     'cancelled' => '#E24B4A',
                     'completed' => '#378ADD',
-                    default     => '#BA7517',   // pending
+                    default     => '#BA7517',
                 },
                 'borderColor' => match ($a->status) {
                     'confirmed' => '#0F6E56',
@@ -308,9 +348,7 @@ class Manager extends Component
                     'completed' => '#185FA5',
                     default     => '#854F0B',
                 },
-                'textColor' => '#ffffff',
-
-                // Datos extra para el eventContent de semana/día
+                'textColor'     => '#ffffff',
                 'extendedProps' => [
                     'professional' => $a->user->name,
                     'services'     => $a->services->pluck('name')->join(', '),

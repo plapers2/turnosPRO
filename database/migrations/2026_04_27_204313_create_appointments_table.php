@@ -16,6 +16,7 @@ return new class extends Migration
             $table->dateTime("start_time");
             $table->dateTime("end_time");
             $table->text('cancellation_reason')->nullable();
+            $table->timestamp('completed_at')->nullable();
             $table->time('payment_expires_at')->nullable();
             $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])
                 ->default('pending');
@@ -25,7 +26,6 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('company_id')->constrained();
-            $table->enum('status', ['pendiente', 'confirmada', 'cancelada'])->default('pendiente');
             $table->boolean('reminder_24h_sent')->default(false);
             $table->boolean('reminder_1h_sent')->default(false);
             $table->uuid('booking_group')->nullable()->index();

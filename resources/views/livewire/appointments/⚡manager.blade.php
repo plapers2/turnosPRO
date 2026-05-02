@@ -55,6 +55,11 @@
         @include('livewire.appointments.modals.cancel-confirm')
     @endif
 
+    {{-- RF-26 --}}
+    @if ($showCompleteConfirm)
+        @include('livewire.appointments.modals.complete-confirm')
+    @endif
+
 </div>
 
 @push('scripts')
@@ -63,25 +68,20 @@
             Livewire.on('calendarEventsUpdated', ({
                 events
             }) => {
-                window.dispatchEvent(
-                    new CustomEvent('calendar-events-updated', {
-                        detail: {
-                            events
-                        }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent('calendar-events-updated', {
+                    detail: {
+                        events
+                    }
+                }));
             });
-
             Livewire.on('calendarMonthChanged', ({
                 month
             }) => {
-                window.dispatchEvent(
-                    new CustomEvent('calendar-month-changed', {
-                        detail: {
-                            month
-                        }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent('calendar-month-changed', {
+                    detail: {
+                        month
+                    }
+                }));
             });
         });
     </script>

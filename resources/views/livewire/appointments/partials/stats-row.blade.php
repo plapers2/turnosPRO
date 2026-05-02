@@ -1,6 +1,5 @@
 {{-- resources/views/livewire/appointments/partials/stats-row.blade.php --}}
-{{-- Props: $stats = ['total', 'pending', 'confirmed', 'cancelled'] --}}
-<div class="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
+<div class="grid grid-cols-2 xl:grid-cols-5 gap-3 mb-6">
 
     {{-- Total --}}
     <div
@@ -41,6 +40,21 @@
         </div>
         <span class="text-xs text-on-surface-variant">Confirmadas</span>
         <span class="text-2xl font-semibold text-[#0F6E56] leading-none">{{ $stats['confirmed'] }}</span>
+    </div>
+
+    {{-- RF-26: Completadas --}}
+    <div
+        class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm p-4 flex flex-col gap-1.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F1FB] flex items-center justify-center mb-1">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-[#185FA5]">
+                <path d="M2 8.5l3.5 3.5 8.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"
+                    stroke-dasharray="3 2" />
+            </svg>
+        </div>
+        <span class="text-xs text-on-surface-variant">Completadas</span>
+        <span class="text-2xl font-semibold text-[#185FA5] leading-none">{{ $stats['completed'] }}</span>
     </div>
 
     {{-- Canceladas --}}
