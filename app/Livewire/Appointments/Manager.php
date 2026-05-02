@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Appointments;
 
+use App\Mail\AppointmentConfirmedByEmployeeMail;
 use App\Models\Appointment;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -140,15 +142,27 @@ class Manager extends Component
     public function confirmAppointment(int $id): void
     {
         $this->authorizeAppointmentAction($id);
-        Appointment::findOrFail($id)->update(['status' => 'confirmed']);
+        $appointment = Appointment::with(['customer', 'user', 'services'])->findOrFail($id);
+        $appointment->update(['status' => 'confirmed']);
+
+        Mail::to($appointment->customer->email)
+            ->send(new AppointmentConfirmedByEmployeeMail($appointment));
         $this->refreshCalendarEvents();
-        $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
+        $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente, se ha enviado un email al cliente.');
     }
 
     // ── Abrir modal de cancelación ───────────────────────────
     public function openCancelModal(int $id): void
     {
         $this->authorizeAppointmentAction($id);
+
+        $appointment = Appointment::findOrFail($id);
+
+        if ($appointment->start_time->diffInMinutes(now(), false) > -120) {
+            $this->dispatch('notify', type: 'error', message: 'No es posible cancelar una cita con menos de 2 horas de antelación.');
+            return;
+        }
+
         $this->cancelTargetId     = $id;
         $this->cancellationReason = '';
         $this->resetErrorBag();

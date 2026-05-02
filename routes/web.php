@@ -82,7 +82,7 @@ Route::get('/test-mail', function () {
 Route::middleware(['auth', 'role:admin|empleado'])->group(
     function () {
         // Manejador de citas
-        Route::get('/citas', function () {
+        Route::get('/appointment-manager', function () {
             return view('appointment-manager.index');
         })->name('appointment-manager.index');
     }
