@@ -2,10 +2,9 @@
 
 namespace App\Livewire\Appointments;
 
-use App\Mail\AppointmentConfirmedByEmployeeMail;
+use App\Mail\AppointmentCancelledByEmployeeMail;
 use App\Models\Appointment;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -142,11 +141,7 @@ class Manager extends Component
     public function confirmAppointment(int $id): void
     {
         $this->authorizeAppointmentAction($id);
-        $appointment = Appointment::with(['customer', 'user', 'services'])->findOrFail($id);
-        $appointment->update(['status' => 'confirmed']);
 
-        Mail::to($appointment->customer->email)
-            ->send(new AppointmentConfirmedByEmployeeMail($appointment));
         $this->refreshCalendarEvents();
         $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente, se ha enviado un email al cliente.');
     }
@@ -183,10 +178,15 @@ class Manager extends Component
 
         $this->authorizeAppointmentAction($this->cancelTargetId);
 
-        Appointment::findOrFail($this->cancelTargetId)->update([
+        $appointment = Appointment::with(['customer', 'user', 'services'])->findOrFail($this->cancelTargetId);
+        $appointment->update([
             'status'              => 'cancelled',
             'cancellation_reason' => $this->cancellationReason,
         ]);
+
+        Mail::to($appointment->customer->email)
+            ->send(new AppointmentCancelledByEmployeeMail($appointment));
+
 
         $this->showCancelConfirm  = false;
         $this->cancelTargetId     = null;
