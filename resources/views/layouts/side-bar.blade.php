@@ -4,13 +4,11 @@
            transform -translate-x-full md:translate-x-0
            transition-transform duration-300">
     <!-- Brand Header -->
-    <div class="px-6 py-8 flex flex-col gap-1">
-        <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-3xl text-[#854F0B]"
-                style="font-variation-settings: 'FILL' 1;">calendar_month</span>
-            <span class="text-xl font-bold tracking-tighter text-[#854F0B]">TurnosPRO</span>
+    <div class="flex flex-col gap-1">
+        <div class="flex items-center">
+            <img src="{{ asset('turnos-pro.png') }}" alt="{{ config('app.name') }}"
+                class="h-36 w-auto object-contain drop-shadow-md" />
         </div>
-        <p class="text-xs text-on-surface-variant ml-10">Gestión de Turnos</p>
     </div>
     <!-- Navigation Links -->
     <div class="p-4 gap-2 flex flex-col h-full overflow-y-auto">
@@ -38,7 +36,7 @@
             </x-sidebar-link>
         @endcan
 
-          @can('gestionar clientes')
+        @can('gestionar clientes')
             <x-sidebar-link route="customers.index" pattern="customers.*" icon="groups">
                 Clientes
             </x-sidebar-link>
