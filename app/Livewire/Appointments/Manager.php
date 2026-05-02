@@ -35,7 +35,8 @@ class Manager extends Component
     public ?int $cancelTargetId = null;
     public string $cancellationReason = '';
 
-    // ── Calendario ───────────────────────────────────────────
+    // ── Calendario: solo necesitamos el mes para la query inicial
+    //    La navegación mes/semana/día la maneja FullCalendar en el cliente.
     public string $calendarMonth;
 
     public function mount(): void
@@ -45,7 +46,6 @@ class Manager extends Component
         $user = auth()->user();
         $this->isAdmin = $user->hasRole('admin');
 
-        // Si es empleado, pre-filtrar sus propias citas y no permitir cambio
         if (! $this->isAdmin) {
             $this->filterProfessional = $user->id;
         }
@@ -75,32 +75,27 @@ class Manager extends Component
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
-
-    public function updatedFilterProfessional(): void
-    {
-        // Empleado no puede alterar su propio filtro
-        if (! $this->isAdmin) {
-            $this->filterProfessional = auth()->id();
-        }
-
-        $this->resetPage();
-        $this->refreshCalendarEvents();
-    }
-
     public function updatedFilterStatus(): void
     {
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
-
     public function updatedFilterDateFrom(): void
     {
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
-
     public function updatedFilterDateTo(): void
     {
+        $this->resetPage();
+        $this->refreshCalendarEvents();
+    }
+
+    public function updatedFilterProfessional(): void
+    {
+        if (! $this->isAdmin) {
+            $this->filterProfessional = auth()->id();
+        }
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
@@ -114,7 +109,6 @@ class Manager extends Component
     // ── Detalle de cita ──────────────────────────────────────
     public function viewAppointment(int $id): void
     {
-        // Empleado solo puede ver sus propias citas
         $query = Appointment::with(['customer', 'user', 'services'])
             ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()));
 
@@ -125,7 +119,6 @@ class Manager extends Component
     public function closeModal(): void
     {
         $this->dispatch('close-modal');
-        // Esperar que termine la animación (150ms) antes de limpiar
         $this->js("setTimeout(() => \$wire.call('destroyModal'), 160)");
     }
 
@@ -147,7 +140,6 @@ class Manager extends Component
     public function confirmAppointment(int $id): void
     {
         $this->authorizeAppointmentAction($id);
-
         Appointment::findOrFail($id)->update(['status' => 'confirmed']);
         $this->refreshCalendarEvents();
         $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
@@ -157,7 +149,6 @@ class Manager extends Component
     public function openCancelModal(int $id): void
     {
         $this->authorizeAppointmentAction($id);
-
         $this->cancelTargetId     = $id;
         $this->cancellationReason = '';
         $this->resetErrorBag();
@@ -191,20 +182,28 @@ class Manager extends Component
         $this->dispatch('notify', type: 'warning', message: 'Cita cancelada.');
     }
 
-    // ── Navegación de mes ────────────────────────────────────
-    public function previousMonth(): void
+    // ── Reset de filtros ─────────────────────────────────────
+    public function resetFilters(): void
     {
-        $this->calendarMonth = Carbon::parse($this->calendarMonth . '-01')
-            ->subMonth()->format('Y-m');
-        $this->dispatch('calendarMonthChanged', month: $this->calendarMonth);
+        $this->search         = '';
+        $this->filterStatus   = '';
+        $this->filterDateFrom = '';
+        $this->filterDateTo   = '';
+
+        // Admin puede limpiar el filtro de profesional.
+        // Empleado siempre mantiene el suyo forzado.
+        if ($this->isAdmin) {
+            $this->filterProfessional = null;
+        }
+
+        $this->resetPage();
         $this->refreshCalendarEvents();
     }
 
-    public function nextMonth(): void
+    // ── Navegación de mes (solo desde vista mes del nav) ─────
+    public function goToMonth(string $month): void
     {
-        $this->calendarMonth = Carbon::parse($this->calendarMonth . '-01')
-            ->addMonth()->format('Y-m');
-        $this->dispatch('calendarMonthChanged', month: $this->calendarMonth);
+        $this->calendarMonth = $month;
         $this->refreshCalendarEvents();
     }
 
@@ -215,10 +214,6 @@ class Manager extends Component
     }
 
     // ── Helper: autorizar acción sobre cita ──────────────────
-    /**
-     * Empleado solo puede actuar sobre sus propias citas.
-     * Admin puede actuar sobre cualquiera.
-     */
     protected function authorizeAppointmentAction(int $id): void
     {
         if ($this->isAdmin) return;
@@ -238,7 +233,7 @@ class Manager extends Component
     {
         return $this->baseQuery()
             ->orderByDesc('start_time')
-            ->paginate(10);
+            ->paginate(15);
     }
 
     // ── Computed: stats ──────────────────────────────────────
@@ -246,7 +241,6 @@ class Manager extends Component
     public function stats(): array
     {
         $counts = Appointment::query()
-            // Empleado solo ve sus propias estadísticas
             ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
@@ -264,15 +258,15 @@ class Manager extends Component
     #[Computed]
     public function professionals()
     {
-        // Empleado no necesita la lista de otros profesionales
-        if (! $this->isAdmin) {
-            return collect();
-        }
+        if (! $this->isAdmin) return collect();
 
         return User::role('empleado')->orderBy('name')->get();
     }
 
     // ── Computed: eventos del calendario ────────────────────
+    // Para el calendario global cargamos TODOS los eventos que pasen
+    // los filtros activos, sin limitar al mes (FullCalendar maneja
+    // la navegación en el cliente con las 3 vistas).
     #[Computed]
     public function calendarEvents(): array
     {
@@ -312,7 +306,6 @@ class Manager extends Component
             ->toArray();
     }
 
-
     public function confirmAndClose(int $id): void
     {
         $this->confirmAppointment($id);
@@ -332,7 +325,7 @@ class Manager extends Component
             'stats'          => $this->stats(),
             'professionals'  => $this->professionals(),
             'calendarEvents' => $this->calendarEvents(),
-            'isAdmin'        => $this->isAdmin,   // <-- nuevo: pasa el rol a la vista
+            'isAdmin'        => $this->isAdmin,
         ]);
     }
 }

@@ -35,7 +35,7 @@
     <select wire:model.live="filterStatus"
         class="h-9 bg-surface-container rounded-lg border border-outline-variant/20
                    px-3 text-sm text-on-surface outline-none cursor-pointer">
-        <option value="">Todo</option>
+        <option value="">Todos los estados</option>
         <option value="pending">Pendiente</option>
         <option value="confirmed">Confirmada</option>
         <option value="completed">Completada</option>
@@ -54,9 +54,7 @@
     </div>
 
     {{-- Reset --}}
-    <button
-        wire:click="$set('filterStatus', ''); $set('search', ''); $set('filterDateFrom', ''); $set('filterDateTo', '')"
-        title="Limpiar filtros"
+    <button wire:click="resetFilters" title="Limpiar filtros"
         class="w-9 h-9 flex items-center justify-center flex-shrink-0
                bg-surface-container rounded-lg border border-outline-variant/20
                text-on-surface-variant
