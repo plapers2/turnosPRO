@@ -134,6 +134,59 @@
                     </div>
                 </div>
 
+                {{-- Confirmado por: --}}
+                @if ($appt->confirmed_by || $appt->cancelled_by)
+                    <div class="grid grid-cols-3 gap-5">
+                        @if ($appt->confirmed_by)
+                            <div>
+                                <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">
+                                    Confirmado por:
+                                </p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span
+                                        class="bg-[#E1F5EE] text-[#0F6E56] inline-flex items-center self-start px-2.5 py-1
+                                 rounded-full text-[11px] font-semibold">
+                                        {{ $appt->approvedBy->name }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if ($appt->cancelled_by)
+                            <div>
+                                <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">
+                                    Cancelado por:
+                                </p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span
+                                        class="bg-[#FCEBEB] text-[#A32D2D] inline-flex items-center self-start px-2.5 py-1
+                                 rounded-full text-[11px] font-semibold">
+                                        {{ $appt->cancelledBy->name }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if ($appt->completed_by)
+                            <div>
+                                <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">
+                                    Completado por:
+                                </p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span
+                                        class="bg-[#FCEBEB] text-[#A32D2D] inline-flex items-center self-start px-2.5 py-1
+                                 rounded-full text-[11px] font-semibold">
+                                        {{ $appt->completedBy->name }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+
+
+
+                    </div>
+                @endif
+
                 {{-- Notas --}}
                 @if ($appt->notes)
                     <div class="col-span-2 flex flex-col gap-1.5">
@@ -215,8 +268,8 @@
                     <span wire:loading.remove wire:target="openCompleteAndClose({{ $appt->id }})"
                         class="inline-flex items-center gap-1.5">
                         <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                            <path d="M1.5 7l3 3 7-6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                stroke-linejoin="round" />
+                            <path d="M1.5 7l3 3 7-6.5" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         Completar cita
                     </span>

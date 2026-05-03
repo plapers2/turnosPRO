@@ -44,7 +44,7 @@
             <div class="flex flex-col gap-1.5">
                 <label for="cancel-reason" class="text-xs font-semibold text-on-surface-variant">
                     Motivo de cancelación
-                    <span class="font-normal text-on-surface-variant/60">(opcional)</span>
+
                 </label>
                 <textarea id="cancel-reason" wire:model="cancellationReason" rows="3"
                     placeholder="Ej: Cliente solicitó reprogramar…"

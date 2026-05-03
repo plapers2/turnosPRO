@@ -50,6 +50,10 @@ class Appointment extends Model
         'cancel_token_expires_at',
         'customer_id',
         'user_id',
+        'cancelled_by',
+        'confirmed_by',
+        'completed_by',
+        'completed_at',
         'company_id',
         'status',
         'reminder_24h_sent',
@@ -106,6 +110,21 @@ class Appointment extends Model
     public function services()
     {
         return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'confirmed_by');
+    }
+
+    public function cancelledBy()
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    public function completedBy()
+    {
+        return $this->belongsTo(User::class, 'completed_by');
     }
 
 
