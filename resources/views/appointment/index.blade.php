@@ -210,14 +210,15 @@
         cards.forEach(card => {
             const name = card.dataset.name || '';
             const match = !q || name.includes(q);
-            card.parentElement.style.display = match ? '' : 'none';
+            card.style.display = match ? '' : 'none';
             if (match) visibleCount++;
         });
 
-        // Ocultar secciones vacías tras búsqueda
         sections.forEach(section => {
+            if (section.classList.contains('hidden')) return;
+
             const visibleCards = [...section.querySelectorAll('.company-card')]
-                .filter(c => c.parentElement.style.display !== 'none');
+                .filter(c => c.style.display !== 'none');
             section.style.display = visibleCards.length > 0 ? '' : 'none';
         });
 
