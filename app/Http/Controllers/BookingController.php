@@ -108,7 +108,8 @@ class BookingController extends Controller
                 ->where('end_time',   '>=', $fin->format('H:i:s')))
             ->whereDoesntHave('appointments', fn($q) =>
             $q->where('start_time', '<', $fin)
-                ->where('end_time',   '>', $inicio))
+                ->where('end_time',   '>', $inicio)
+                ->where('status', '<>', 'cancelada'))
             ->whereNotIn('id', $excluirUsers) // excluir profesionales ya asignados
             ->get(['id', 'name', 'phone', 'image']);
 
@@ -248,6 +249,7 @@ class BookingController extends Controller
         $q->where('companies.id', $companyId))
             ->where('start_time', '<', $end)
             ->where('end_time', '>', $start)
+            ->where('status', '<>', 'cancelada')
             ->get(['start_time', 'end_time', 'user_id']);
 
         // Contar profesionales que realmente pueden participar en al menos una cadena válida
@@ -500,6 +502,8 @@ class BookingController extends Controller
             'status' => 'cancelada',
             'cancellation_reason' => 'Cancelada por el cliente desde el enlace del correo.',
         ]);
+
+        $appointment->delete();
 
         $appointment->load(['customer', 'user', 'company', 'services']);
         $adminEmail = $appointment->company->email;
