@@ -166,7 +166,7 @@ class BookingController extends Controller
                         'company_id'   => $companyId,
                         'notes'        => $request->notas,
                         'booking_group' => $bookingGroup,
-                        'status'        => 'pending',
+                        'status'        => 'pendiente',
                         'cancel_token'  => Str::random(40),
                         'cancel_token_expires_at' => now()->addDays(7)
                     ]);
