@@ -43,7 +43,7 @@
         <form method="POST" action="{{ route('appointments.store') }}" class="p-8 pb-24" id="continueForm">
             @csrf
 
-            <input type=" hidden" name="company_id" value="{{ $company->id }}" />
+            <input type="hidden" name="company_id" value="{{ $company->id }}" />
             <input type="hidden" name="end_time" id="end_time" />
             <input type="hidden" name="fecha" id="fecha" />
             <input type="hidden" name="hora" id="hora" />
