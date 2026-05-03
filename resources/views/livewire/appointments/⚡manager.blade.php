@@ -40,11 +40,10 @@
     </div>
 
     {{-- Vista Calendario --}}
+    {{-- ⚠️ Sin wire:ignore aquí: ya está dentro de calendar/view.blade.php --}}
     <div x-show="view === 'calendar'">
         @include('livewire.appointments.calendar.nav', ['calendarMonth' => $calendarMonth])
-        <div wire:ignore>
-            @include('livewire.appointments.calendar.view', ['calendarEvents' => $calendarEvents])
-        </div>
+        @include('livewire.appointments.calendar.view', ['calendarEvents' => $calendarEvents])
     </div>
 
     @if ($showModal && $selectedAppt)
@@ -59,7 +58,6 @@
         @include('livewire.appointments.modals.cancel-confirm')
     @endif
 
-    {{-- RF-26 --}}
     @if ($showCompleteConfirm)
         @include('livewire.appointments.modals.complete-confirm')
     @endif
@@ -69,6 +67,9 @@
 @push('scripts')
     <script>
         document.addEventListener('livewire:initialized', () => {
+
+            // Livewire emitió eventos nuevos → los pasa al calendario via evento JS
+            // Esto NO causa re-render, solo mueve datos
             Livewire.on('calendarEventsUpdated', ({
                 events
             }) => {
@@ -78,15 +79,16 @@
                     }
                 }));
             });
-            Livewire.on('calendarMonthChanged', ({
-                month
+
+            // El JS del calendario hace dispatch('calendarEventClicked')
+            // Livewire lo recibe aquí y llama viewAppointment en el componente PHP
+            Livewire.on('calendarEventClicked', ({
+                id
             }) => {
-                window.dispatchEvent(new CustomEvent('calendar-month-changed', {
-                    detail: {
-                        month
-                    }
-                }));
+                // El componente PHP maneja esto con #[On('calendarEventClicked')]
+                // No hace falta código adicional aquí
             });
+
         });
     </script>
 @endpush

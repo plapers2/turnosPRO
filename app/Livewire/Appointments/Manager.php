@@ -384,15 +384,23 @@ class Manager extends Component
         $this->refreshCalendarEvents();
     }
 
-    public function goToMonth(string $month): void
+    #[On('calendarGoToMonth')]
+    public function onCalendarGoToMonth(string $month): void
     {
         $this->calendarMonth = $month;
         $this->refreshCalendarEvents();
     }
 
+    #[On('calendarEventClicked')]
+    public function onCalendarEventClicked(int|string $id): void
+    {
+        $this->viewAppointment($id);
+    }
+
     protected function refreshCalendarEvents(): void
     {
-        $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents());
+        // Sin () porque es un #[Computed]
+        $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents);
     }
 
     // ── Autorización ─────────────────────────────────────────
