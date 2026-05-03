@@ -79,7 +79,7 @@ Route::get('/test-mail', function () {
     return 'Email enviado — revisa Mailtrap o el log';
 });
 
-Route::middleware(['auth', 'role:admin|empleado'])->group(
+Route::middleware(['auth', 'role:admin|empleado|cliente'])->group(
     function () {
         // Manejador de citas
         Route::get('/appointment-manager', function () {
