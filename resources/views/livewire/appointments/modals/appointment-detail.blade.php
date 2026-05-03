@@ -136,9 +136,9 @@
 
                 {{-- Confirmado por: --}}
                 @if ($appt->confirmed_by || $appt->cancelled_by)
-                    <div class="grid grid-cols-3 gap-5">
+                    <div class="grid grid-cols-2">
                         @if ($appt->confirmed_by)
-                            <div>
+                            <div class="flex flex-col gap-2">
                                 <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">
                                     Confirmado por:
                                 </p>
@@ -153,7 +153,7 @@
                         @endif
 
                         @if ($appt->cancelled_by)
-                            <div>
+                            <div class="flex flex-col gap-2">
                                 <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">
                                     Cancelado por:
                                 </p>
@@ -166,24 +166,21 @@
                                 </div>
                             </div>
                         @endif
+                    </div>
+                @endif
 
-                        @if ($appt->completed_by)
-                            <div>
-                                <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">
-                                    Completado por:
-                                </p>
-                                <div class="flex flex-wrap gap-1.5">
-                                    <span
-                                        class="bg-[#FCEBEB] text-[#A32D2D] inline-flex items-center self-start px-2.5 py-1
+                @if ($appt->completed_by)
+                    <div class="flex flex-col gap-2">
+                        <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">
+                            Completado por:
+                        </p>
+                        <div class="flex flex-wrap">
+                            <span
+                                class="text-[#185FA5] bg-[#E6F1FB] inline-flex items-center self-start px-2.5 py-1
                                  rounded-full text-[11px] font-semibold">
-                                        {{ $appt->completedBy->name }}
-                                    </span>
-                                </div>
-                            </div>
-                        @endif
-
-
-
+                                {{ $appt->completedBy->name }}
+                            </span>
+                        </div>
                     </div>
                 @endif
 
@@ -214,7 +211,6 @@
                         </p>
                     </div>
                 @endif
-
                 {{-- RF-26: Fecha de completado --}}
                 @if ($appt->status === 'completed' && $appt->completed_at)
                     <div class="col-span-2 flex flex-col gap-1.5">
@@ -224,11 +220,10 @@
                         <p
                             class="text-sm text-[#185FA5] bg-[#E6F1FB]
                                   rounded-lg px-3 py-2.5 border border-[#9EC8F0]">
-                            {{ $appt->completed_at->format('d/m/Y H:i') }}
+                            {{ $appt->completed_at }}
                         </p>
                     </div>
                 @endif
-
             </div>
         </div>
 
