@@ -40,10 +40,10 @@
         </div>
 
         <!-- FORM -->
-        <form method="POST" action="{{ route('appointments.store') }}" class="p-8 pb-24">
+        <form method="POST" action="{{ route('appointments.store') }}" class="p-8 pb-24" id="continueForm">
             @csrf
 
-            <input type="hidden" name="company_id" value="{{ $company->id }}" />
+            <input type=" hidden" name="company_id" value="{{ $company->id }}" />
             <input type="hidden" name="end_time" id="end_time" />
             <input type="hidden" name="fecha" id="fecha" />
             <input type="hidden" name="hora" id="hora" />
@@ -234,3 +234,13 @@
         border: none;
     }
 </style>
+<script>
+    document.getElementById('continueForm').addEventListener('submit', function(e) {
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = `
+        <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+        Confirmando...
+    `;
+    });
+</script>

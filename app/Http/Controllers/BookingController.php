@@ -166,13 +166,13 @@ class BookingController extends Controller
                         'company_id'   => $companyId,
                         'notes'        => $request->notas,
                         'booking_group' => $bookingGroup,
-                        'status'        => 'pendiente',
+                        'status'        => 'pending',
                         'cancel_token'  => Str::random(40),
                         'cancel_token_expires_at' => now()->addDays(7)
                     ]);
 
                     $appointment->services()->attach($asignacion['service_id']);
-                    
+
                     // Cargar relaciones para el email
                     $appointment->load(['customer', 'user', 'company', 'services']);
 
@@ -359,7 +359,6 @@ class BookingController extends Controller
             [],
             $contador
         );
-        // \Log::info('Slot ' . $slotInicio->format('H:i') . ' → combinaciones: ' . $contador);
         return $contador;
     }
 

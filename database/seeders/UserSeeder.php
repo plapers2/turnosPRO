@@ -83,7 +83,7 @@ class UserSeeder extends Seeder
         $admin->assignRole('cliente');
 
         // Si se cambia la cantidad de usuarios en total se cambia el limite del ciclo, OJO!
-        for ($i = 3; $i < 20; $i++) {
+        for ($i = 4; $i < 20; $i++) {
             $empleado = User::find($i);
             $empleado->assignRole('empleado');
         }
