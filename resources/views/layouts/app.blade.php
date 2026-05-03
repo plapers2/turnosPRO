@@ -2,6 +2,12 @@
     <html data-theme="cmyk" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
     <head>
+        <script>
+            document.documentElement.style.visibility = 'hidden';
+            document.addEventListener('alpine:init', () => {
+                document.documentElement.style.visibility = 'visible';
+            });
+        </script>
         @livewireStyles
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -42,22 +48,22 @@
         <x-toast />
 
         @if (session('success') || $errors->any())
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    setTimeout(() => {
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
 
-                        @if (session('success'))
-                            window.dispatchEvent(new CustomEvent('notify', {
-                                detail: {
-                                    type: 'success',
-                                    message: "{{ session('success') }}"
-                                }
-                            }))
-                        @endif
+                    @if(session('success'))
+                    window.dispatchEvent(new CustomEvent('notify', {
+                        detail: {
+                            type: 'success',
+                            message: "{{ session('success') }}"
+                        }
+                    }))
+                    @endif
 
-                    }, 100)
-                })
-            </script>
+                }, 100)
+            })
+        </script>
         @endif
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
