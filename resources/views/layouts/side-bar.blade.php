@@ -18,7 +18,7 @@
         </x-sidebar-link>
 
 
-        @role(['admin', 'empleado'])
+        @role(['admin', 'empleado', 'cliente'])
         <x-sidebar-link route="appointment-manager.index" pattern="appointment-manager.*" icon="event_note">
             Citas
         </x-sidebar-link>
