@@ -161,7 +161,7 @@
 
             <!-- RESUMEN + BOTÓN CONTINUAR (barra fija abajo) -->
             <div id="summaryBar"
-                class="fixed bottom-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-sm border-t border-outline-variant/20
+                class="fixed bottom-0  right-0 z-30 bg-surface/95 backdrop-blur-sm border-t border-outline-variant/20
                     px-8 py-4 flex items-center justify-between gap-4 translate-y-full transition-transform duration-300">
 
                 <div class="flex flex-col">
