@@ -25,6 +25,9 @@ return new class extends Migration
             $table->dateTime("cancel_token_expires_at")->nullable();
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('user_id')->constrained();
+            $table->foreignId('confirmed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('cancelled_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('completed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('company_id')->constrained();
             $table->boolean('reminder_24h_sent')->default(false);
             $table->boolean('reminder_1h_sent')->default(false);

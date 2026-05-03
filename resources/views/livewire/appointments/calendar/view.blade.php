@@ -1,5 +1,4 @@
 {{-- resources/views/livewire/appointments/calendar/view.blade.php --}}
-{{-- wire:ignore protege todo este bloque de re-renders de Livewire      --}}
 <div wire:ignore>
 
     <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm overflow-hidden">
@@ -9,9 +8,12 @@
     <script>
         (function() {
             var EVENTS = @json($calendarEvents);
-            var INITIAL_DATE = '{{ \Carbon\Carbon::parse($calendarMonth . '-01')->format('Y-m-d') }}';
 
-            /* ── Estilos ── */
+            if (!window._calCurrentDate) {
+                window._calCurrentDate = '{{ \Carbon\Carbon::parse($calendarMonth . '-01')->format('Y-m-d') }}';
+            }
+
+            /* ── Estilos (una sola vez) ── */
             if (!document.getElementById('fc-custom-style')) {
                 var style = document.createElement('style');
                 style.id = 'fc-custom-style';
@@ -49,37 +51,45 @@
                 cancelled: '#E24B4A',
             };
 
-            /* ── Título del nav según vista ── */
+            /*
+             * syncNavTitle — solo actualiza el título en vistas semana/día.
+             * Para la vista mes, el servidor ya escribió el texto correcto
+             * en cal-title al re-renderizar nav.blade.php. JS lo actualiza
+             * SOLO inmediatamente después de que el usuario presiona prev/next
+             * (antes de que llegue el re-render del servidor).
+             */
             function syncNavTitle() {
                 var cal = window._calendarInstance;
                 var titleEl = document.getElementById('cal-title');
                 if (!cal || !titleEl) return;
 
-                var view = cal.view;
-                var viewType = view.type;
-                var date = cal.getDate();
+                var viewType = cal.view.type;
                 var locale = 'es-ES';
 
                 if (viewType === 'dayGridMonth') {
-                    titleEl.textContent = date.toLocaleDateString(locale, {
+                    var mid = new Date(cal.view.currentStart);
+                    mid.setDate(mid.getDate() + 15);
+                    titleEl.textContent = mid.toLocaleDateString(locale, {
                         month: 'long',
                         year: 'numeric'
                     });
                 } else if (viewType === 'timeGridWeek') {
-                    var start = new Date(view.currentStart);
-                    var end = new Date(view.currentEnd);
+                    var start = new Date(cal.view.currentStart);
+                    var end = new Date(cal.view.currentEnd);
                     end.setDate(end.getDate() - 1);
-                    titleEl.textContent = start.toLocaleDateString(locale, {
+                    titleEl.textContent =
+                        start.toLocaleDateString(locale, {
                             day: 'numeric',
                             month: 'short'
                         }) +
-                        ' – ' + end.toLocaleDateString(locale, {
+                        ' – ' +
+                        end.toLocaleDateString(locale, {
                             day: 'numeric',
                             month: 'short',
                             year: 'numeric'
                         });
                 } else if (viewType === 'timeGridDay') {
-                    titleEl.textContent = date.toLocaleDateString(locale, {
+                    titleEl.textContent = cal.getDate().toLocaleDateString(locale, {
                         weekday: 'long',
                         day: 'numeric',
                         month: 'long',
@@ -88,10 +98,11 @@
                 }
             }
 
-            /* ── Bind de botones del nav ──
-               Usa delegación sobre document para sobrevivir re-renders de Livewire
-               (los botones están FUERA del wire:ignore y pueden ser reemplazados) */
+            /* ── Bind botones nav — UNA SOLA VEZ ── */
             function bindNavButtons() {
+                if (window._calNavBound) return;
+                window._calNavBound = true;
+
                 document.addEventListener('click', function(e) {
                     var cal = window._calendarInstance;
                     if (!cal) return;
@@ -99,26 +110,25 @@
                     if (e.target.closest('#cal-prev')) {
                         cal.prev();
                         syncNavTitle();
-                        syncLivewireIfMonth(cal);
+                        notifyLivewireIfMonth(cal);
                     }
-
                     if (e.target.closest('#cal-next')) {
                         cal.next();
                         syncNavTitle();
-                        syncLivewireIfMonth(cal);
+                        notifyLivewireIfMonth(cal);
                     }
                 });
             }
 
-            /* En vista mes notifica a Livewire para refrescar eventos del servidor */
-            function syncLivewireIfMonth(cal) {
+            function notifyLivewireIfMonth(cal) {
                 if (cal.view.type !== 'dayGridMonth') return;
-                var month = cal.getDate().toISOString().slice(0, 7);
-                var wireEl = document.getElementById('fullcalendar').closest('[wire\\:id]');
-                if (wireEl) Livewire.find(wireEl.getAttribute('wire:id')).call('goToMonth', month);
+                var mid = new Date(cal.view.currentStart);
+                mid.setDate(mid.getDate() + 15);
+                Livewire.dispatch('calendarGoToMonth', {
+                    month: mid.toISOString().slice(0, 7)
+                });
             }
 
-            /* ── Monta el calendario ── */
             function mountCalendar() {
                 var el = document.getElementById('fullcalendar');
                 if (!el || typeof FullCalendar === 'undefined') return false;
@@ -131,7 +141,7 @@
 
                 window._calendarInstance = new FullCalendar.Calendar(el, {
                     initialView: 'dayGridMonth',
-                    initialDate: INITIAL_DATE,
+                    initialDate: window._calCurrentDate,
                     locale: 'es',
 
                     headerToolbar: {
@@ -139,11 +149,10 @@
                         center: '',
                         right: 'dayGridMonth,timeGridWeek,timeGridDay',
                     },
-
                     buttonText: {
                         month: 'Mes',
                         week: 'Semana',
-                        day: 'Día',
+                        day: 'Día'
                     },
 
                     height: 'auto',
@@ -155,8 +164,15 @@
                     eventMaxStack: 3,
                     events: EVENTS,
 
-                    /* Sincroniza título del nav en cada cambio de vista o fecha */
-                    datesSet: function() {
+                    datesSet: function(info) {
+                        window._calCurrentDate = info.start.toISOString().slice(0, 10);
+
+                        // Si el servidor acaba de actualizar el título (via re-render
+                        // del nav), no sobreescribirlo con el valor del calendario
+                        if (window._calTitleFromServer) {
+                            window._calTitleFromServer = false;
+                            return;
+                        }
                         syncNavTitle();
                     },
 
@@ -175,11 +191,11 @@
 
                         if (isMonth) {
                             return {
-                                html: '<div class="fc-event-main" style="padding:1px 3px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+                                html: '<div class="fc-event-main" style="padding:1px 3px;color:#fff;' +
+                                    'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
                                     e.title + '</div>'
                             };
                         }
-
                         return {
                             html: '<div style="padding:3px 5px;line-height:1.35;color:#fff">' +
                                 '<div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
@@ -193,11 +209,9 @@
                     },
 
                     eventClick: function(info) {
-                        var wireEl = document.getElementById('fullcalendar').closest('[wire\\:id]');
-                        if (wireEl) {
-                            Livewire.find(wireEl.getAttribute('wire:id'))
-                                .call('viewAppointment', info.event.id);
-                        }
+                        Livewire.dispatch('calendarEventClicked', {
+                            id: info.event.id
+                        });
                     },
                 });
 
@@ -206,7 +220,6 @@
                 return true;
             }
 
-            /* ── Retry ── */
             function mountWithRetry() {
                 if (mountCalendar()) return;
                 var attempts = 0;
@@ -216,10 +229,14 @@
                 }, 100);
             }
 
-            /* ── Eventos del sistema ── */
+            /* ── Listeners ── */
+
             window.addEventListener('calendar-events-updated', function(e) {
                 EVENTS = e.detail.events;
                 if (window._calendarInstance) {
+                    // Marcar que el servidor ya escribió el título correcto
+                    // en nav.blade.php → datesSet no debe sobreescribirlo
+                    window._calTitleFromServer = true;
                     window._calendarInstance.removeAllEvents();
                     window._calendarInstance.addEventSource(e.detail.events);
                 } else {

@@ -18,35 +18,37 @@ class Manager extends Component
     // ── Vista ────────────────────────────────────────────────
     public string $view = 'list';
 
-    // ── Rol ─────────────────────────────────────────────────
-    public bool $isAdmin = false;
+    // ── Roles ────────────────────────────────────────────────
+    public bool $isAdmin    = false;
+    public bool $isEmployee = false;
+    public bool $isCustomer = false;
 
     // ── Empresa activa ───────────────────────────────────────
     public ?int $companyId = null;
 
     // ── Filtros ──────────────────────────────────────────────
-    public string $search = '';
-    public ?int $filterProfessional = null;
-    public string $filterStatus = '';
-    public string $filterDateFrom = '';
-    public string $filterDateTo = '';
+    public string $search             = '';
+    public ?int   $filterProfessional = null;
+    public string $filterStatus       = '';
+    public string $filterDateFrom     = '';
+    public string $filterDateTo       = '';
 
     // ── Modal detalle ────────────────────────────────────────
-    public bool $showModal = false;
+    public bool         $showModal    = false;
     public ?Appointment $selectedAppt = null;
 
     // ── Modal cancelación ────────────────────────────────────
-    public bool $showCancelConfirm = false;
-    public ?int $cancelTargetId = null;
-    public string $cancellationReason = '';
+    public bool    $showCancelConfirm  = false;
+    public ?int    $cancelTargetId     = null;
+    public string  $cancellationReason = '';
 
     // ── Modal confirmar ──────────────────────────────────────
     public bool $showConfirmConfirm = false;
-    public ?int $confirmTargetId = null;
+    public ?int $confirmTargetId   = null;
 
     // ── Modal completar (RF-26) ──────────────────────────────
     public bool $showCompleteConfirm = false;
-    public ?int $completeTargetId = null;
+    public ?int $completeTargetId   = null;
 
     // ── Calendario ───────────────────────────────────────────
     public string $calendarMonth;
@@ -56,12 +58,10 @@ class Manager extends Component
         $this->calendarMonth = now()->format('Y-m');
         $this->companyId     = session('active_company_id');
 
-        $user = auth()->user();
-        $this->isAdmin = $user->hasRole('admin');
-
-        if (! $this->isAdmin) {
-            $this->filterProfessional = $user->id;
-        }
+        $user             = auth()->user();
+        $this->isAdmin    = $user->hasRole('admin');
+        $this->isEmployee = $user->hasRole('empleado');
+        $this->isCustomer = $user->hasRole('cliente');
     }
 
     // ── Escucha cambio de empresa activa ─────────────────────
@@ -86,11 +86,29 @@ class Manager extends Component
     }
 
     // ── Query base ───────────────────────────────────────────
+    // Admin    → ve todas las citas de la empresa activa.
+    // Empleado → ve solo sus propias citas dentro de la empresa activa (por user_id).
+    // Cliente  → ve solo sus propias citas dentro de la empresa activa (por customer.user_id).
+    // El scope se aplica aquí en el servidor; no depende de propiedades
+    // públicas que el frontend podría manipular.
     private function baseQuery()
     {
         return $this->scopeCompany(
             Appointment::with(['customer', 'user', 'services'])
         )
+            // Empleado → solo sus citas como profesional (server-side, seguro)
+            ->when(
+                ! $this->isAdmin && ! $this->isCustomer,
+                fn($q) => $q->where('user_id', auth()->id())
+            )
+            // Cliente → solo sus citas como cliente (por customer.user_id, server-side, seguro)
+            ->when(
+                $this->isCustomer,
+                fn($q) => $q->whereHas(
+                    'customer',
+                    fn($c) => $c->where('user_id', auth()->id())
+                )
+            )
             ->when(
                 $this->search,
                 fn($q) => $q->where(
@@ -99,10 +117,14 @@ class Manager extends Component
                         ->orWhereHas('user',   fn($u) => $u->where('name', 'like', "%{$this->search}%"))
                 )
             )
-            ->when($this->filterProfessional, fn($q) => $q->where('user_id', $this->filterProfessional))
-            ->when($this->filterStatus,       fn($q) => $q->where('status',  $this->filterStatus))
-            ->when($this->filterDateFrom,     fn($q) => $q->whereDate('start_time', '>=', $this->filterDateFrom))
-            ->when($this->filterDateTo,       fn($q) => $q->whereDate('start_time', '<=', $this->filterDateTo));
+            // El filtro por profesional solo aplica si el usuario es admin
+            ->when(
+                $this->isAdmin && $this->filterProfessional,
+                fn($q) => $q->where('user_id', $this->filterProfessional)
+            )
+            ->when($this->filterStatus,   fn($q) => $q->where('status',  $this->filterStatus))
+            ->when($this->filterDateFrom, fn($q) => $q->whereDate('start_time', '>=', $this->filterDateFrom))
+            ->when($this->filterDateTo,   fn($q) => $q->whereDate('start_time', '<=', $this->filterDateTo));
     }
 
     // ── Watchers filtros ─────────────────────────────────────
@@ -132,9 +154,12 @@ class Manager extends Component
 
     public function updatedFilterProfessional(): void
     {
+        // El empleado y el cliente no pueden cambiar este filtro;
+        // se ignora cualquier valor que el frontend intente enviar.
         if (! $this->isAdmin) {
-            $this->filterProfessional = auth()->id();
+            $this->filterProfessional = null;
         }
+
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
@@ -147,12 +172,23 @@ class Manager extends Component
     // ── Detalle ──────────────────────────────────────────────
     public function viewAppointment(int $id): void
     {
-        $this->selectedAppt = $this->scopeCompany(
+        $query = $this->scopeCompany(
             Appointment::with(['customer', 'user', 'services'])
-                ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))
-        )->findOrFail($id);
+        )
+            ->when(
+                ! $this->isAdmin && ! $this->isCustomer,
+                fn($q) => $q->where('user_id', auth()->id())
+            )
+            ->when(
+                $this->isCustomer,
+                fn($q) => $q->whereHas(
+                    'customer',
+                    fn($c) => $c->where('user_id', auth()->id())
+                )
+            );
 
-        $this->showModal = true;
+        $this->selectedAppt = $query->findOrFail($id);
+        $this->showModal    = true;
     }
 
     public function closeModal(): void
@@ -194,7 +230,7 @@ class Manager extends Component
         $appointment = Appointment::findOrFail($this->confirmTargetId);
         abort_if($appointment->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
 
-        $appointment->update(['status' => 'confirmed']);
+        $appointment->update(['status' => 'confirmed', 'confirmed_by' => auth()->id()]);
 
         $this->showConfirmConfirm = false;
         $this->confirmTargetId   = null;
@@ -257,6 +293,7 @@ class Manager extends Component
 
         $appointment->update([
             'status'              => 'cancelled',
+            'cancelled_by'        => auth()->id(),
             'cancellation_reason' => $this->cancellationReason,
         ]);
 
@@ -310,6 +347,7 @@ class Manager extends Component
 
         $appointment->update([
             'status'       => 'completed',
+            'completed_by' => auth()->id(),
             'completed_at' => now(),
         ]);
 
@@ -346,19 +384,38 @@ class Manager extends Component
         $this->refreshCalendarEvents();
     }
 
-    public function goToMonth(string $month): void
+    #[On('calendarGoToMonth')]
+    public function onCalendarGoToMonth(string $month): void
     {
         $this->calendarMonth = $month;
         $this->refreshCalendarEvents();
     }
 
-    protected function refreshCalendarEvents(): void
+    #[On('calendarEventClicked')]
+    public function onCalendarEventClicked(int|string $id): void
     {
-        $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents());
+        $this->viewAppointment($id);
     }
 
+    protected function refreshCalendarEvents(): void
+    {
+        // Sin () porque es un #[Computed]
+        $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents);
+    }
+
+    // ── Autorización ─────────────────────────────────────────
+    // Cliente  → solo puede ver sus citas, no modificarlas.
+    // Empleado → solo puede modificar sus propias citas.
+    // Admin    → puede modificar cualquier cita de la empresa activa.
     protected function authorizeAppointmentAction(int $id): void
     {
+        // El cliente no puede cancelar, confirmar ni completar citas
+        abort_if(
+            $this->isCustomer,
+            403,
+            'Los clientes no pueden modificar citas.'
+        );
+
         $appt = Appointment::findOrFail($id);
 
         // Verifica que la cita pertenezca a la empresa activa
@@ -394,7 +451,19 @@ class Manager extends Component
     public function stats(): array
     {
         $counts = $this->scopeCompany(Appointment::query())
-            ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))
+            // Empleado → solo sus stats como profesional
+            ->when(
+                ! $this->isAdmin && ! $this->isCustomer,
+                fn($q) => $q->where('user_id', auth()->id())
+            )
+            // Cliente → solo sus stats como cliente
+            ->when(
+                $this->isCustomer,
+                fn($q) => $q->whereHas(
+                    'customer',
+                    fn($c) => $c->where('user_id', auth()->id())
+                )
+            )
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
@@ -411,6 +480,7 @@ class Manager extends Component
     #[Computed]
     public function professionals()
     {
+        // Solo el admin puede ver y filtrar por profesional
         if (! $this->isAdmin) return collect();
 
         return User::role('empleado')
@@ -465,6 +535,7 @@ class Manager extends Component
             'professionals'  => $this->professionals(),
             'calendarEvents' => $this->calendarEvents(),
             'isAdmin'        => $this->isAdmin,
+            'isCustomer'     => $this->isCustomer,
         ]);
     }
 }
