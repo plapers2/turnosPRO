@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('cancellation_reason')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->time('payment_expires_at')->nullable();
-            $table->enum('status', ['pendiente', 'confirmada', 'completada', 'cancelada'])->default('pendiente');
+            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
             $table->text('notes')->nullable();
             $table->string('cancel_token', 45)->nullable();
             $table->dateTime("cancel_token_expires_at")->nullable();
