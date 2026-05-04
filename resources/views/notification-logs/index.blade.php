@@ -94,28 +94,36 @@
                                     'confirmation' => 'Cita confirmada',
                                     'admin_notification' => 'Nueva reserva',
                                     'cancelled_admin' => 'Cancelación por cliente',
-                                    'cancelled_by_employee'=> 'Cancelación por empleado',
+                                    'cancelled_by_employee' => 'Cancelación por empleado',
+                                    'confirmed_by_employee' => 'Confirmación por empleado',
+                                    'completed' => 'Cita completada',
                                     default => ucfirst($log->type),
                                     };
                                     $eventoClass = match($log->type) {
                                     'confirmation' => 'bg-primary/10 text-primary',
                                     'admin_notification' => 'bg-secondary/10 text-secondary',
                                     'cancelled_admin' => 'bg-error/10 text-error',
-                                    'cancelled_by_employee'=> 'bg-orange-100 text-orange-700',
+                                    'cancelled_by_employee' => 'bg-orange-100 text-orange-700',
+                                    'confirmed_by_employee' => 'bg-green-100 text-green-700',
+                                    'completed' => 'bg-blue-100 text-blue-700',
                                     default => 'bg-gray-100 text-gray-600',
                                     };
                                     $destinatario = match($log->type) {
                                     'confirmation' => 'Cliente',
                                     'admin_notification' => 'Admin',
                                     'cancelled_admin' => 'Admin',
-                                    'cancelled_by_employee'=> 'Cliente',
+                                    'cancelled_by_employee' => 'Cliente',
+                                    'confirmed_by_employee' => 'Cliente',
+                                    'completed' => 'Cliente',
                                     default => '—',
                                     };
                                     $destinatarioClass = match($log->type) {
                                     'confirmation' => 'bg-blue-100 text-blue-700',
                                     'admin_notification' => 'bg-amber-100 text-amber-700',
                                     'cancelled_admin' => 'bg-amber-100 text-amber-700',
-                                    'cancelled_by_employee'=> 'bg-blue-100 text-blue-700',
+                                    'cancelled_by_employee' => 'bg-blue-100 text-blue-700',
+                                    'confirmed_by_employee' => 'bg-blue-100 text-blue-700',
+                                    'completed' => 'bg-blue-100 text-blue-700',
                                     default => 'bg-gray-100 text-gray-600',
                                     };
                                     @endphp

@@ -3,6 +3,8 @@
 namespace App\Livewire\Appointments;
 
 use App\Mail\AppointmentCancelledByEmployeeMail;
+use App\Mail\AppointmentConfirmedByEmployeeMail;
+use App\Mail\AppointmentCompletedMail;
 use App\Models\Appointment;
 use App\Models\User;
 use App\Models\NotificationLog;
@@ -233,6 +235,14 @@ class Manager extends Component
 
         $appointment->update(['status' => 'confirmed', 'confirmed_by' => auth()->id()]);
 
+        $appointment->load(['customer', 'user', 'company', 'services']);
+        $this->enviarEmail(
+            new AppointmentConfirmedByEmployeeMail($appointment),
+            $appointment->customer->email,
+            $appointment->id,
+            'confirmed_by_employee'
+        );
+
         $this->showConfirmConfirm = false;
         $this->confirmTargetId   = null;
 
@@ -355,6 +365,14 @@ class Manager extends Component
             'completed_by' => auth()->id(),
             'completed_at' => now(),
         ]);
+
+        $appointment->load(['customer', 'user', 'company', 'services']);
+        $this->enviarEmail(
+            new AppointmentCompletedMail($appointment),
+            $appointment->customer->email,
+            $appointment->id,
+            'completed'
+        );
 
         $this->showCompleteConfirm = false;
         $this->completeTargetId   = null;
@@ -546,7 +564,9 @@ class Manager extends Component
     private function enviarEmail($mailable, string $email, int $appointmentId, string $type): void
     {
         try {
+            \Log::info('Intentando enviar email', ['type' => $type, 'email' => $email]);
             Mail::to($email)->send($mailable);
+            \Log::info('Email enviado', ['type' => $type]);
             NotificationLog::create([
                 'appointment_id'  => $appointmentId,
                 'type'            => $type,
@@ -554,6 +574,7 @@ class Manager extends Component
                 'status'          => 'sent',
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error enviando email', ['type' => $type, 'error' => $e->getMessage()]);
             NotificationLog::create([
                 'appointment_id'  => $appointmentId,
                 'type'            => $type,

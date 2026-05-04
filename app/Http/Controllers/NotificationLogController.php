@@ -8,9 +8,15 @@ use App\Models\NotificationLog;
 
 class NotificationLogController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request)
     {
+        $companyId = session('active_company_id');
+
         $query = NotificationLog::with('appointment.company')
+            ->when($companyId, fn($q) => $q->whereHas(
+                'appointment',
+                fn($a) => $a->where('company_id', $companyId)
+            ))
             ->latest();
 
         // Filtro por fecha

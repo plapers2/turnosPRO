@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\User;
 
 class ProfessionalAvailabilitiesSeeder extends Seeder
 {
@@ -22,7 +23,7 @@ class ProfessionalAvailabilitiesSeeder extends Seeder
             'Saturday',
             'Sunday'
         ];
-        $users = DB::table('users')->pluck('id');
+        $users = User::role('empleado')->pluck('id');
 
         foreach ($users as $userId) {
             foreach ($days as $day) {
