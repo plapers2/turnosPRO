@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone');
-            $table->string('image');
+            $table->string('image')->nullable();
             $table->enum("state", ["Active", "Inactive"])->default("Active");
             $table->softDeletes();
             $table->rememberToken();

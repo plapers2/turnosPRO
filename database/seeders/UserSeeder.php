@@ -23,7 +23,6 @@ class UserSeeder extends Seeder
             'email' => "admin@gmail.com",
             'password' => Hash::make("12345"),
             'phone' => "123456789",
-            'image' => "https://placehold.co/600x400"
         ]);
         // User 2
         DB::table('users')->insert([
@@ -31,7 +30,6 @@ class UserSeeder extends Seeder
             'email' => "empleado@gmail.com",
             'password' => Hash::make("12345"),
             'phone' => "987654321",
-            'image' => "https://placehold.co/600x400"
         ]);
         // User 3
         DB::table('users')->insert([
@@ -39,7 +37,6 @@ class UserSeeder extends Seeder
             'email' => "cliente@gmail.com",
             'password' => Hash::make("12345"),
             'phone' => "0192837465",
-            'image' => "https://placehold.co/600x400"
         ]);
         $users = [
             "Gaelan",
@@ -68,7 +65,6 @@ class UserSeeder extends Seeder
                 'email' => $faker->email(),
                 'password' => Hash::make('password123'),
                 'phone' => $faker->phoneNumber(),
-                'image' => "https://placehold.co/600x400"
             ]);
         }
 

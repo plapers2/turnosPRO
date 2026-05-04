@@ -42,7 +42,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
-            'image' => "https://ui-avatars.com/api/?name=" . $request->name . "&background=6B4F2A&color=fff&bold=true",
+
         ]);
 
         $user->assignRole('cliente');
