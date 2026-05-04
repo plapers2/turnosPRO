@@ -24,7 +24,7 @@ class ServiceUserSeeder extends Seeder
     public function run(): void
     {
         $services = Service::all();
-        $users    = User::all();
+        $users = User::with(['companies', 'roles'])->get();
 
         if ($services->isEmpty() || $users->isEmpty()) {
             $this->command->warn('No hay servicios o usuarios. Ejecuta sus seeders primero.');
@@ -34,7 +34,7 @@ class ServiceUserSeeder extends Seeder
         foreach ($services as $service) {
             // Solo profesionales de la misma empresa que el servicio
             $profesionalesEmpresa = $users->filter(function (User $user) use ($service) {
-                return $user->companies->contains('id', $service->company_id);
+                return $user->companies->contains('id', $service->company_id) && $user->hasRole('empleado');
             });
 
             if ($profesionalesEmpresa->isEmpty()) {

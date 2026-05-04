@@ -262,9 +262,20 @@ class BookingController extends Controller
         $q->where('companies.id', $companyId))
             ->whereHas('services', fn($q) =>
             $q->whereIn('services.id', $serviceIds))
+            ->whereHas('roles', fn($q) =>
+            $q->where('name', 'empleado'))
             ->with(['professionalAvailabilities', 'services'])
             ->get();
-
+        // return response()->json([
+        //     'debug_companyId'  => $companyId,
+        //     'debug_serviceIds' => $serviceIds,
+        //     'debug_profesionales' => $profesionales->map(fn($p) => [
+        //         'id'            => $p->id,
+        //         'name'          => $p->name,
+        //         'availabilities' => $p->professionalAvailabilities->count(),
+        //         'services'      => $p->services->pluck('id'),
+        //     ]),
+        // ]);
         $horaMinGlobal = $profesionales->flatMap->professionalAvailabilities->min('start_time');
         $horaMaxGlobal = $profesionales->flatMap->professionalAvailabilities->max('end_time');
 
