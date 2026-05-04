@@ -41,13 +41,15 @@ class RolesAndPermissionsSeeder extends Seeder
         //! Reportes
         Permission::create(['name' => 'imprimir reportes']);
 
+        // ! Dashboard
+        Permission::create(['name' => 'gestionar dashboard']);
 
         //* Roles
         $admin = Role::create(['name' => 'admin']);
         $employee = Role::create(['name' => 'empleado']);
         $customer = Role::create(['name' => 'cliente']);
 
-        //* Asignar 
+        //* Asignar
 
         //! Administradores
         $admin->syncPermissions(
@@ -60,12 +62,14 @@ class RolesAndPermissionsSeeder extends Seeder
         //! Empleados
         $employee->givePermissionTo([
             'gestionar citas',
+            'gestionar dashboard'
         ]);
 
         //! Clientes
         $customer->givePermissionTo([
             'ver historial de citas',
-            'reservar citas'
+            'reservar citas',
+            'gestionar dashboard'
         ]);
     }
 }

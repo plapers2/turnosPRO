@@ -17,9 +17,12 @@
         class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5
                 scrollbar-thin scrollbar-thumb-outline-variant scrollbar-track-transparent">
 
-        <x-sidebar-link route="dashboard.index" pattern="dashboard.*" icon="dashboard">
-            Dashboard
-        </x-sidebar-link>
+        @can('gestionar dashboard')
+            <x-sidebar-link route="dashboard" pattern="dashboard" icon="dashboard">
+                Dashboard
+            </x-sidebar-link>
+        @endcan
+
 
         @can('gestionar citas')
             <x-sidebar-link route="appointment-manager.index" pattern="appointment-manager.*" icon="event_note">

@@ -10,10 +10,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\NotificationLogController;
-use App\Http\Controllers\AppointmentController;
+
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
-use Spatie\Permission\Models\Role;
+
 
 Route::get('/', function () {
     return redirect()->route("dashboard");
@@ -24,7 +24,6 @@ Route::get('/', function () {
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -90,17 +89,15 @@ Route::get('/test-mail', function () {
 });
 
 Route::middleware(['auth', 'role:admin|empleado'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // Seleccionar empresa
     Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
     Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
+
+    // Manejador de citas
+    Route::get('/appointment-manager', function () {
+        return view('appointment-manager.index');
+    })->name('appointment-manager.index');
 });
 
-Route::middleware(['auth', 'role:admin|empleado'])->group(
-    function () {
-        // Manejador de citas
-        Route::get('/appointment-manager', function () {
-            return view('appointment-manager.index');
-        })->name('appointment-manager.index');
-    }
-);
 require __DIR__ . '/auth.php';
