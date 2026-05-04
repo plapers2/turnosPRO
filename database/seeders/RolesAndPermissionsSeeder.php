@@ -18,25 +18,28 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         //* Permisos
 
-        // Servicios
+        //! Servicios
         Permission::create(['name' => 'gestionar servicios']);
 
-        // Usuarios
+        //! Usuarios
         Permission::create(['name' => 'gestionar usuarios']);
 
-        // Citas
+        //! Citas
         Permission::create(['name' => 'gestionar citas']);
         Permission::create(['name' => 'ver historial de citas']);
         Permission::create(['name' => 'reservar citas']);
 
-        // Empresas
+        //! Empresas
         Permission::create(['name' => 'gestionar empresas']);
 
-        // Clientes
+        //! Clientes
         Permission::create(['name' => 'gestionar clientes']);
 
-        // Notificaciones
+        //! Notificaciones
         Permission::create(['name' => 'ver historial de notificaciones']);
+
+        //! Reportes
+        Permission::create(['name' => 'imprimir reportes']);
 
 
         //* Roles
@@ -46,19 +49,20 @@ class RolesAndPermissionsSeeder extends Seeder
 
         //* Asignar 
 
-        // Administradores
+        //! Administradores
         $admin->syncPermissions(
             Permission::all()
         );
+        //? Remover permisos del admin
         $admin->revokePermissionTo('ver historial de citas');
         $admin->revokePermissionTo('reservar citas');
 
-        // Empleados
+        //! Empleados
         $employee->givePermissionTo([
             'gestionar citas',
         ]);
 
-        // Clientes
+        //! Clientes
         $customer->givePermissionTo([
             'ver historial de citas',
             'reservar citas'

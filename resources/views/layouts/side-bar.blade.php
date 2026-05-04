@@ -78,6 +78,12 @@
         </x-sidebar-link>
         @endcan
 
+        @can('imprimir reportes')
+        <x-sidebar-link route="appointments.export" pattern="appointments.export*" icon="picture_as_pdf">
+            Exportar Citas
+        </x-sidebar-link>
+        @endcan
+
     </div>
 
 </aside>

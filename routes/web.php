@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\NotificationLogController;
+use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 
@@ -65,6 +66,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
     Route::get('/customers/historial', [CustomerController::class, 'history'])->name('customers.history');
+
+    // Exportar citas PDF
+    Route::get('/appointments/export', [BookingController::class, 'exportView'])->name('appointments.export');
+    Route::get('/appointments/export-pdf', [BookingController::class, 'exportPdf'])->name('appointments.export-pdf');
 
     // Notificaciones
     Route::get('/notification-logs', [NotificationLogController::class, 'index'])->name('notification-logs.index');

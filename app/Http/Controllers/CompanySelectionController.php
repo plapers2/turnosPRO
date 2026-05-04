@@ -18,7 +18,8 @@ class CompanySelectionController extends Controller
         if ($companies->count() === 1) {
             $company = $companies->first();
             session([
-                'active_company_id' => $company->pivot->company_id
+                'active_company_id'   => $company->pivot->company_id,
+                'active_company_name' => $company->name,
             ]);
             return redirect()->route('dashboard');
         }
@@ -41,8 +42,11 @@ class CompanySelectionController extends Controller
             abort(403);
         }
 
+        $company = \App\Models\Company::find($request->company_id);
+
         session([
-            'active_company_id' => $request->company_id
+            'active_company_id'   => $request->company_id,
+            'active_company_name' => $company->name,
         ]);
 
         return redirect()->route('dashboard');

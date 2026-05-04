@@ -601,4 +601,46 @@ class BookingController extends Controller
             ]);
         }
     }
+    public function exportView(): \Illuminate\View\View
+    {
+        return view('appointment.export');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $request->validate([
+            'desde' => 'nullable|date',
+            'hasta' => 'nullable|date|after_or_equal:desde',
+        ], [
+            'hasta.after_or_equal' => 'La fecha "Hasta" no puede ser anterior a la fecha "Desde".',
+        ]);
+
+        $companyId = session('active_company_id');
+        $company   = \App\Models\Company::findOrFail($companyId);
+
+        $query = \App\Models\Appointment::with(['customer', 'user', 'services'])
+            ->where('company_id', $companyId);
+
+        if ($request->filled('desde')) {
+            $query->whereDate('start_time', '>=', $request->desde);
+        }
+        if ($request->filled('hasta')) {
+            $query->whereDate('start_time', '<=', $request->hasta);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $appointments = $query->orderBy('start_time')->get();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.appointments', [
+            'appointments' => $appointments,
+            'company'      => $company,
+            'desde'        => $request->desde,
+            'hasta'        => $request->hasta,
+            'generado_en'  => now()->format('d/m/Y H:i'),
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('citas-' . now()->format('Y-m-d') . '.pdf');
+    }
 }
