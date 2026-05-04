@@ -28,11 +28,11 @@ class ConfirmPendingAppointmentsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Appointment::where('status', 'pendiente')
+        Appointment::where('status', 'pending')
             ->where('created_at', '<=', now()->subHours(24))
             ->with(['customer', 'user', 'company', 'services'])
             ->each(function (Appointment $appointment) {
-                $appointment->update(['status' => 'confirmada']);
+                $appointment->update(['status' => 'confirmed']);
 
                 Mail::to($appointment->customer->email)
                     ->send(new AppointmentAutoConfirmedMail($appointment));
