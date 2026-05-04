@@ -62,7 +62,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore']);
 
     // Clientes
-    Route::resource('/customers', CustomerController::class)->except(['create']);
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('/customers/historial', [CustomerController::class, 'history'])->name('customers.history');
 
     // Notificaciones
     Route::get('/notification-logs', [NotificationLogController::class, 'index'])->name('notification-logs.index');

@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\CustomerRequest;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\UpdateCustomerProfileRequest;
@@ -18,32 +15,49 @@ class CustomerController extends Controller
      */
     public function index(Request $request): View
     {
-        $customers = Customer::paginate(8);
+        $companyId = session('active_company_id');
+        $search    = $request->input('search');
 
-        return view('customer.index', compact('customers'))
-            ->with('i', ($request->input('page', 1) - 1) * $customers->perPage());
+        $customers = Customer::where('company_id', $companyId)
+            ->whereHas('appointments', fn($q) => $q->where('company_id', $companyId))
+            ->when($search, fn($q) => $q->where(
+                fn($inner) =>
+                $inner->where('name',  'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%")
+                    ->orWhere('phone', 'like', "%$search%")
+            ))
+            ->withCount([
+                'appointments as total_visitas' => fn($q) => $q
+                    ->where('status', 'completed')
+                    ->where('company_id', $companyId),
+            ])
+            ->with([
+                'appointments' => fn($q) => $q
+                    ->where('company_id', $companyId)
+                    ->where('status', 'completed')
+                    ->latest('start_time')
+                    ->limit(1)
+            ])
+            ->orderByDesc('total_visitas')
+            ->paginate(15)
+            ->withQueryString();
+
+        $customers->each(function ($customer) use ($companyId) {
+            $customer->servicio_favorito = \DB::table('appointment_service')
+                ->join('appointments', 'appointments.id', '=', 'appointment_service.appointment_id')
+                ->join('services', 'services.id', '=', 'appointment_service.service_id')
+                ->where('appointments.customer_id', $customer->id)
+                ->where('appointments.company_id', $companyId)
+                ->where('appointments.status', 'completed')
+                ->select('services.name', \DB::raw('count(*) as total'))
+                ->groupBy('services.id', 'services.name')
+                ->orderByDesc('total')
+                ->first();
+        });
+
+        return view('customer.history', compact('customers', 'search'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    // public function create(): View
-    // {
-    //     $customer = new Customer();
-
-    //     return view('customer.create', compact('customer'));
-    // }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(CustomerRequest $request): RedirectResponse
-    {
-        Customer::create($request->validated());
-
-        return Redirect::route('customers.index')
-            ->with('success', 'Customer created successfully.');
-    }
 
     /**
      * Display the specified resource.
@@ -55,34 +69,6 @@ class CustomerController extends Controller
         return view('customer.show', compact('customer'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id): View
-    {
-        $customer = Customer::find($id);
-
-        return view('customer.edit', compact('customer'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(CustomerRequest $request, Customer $customer): RedirectResponse
-    {
-        $customer->update($request->validated());
-
-        return Redirect::route('customers.index')
-            ->with('success', 'Customer updated successfully');
-    }
-
-    public function destroy($id): RedirectResponse
-    {
-        Customer::find($id)->delete();
-
-        return Redirect::route('customers.index')
-            ->with('success', 'Customer deleted successfully');
-    }
     public function editProfile()
     {
         $cliente = auth()->user();
