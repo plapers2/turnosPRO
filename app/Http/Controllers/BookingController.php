@@ -147,8 +147,7 @@ class BookingController extends Controller
 
                 $user     = auth()->user();
                 $customer = Customer::firstOrCreate(
-                    ['email' => $user->email, 'company_id' => $companyId],
-                    ['name'  => $user->name, 'phone' => $user->phone ?? '', 'company_id' => $companyId]
+                    ['user_id' => $user->id, 'company_id' => $companyId]
                 );
                 // \Log::info('Customer', ['id' => $customer->id]);
 
@@ -549,7 +548,7 @@ class BookingController extends Controller
     public function misCitas(): View
     {
         $user     = auth()->user();
-        $customerIds = Customer::where('email', $user->email)->pluck('id');
+        $customerIds = Customer::where('user_id', $user->id)->pluck('id');
         \Log::info('Customer encontrado', [
             'user_email' => $user->email,
             'customerIds' => $customerIds?->toArray(),

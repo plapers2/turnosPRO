@@ -159,9 +159,7 @@ class DemoSeeder extends Seeder
 
             // Registro en customers
             $customerId = DB::table('customers')->insertGetId([
-                'name'       => $c['name'],
-                'email'      => $c['user_email'],
-                'phone'      => $userCliente->phone,
+                'user_id'    => $userCliente->id,
                 'company_id' => $empresa->id,
                 'created_at' => now(),
                 'updated_at' => now(),
