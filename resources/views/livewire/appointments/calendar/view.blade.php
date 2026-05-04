@@ -9,9 +9,13 @@
         (function() {
             var EVENTS = @json($calendarEvents);
 
-            if (!window._calCurrentDate) {
-                window._calCurrentDate = '{{ \Carbon\Carbon::parse($calendarMonth . '-01')->format('Y-m-d') }}';
-            }
+            {{--
+                CORRECCIÓN: Siempre leer la fecha del servidor en cada render,
+                NO usar el guard "if (!window._calCurrentDate)".
+                Así la primera carga y cualquier remontaje usan el mes correcto
+                del servidor, no un valor stale guardado en memoria.
+            --}}
+            window._calCurrentDate = '{{ \Carbon\Carbon::parse($calendarMonth . '-01')->format('Y-m-d') }}';
 
             /* ── Estilos (una sola vez) ── */
             if (!document.getElementById('fc-custom-style')) {
@@ -52,11 +56,8 @@
             };
 
             /*
-             * syncNavTitle — solo actualiza el título en vistas semana/día.
-             * Para la vista mes, el servidor ya escribió el texto correcto
-             * en cal-title al re-renderizar nav.blade.php. JS lo actualiza
-             * SOLO inmediatamente después de que el usuario presiona prev/next
-             * (antes de que llegue el re-render del servidor).
+             * syncNavTitle — actualiza el título SOLO para vistas semana/día.
+             * En vista mes, nav.blade.php (servidor) es la única fuente de verdad.
              */
             function syncNavTitle() {
                 var cal = window._calendarInstance;
@@ -66,14 +67,9 @@
                 var viewType = cal.view.type;
                 var locale = 'es-ES';
 
-                if (viewType === 'dayGridMonth') {
-                    var mid = new Date(cal.view.currentStart);
-                    mid.setDate(mid.getDate() + 15);
-                    titleEl.textContent = mid.toLocaleDateString(locale, {
-                        month: 'long',
-                        year: 'numeric'
-                    });
-                } else if (viewType === 'timeGridWeek') {
+                if (viewType === 'dayGridMonth') return; // servidor lo maneja
+
+                if (viewType === 'timeGridWeek') {
                     var start = new Date(cal.view.currentStart);
                     var end = new Date(cal.view.currentEnd);
                     end.setDate(end.getDate() - 1);
@@ -109,12 +105,10 @@
 
                     if (e.target.closest('#cal-prev')) {
                         cal.prev();
-                        syncNavTitle();
                         notifyLivewireIfMonth(cal);
                     }
                     if (e.target.closest('#cal-next')) {
                         cal.next();
-                        syncNavTitle();
                         notifyLivewireIfMonth(cal);
                     }
                 });
@@ -122,8 +116,22 @@
 
             function notifyLivewireIfMonth(cal) {
                 if (cal.view.type !== 'dayGridMonth') return;
+
+                {{--
+                    CORRECCIÓN: calcular el primer día del mes real visible,
+                    NO usar cal.view.currentStart que puede ser un día de relleno
+                    de la semana anterior (ej: 28 de abril cuando se muestra mayo).
+                --}}
                 var mid = new Date(cal.view.currentStart);
-                mid.setDate(mid.getDate() + 15);
+                mid.setDate(mid.getDate() + 15); // siempre cae dentro del mes correcto
+
+                var canonicalFirst = mid.getFullYear() + '-' +
+                    String(mid.getMonth() + 1).padStart(2, '0') + '-01';
+
+                // Sincronizar _calCurrentDate con el mes canónico para que
+                // un eventual remontaje del calendario arranque en el mes correcto.
+                window._calCurrentDate = canonicalFirst;
+
                 Livewire.dispatch('calendarGoToMonth', {
                     month: mid.toISOString().slice(0, 7)
                 });
@@ -141,7 +149,7 @@
 
                 window._calendarInstance = new FullCalendar.Calendar(el, {
                     initialView: 'dayGridMonth',
-                    initialDate: window._calCurrentDate,
+                    initialDate: window._calCurrentDate, // ahora siempre es YYYY-MM-01
                     locale: 'es',
 
                     headerToolbar: {
@@ -165,15 +173,21 @@
                     events: EVENTS,
 
                     datesSet: function(info) {
-                        window._calCurrentDate = info.start.toISOString().slice(0, 10);
-
-                        // Si el servidor acaba de actualizar el título (via re-render
-                        // del nav), no sobreescribirlo con el valor del calendario
-                        if (window._calTitleFromServer) {
-                            window._calTitleFromServer = false;
-                            return;
+                        {{--
+                            CORRECCIÓN: guardar el primer día del mes canónico,
+                            NO info.start que es el lunes/domingo de relleno.
+                            Así si el calendario se destruye y remonta,
+                            initialDate apunta al mes correcto.
+                        --}}
+                        if (info.view.type === 'dayGridMonth') {
+                            var mid = new Date(info.start);
+                            mid.setDate(mid.getDate() + 15);
+                            window._calCurrentDate = mid.getFullYear() + '-' +
+                                String(mid.getMonth() + 1).padStart(2, '0') + '-01';
+                        } else {
+                            window._calCurrentDate = info.start.toISOString().slice(0, 10);
                         }
-                        syncNavTitle();
+                        syncNavTitle(); // no-op en vista mes
                     },
 
                     eventDidMount: function(info) {
@@ -234,9 +248,6 @@
             window.addEventListener('calendar-events-updated', function(e) {
                 EVENTS = e.detail.events;
                 if (window._calendarInstance) {
-                    // Marcar que el servidor ya escribió el título correcto
-                    // en nav.blade.php → datesSet no debe sobreescribirlo
-                    window._calTitleFromServer = true;
                     window._calendarInstance.removeAllEvents();
                     window._calendarInstance.addEventSource(e.detail.events);
                 } else {
