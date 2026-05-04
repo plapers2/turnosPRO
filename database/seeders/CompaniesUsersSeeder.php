@@ -12,19 +12,27 @@ class CompaniesUsersSeeder extends Seeder
     public function run(): void
     {
         $companies = Company::all();
-        $users     = User::all();
+        $users     = User::role('empleado')->get(); // ← solo empleados
 
         if ($companies->isEmpty() || $users->isEmpty()) {
-            $this->command->warn('No hay empresas o usuarios. Ejecuta sus seeders primero.');
+            $this->command->warn('No hay empresas o usuarios empleados. Ejecuta sus seeders primero.');
             return;
         }
 
-        // Mezclar usuarios para distribuirlos de forma más uniforme
         $shuffledUsers = $users->shuffle();
         $userIndex     = 0;
+        $adminGlobal = User::role('admin')->first();
+
 
         foreach ($companies as $company) {
-            // Garantizar al menos 1 usuario por empresa (asignación rotativa)
+            if ($adminGlobal) {
+                DB::table('company_user')->insertOrIgnore([
+                    'company_id' => $company->id,
+                    'user_id'    => $adminGlobal->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
             $usuarioFijo = $shuffledUsers[$userIndex % $shuffledUsers->count()];
             DB::table('company_user')->insertOrIgnore([
                 'company_id' => $company->id,
@@ -34,7 +42,6 @@ class CompaniesUsersSeeder extends Seeder
             ]);
             $userIndex++;
 
-            // Agregar entre 1 y 2 usuarios extra aleatorios
             $extras = $users->random(min(rand(1, 2), $users->count()));
             foreach ($extras as $user) {
                 DB::table('company_user')->insertOrIgnore([

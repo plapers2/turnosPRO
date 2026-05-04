@@ -147,8 +147,7 @@ class BookingController extends Controller
 
                 $user     = auth()->user();
                 $customer = Customer::firstOrCreate(
-                    ['email' => $user->email, 'company_id' => $companyId],
-                    ['name'  => $user->name, 'phone' => $user->phone ?? '', 'company_id' => $companyId]
+                    ['user_id' => $user->id, 'company_id' => $companyId]
                 );
                 // \Log::info('Customer', ['id' => $customer->id]);
 
@@ -263,9 +262,20 @@ class BookingController extends Controller
         $q->where('companies.id', $companyId))
             ->whereHas('services', fn($q) =>
             $q->whereIn('services.id', $serviceIds))
+            ->whereHas('roles', fn($q) =>
+            $q->where('name', 'empleado'))
             ->with(['professionalAvailabilities', 'services'])
             ->get();
-
+        // return response()->json([
+        //     'debug_companyId'  => $companyId,
+        //     'debug_serviceIds' => $serviceIds,
+        //     'debug_profesionales' => $profesionales->map(fn($p) => [
+        //         'id'            => $p->id,
+        //         'name'          => $p->name,
+        //         'availabilities' => $p->professionalAvailabilities->count(),
+        //         'services'      => $p->services->pluck('id'),
+        //     ]),
+        // ]);
         $horaMinGlobal = $profesionales->flatMap->professionalAvailabilities->min('start_time');
         $horaMaxGlobal = $profesionales->flatMap->professionalAvailabilities->max('end_time');
 
@@ -549,7 +559,7 @@ class BookingController extends Controller
     public function misCitas(): View
     {
         $user     = auth()->user();
-        $customerIds = Customer::where('email', $user->email)->pluck('id');
+        $customerIds = Customer::where('user_id', $user->id)->pluck('id');
         \Log::info('Customer encontrado', [
             'user_email' => $user->email,
             'customerIds' => $customerIds?->toArray(),
