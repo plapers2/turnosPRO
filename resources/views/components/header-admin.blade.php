@@ -1,4 +1,4 @@
-@props(['icono', 'titulo', 'mensaje', 'textoBoton', 'ruta'])
+@props(['icono', 'titulo', 'mensaje', 'textoBoton' => null, 'ruta' => null])
 <!-- HEADER (igual que servicios) -->
 <header
     class="relative bg-[#fcf9f3]/80 backdrop-blur-md border border-outline-variant/20
@@ -21,11 +21,12 @@
         </p>
     </div>
 
-    <a href="{{ route($ruta . ".create") }}"
+    @if ($textoBoton && $ruta)
+    <a href="{{ route($ruta . '.create') }}"
         class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold
-               bg-primary text-white hover:bg-primary/90 transition shadow-sm">
-
+           bg-primary text-white hover:bg-primary/90 transition shadow-sm">
         <span class="material-symbols-outlined text-[18px]">add</span>
         {{ $textoBoton }}
     </a>
+    @endif
 </header>

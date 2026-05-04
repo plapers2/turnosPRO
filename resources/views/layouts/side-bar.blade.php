@@ -72,6 +72,12 @@
         </x-sidebar-link>
         @endcan
 
+        @can('ver historial de notificaciones')
+        <x-sidebar-link route="notification-logs.index" pattern="notification-logs.*" icon="mail">
+            Notificaciones
+        </x-sidebar-link>
+        @endcan
+
     </div>
 
 </aside>

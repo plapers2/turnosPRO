@@ -35,6 +35,9 @@ class RolesAndPermissionsSeeder extends Seeder
         // Clientes
         Permission::create(['name' => 'gestionar clientes']);
 
+        // Notificaciones
+        Permission::create(['name' => 'ver historial de notificaciones']);
+
 
         //* Roles
         $admin = Role::create(['name' => 'admin']);
@@ -47,6 +50,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->syncPermissions(
             Permission::all()
         );
+        $admin->revokePermissionTo('ver historial de citas');
+        $admin->revokePermissionTo('reservar citas');
 
         // Empleados
         $employee->givePermissionTo([

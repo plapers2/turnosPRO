@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Customer;
 use App\Models\TypeCompany;
 use App\Models\Appointment;
+use App\Models\NotificationLog;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -191,14 +192,22 @@ class BookingController extends Controller
                     $appointment->load(['customer', 'user', 'company', 'services']);
 
                     // Email al cliente
-                    Mail::to($appointment->customer->email)
-                        ->send(new AppointmentConfirmationMail($appointment));
+                    $this->enviarEmail(
+                        new AppointmentConfirmationMail($appointment),
+                        $appointment->customer->email,
+                        $appointment->id,
+                        'confirmation'
+                    );
 
-                    // Email al admin de la empresa
+                    // Email al admin
                     $adminEmail = $appointment->company->email;
                     if ($adminEmail) {
-                        Mail::to($adminEmail)
-                            ->send(new AppointmentAdminNotificationMail($appointment));
+                        $this->enviarEmail(
+                            new AppointmentAdminNotificationMail($appointment),
+                            $adminEmail,
+                            $appointment->id,
+                            'admin_notification'
+                        );
                     }
                 }
             });
@@ -526,7 +535,12 @@ class BookingController extends Controller
         $appointment->load(['customer', 'user', 'company', 'services']);
         $adminEmail = $appointment->company->email;
         if ($adminEmail) {
-            Mail::to($adminEmail)->send(new AppointmentCancelledAdminMail($appointment));
+            $this->enviarEmail(
+                new AppointmentCancelledAdminMail($appointment),
+                $adminEmail,
+                $appointment->id,
+                'cancelled_admin'
+            );
         }
 
         return view('appointment.cancel-success', compact('appointment'));
@@ -563,8 +577,28 @@ class BookingController extends Controller
             ->with(['services', 'user', 'company'])
             ->orderBy('start_time')
             ->get();
-        
+
 
         return view('appointment.history', compact('proximas', 'historicas'));
+    }
+    private function enviarEmail($mailable, string $email, int $appointmentId, string $type): void
+    {
+        try {
+            Mail::to($email)->send($mailable);
+            NotificationLog::create([
+                'appointment_id'  => $appointmentId,
+                'type'            => $type,
+                'recipient_email' => $email,
+                'status'          => 'sent',
+            ]);
+        } catch (\Exception $e) {
+            NotificationLog::create([
+                'appointment_id'  => $appointmentId,
+                'type'            => $type,
+                'recipient_email' => $email,
+                'status'          => 'error',
+                'error_message'   => $e->getMessage(),
+            ]);
+        }
     }
 }

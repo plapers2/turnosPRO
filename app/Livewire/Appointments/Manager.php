@@ -5,6 +5,7 @@ namespace App\Livewire\Appointments;
 use App\Mail\AppointmentCancelledByEmployeeMail;
 use App\Models\Appointment;
 use App\Models\User;
+use App\Models\NotificationLog;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -297,8 +298,12 @@ class Manager extends Component
             'cancellation_reason' => $this->cancellationReason,
         ]);
 
-        Mail::to($appointment->customer->email)
-            ->send(new AppointmentCancelledByEmployeeMail($appointment));
+        $this->enviarEmail(
+            new AppointmentCancelledByEmployeeMail($appointment),
+            $appointment->customer->email,
+            $appointment->id,
+            'cancelled_by_employee'
+        );
 
         $this->showCancelConfirm  = false;
         $this->cancelTargetId     = null;
@@ -537,5 +542,25 @@ class Manager extends Component
             'isAdmin'        => $this->isAdmin,
             'isCustomer'     => $this->isCustomer,
         ]);
+    }
+    private function enviarEmail($mailable, string $email, int $appointmentId, string $type): void
+    {
+        try {
+            Mail::to($email)->send($mailable);
+            NotificationLog::create([
+                'appointment_id'  => $appointmentId,
+                'type'            => $type,
+                'recipient_email' => $email,
+                'status'          => 'sent',
+            ]);
+        } catch (\Exception $e) {
+            NotificationLog::create([
+                'appointment_id'  => $appointmentId,
+                'type'            => $type,
+                'recipient_email' => $email,
+                'status'          => 'error',
+                'error_message'   => $e->getMessage(),
+            ]);
+        }
     }
 }

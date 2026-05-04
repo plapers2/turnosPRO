@@ -9,6 +9,7 @@ use App\Http\Controllers\OpeningHourController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\NotificationLogController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 
@@ -67,6 +68,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Clientes
     Route::resource('/customers', CustomerController::class)->except(['create']);
+
+    // Notificaciones
+    Route::get('/notification-logs', [NotificationLogController::class, 'index'])->name('notification-logs.index');
+
 });
 
 // Ruta para cancelar cita desde email
