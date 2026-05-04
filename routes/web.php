@@ -93,7 +93,7 @@ Route::middleware(['auth', 'role:admin|empleado'])->group(function () {
     Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
 });
 
-Route::middleware(['auth', 'role:admin|empleado|cliente'])->group(
+Route::middleware(['auth', 'role:admin|empleado'])->group(
     function () {
         // Manejador de citas
         Route::get('/appointment-manager', function () {

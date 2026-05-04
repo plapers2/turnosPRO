@@ -529,6 +529,7 @@ class BookingController extends Controller
 
         $appointment->update([
             'status' => 'cancelled',
+            'cancelled_by' => auth()->id(),
             'cancellation_reason' => 'Cancelada por el cliente desde el enlace del correo.',
         ]);
 

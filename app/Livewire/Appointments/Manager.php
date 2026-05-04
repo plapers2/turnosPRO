@@ -24,7 +24,6 @@ class Manager extends Component
     // ── Roles ────────────────────────────────────────────────
     public bool $isAdmin    = false;
     public bool $isEmployee = false;
-    public bool $isCustomer = false;
 
     // ── Empresa activa ───────────────────────────────────────
     public ?int $companyId = null;
@@ -64,7 +63,6 @@ class Manager extends Component
         $user             = auth()->user();
         $this->isAdmin    = $user->hasRole('admin');
         $this->isEmployee = $user->hasRole('empleado');
-        $this->isCustomer = $user->hasRole('cliente');
     }
 
     // ── Escucha cambio de empresa activa ─────────────────────
@@ -91,9 +89,6 @@ class Manager extends Component
     // ── Query base ───────────────────────────────────────────
     // Admin    → ve todas las citas de la empresa activa.
     // Empleado → ve solo sus propias citas dentro de la empresa activa (por user_id).
-    // Cliente  → ve solo sus propias citas dentro de la empresa activa (por customer.user_id).
-    // El scope se aplica aquí en el servidor; no depende de propiedades
-    // públicas que el frontend podría manipular.
     private function baseQuery()
     {
         return $this->scopeCompany(
@@ -101,16 +96,8 @@ class Manager extends Component
         )
             // Empleado → solo sus citas como profesional (server-side, seguro)
             ->when(
-                ! $this->isAdmin && ! $this->isCustomer,
+                ! $this->isAdmin,
                 fn($q) => $q->where('user_id', auth()->id())
-            )
-            // Cliente → solo sus citas como cliente (por customer.user_id, server-side, seguro)
-            ->when(
-                $this->isCustomer,
-                fn($q) => $q->whereHas(
-                    'customer',
-                    fn($c) => $c->where('user_id', auth()->id())
-                )
             )
             ->when(
                 $this->search,
@@ -157,7 +144,7 @@ class Manager extends Component
 
     public function updatedFilterProfessional(): void
     {
-        // El empleado y el cliente no pueden cambiar este filtro;
+        // El empleado no puede cambiar este filtro;
         // se ignora cualquier valor que el frontend intente enviar.
         if (! $this->isAdmin) {
             $this->filterProfessional = null;
@@ -179,15 +166,8 @@ class Manager extends Component
             Appointment::with(['customer', 'user', 'services'])
         )
             ->when(
-                ! $this->isAdmin && ! $this->isCustomer,
+                ! $this->isAdmin,
                 fn($q) => $q->where('user_id', auth()->id())
-            )
-            ->when(
-                $this->isCustomer,
-                fn($q) => $q->whereHas(
-                    'customer',
-                    fn($c) => $c->where('user_id', auth()->id())
-                )
             );
 
         $this->selectedAppt = $query->findOrFail($id);
@@ -422,23 +402,14 @@ class Manager extends Component
 
     protected function refreshCalendarEvents(): void
     {
-        // Sin () porque es un #[Computed]
         $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents);
     }
 
     // ── Autorización ─────────────────────────────────────────
-    // Cliente  → solo puede ver sus citas, no modificarlas.
     // Empleado → solo puede modificar sus propias citas.
     // Admin    → puede modificar cualquier cita de la empresa activa.
     protected function authorizeAppointmentAction(int $id): void
     {
-        // El cliente no puede cancelar, confirmar ni completar citas
-        abort_if(
-            $this->isCustomer,
-            403,
-            'Los clientes no pueden modificar citas.'
-        );
-
         $appt = Appointment::findOrFail($id);
 
         // Verifica que la cita pertenezca a la empresa activa
@@ -476,16 +447,8 @@ class Manager extends Component
         $counts = $this->scopeCompany(Appointment::query())
             // Empleado → solo sus stats como profesional
             ->when(
-                ! $this->isAdmin && ! $this->isCustomer,
+                ! $this->isAdmin,
                 fn($q) => $q->where('user_id', auth()->id())
-            )
-            // Cliente → solo sus stats como cliente
-            ->when(
-                $this->isCustomer,
-                fn($q) => $q->whereHas(
-                    'customer',
-                    fn($c) => $c->where('user_id', auth()->id())
-                )
             )
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
@@ -558,9 +521,9 @@ class Manager extends Component
             'professionals'  => $this->professionals(),
             'calendarEvents' => $this->calendarEvents(),
             'isAdmin'        => $this->isAdmin,
-            'isCustomer'     => $this->isCustomer,
         ]);
     }
+
     private function enviarEmail($mailable, string $email, int $appointmentId, string $type): void
     {
         try {

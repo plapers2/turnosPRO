@@ -17,71 +17,70 @@
             Dashboard
         </x-sidebar-link>
 
-
-        @role(['admin', 'empleado', 'cliente'])
-        <x-sidebar-link route="appointment-manager.index" pattern="appointment-manager.*" icon="event_note">
-            Citas
-        </x-sidebar-link>
-        @endrole
+        @can('gestionar citas')
+            <x-sidebar-link route="appointment-manager.index" pattern="appointment-manager.*" icon="event_note">
+                Citas
+            </x-sidebar-link>
+        @endcan
 
         @can('gestionar usuarios')
-        <x-sidebar-link route="users.index" pattern="users.*" icon="workspace_premium">
-            Profesionales
-        </x-sidebar-link>
+            <x-sidebar-link route="users.index" pattern="users.*" icon="workspace_premium">
+                Profesionales
+            </x-sidebar-link>
         @endcan
 
         @can('gestionar servicios')
-        <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
-            Servicios
-        </x-sidebar-link>
+            <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
+                Servicios
+            </x-sidebar-link>
         @endcan
 
         @can('gestionar clientes')
-        <x-sidebar-link route="customers.index" pattern="customers.*" icon="groups">
-            Clientes
-        </x-sidebar-link>
+            <x-sidebar-link route="customers.index" pattern="customers.*" icon="groups">
+                Clientes
+            </x-sidebar-link>
         @endcan
 
         @can('gestionar empresas')
-        <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
-            Empresa
-        </x-sidebar-link>
+            <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
+                Empresa
+            </x-sidebar-link>
         @endcan
 
         @can('gestionar empresas')
-        <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="add_business">
-            Tipos de Empresa
-        </x-sidebar-link>
+            <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="add_business">
+                Tipos de Empresa
+            </x-sidebar-link>
         @endcan
 
         @can('gestionar empresas')
-        <x-sidebar-link route="opening-hours.index" pattern="opening-hours.*" icon="calendar_month">
-            Horarios de atención
-        </x-sidebar-link>
+            <x-sidebar-link route="opening-hours.index" pattern="opening-hours.*" icon="calendar_month">
+                Horarios de atención
+            </x-sidebar-link>
         @endcan
 
         @can('reservar citas')
-        <x-sidebar-link route="appointment.index" pattern="appointment.index" icon="calendar_add_on">
-            Reservar Cita
-        </x-sidebar-link>
+            <x-sidebar-link route="appointment.index" pattern="appointment.index" icon="calendar_add_on">
+                Reservar Cita
+            </x-sidebar-link>
         @endcan
 
         @can('ver historial de citas')
-        <x-sidebar-link route="appointment.history" pattern="appointment.history" icon="history">
-            Historial de Citas
-        </x-sidebar-link>
+            <x-sidebar-link route="appointment.history" pattern="appointment.history" icon="history">
+                Historial de Citas
+            </x-sidebar-link>
         @endcan
 
         @can('ver historial de notificaciones')
-        <x-sidebar-link route="notification-logs.index" pattern="notification-logs.*" icon="mail">
-            Notificaciones
-        </x-sidebar-link>
+            <x-sidebar-link route="notification-logs.index" pattern="notification-logs.*" icon="mail">
+                Notificaciones
+            </x-sidebar-link>
         @endcan
 
         @can('imprimir reportes')
-        <x-sidebar-link route="appointments.export" pattern="appointments.export*" icon="picture_as_pdf">
-            Exportar Citas
-        </x-sidebar-link>
+            <x-sidebar-link route="appointments.export" pattern="appointments.export*" icon="picture_as_pdf">
+                Exportar Citas
+            </x-sidebar-link>
         @endcan
 
     </div>
