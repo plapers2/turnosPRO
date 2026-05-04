@@ -21,10 +21,24 @@ class CustomerRequest extends FormRequest
      */
     public function rules(): array
     {
+        $customerId = $this->route('customer')?->id;
+
         return [
-			'name' => 'required|string',
-			'email' => 'required|string',
-			'phone' => 'required|string',
+            'name'  => 'required|string',
+            'email' => [
+                'required',
+                'email',
+                \Illuminate\Validation\Rule::unique('customers')->ignore($customerId),
+                \Illuminate\Validation\Rule::unique('users', 'email'),
+            ],
+            'phone'      => 'required|string',
+            'company_id' => 'required|exists:companies,id',
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'email.unique' => 'Este correo electrónico ya está en uso.',
         ];
     }
 }
