@@ -61,8 +61,14 @@
         @endcan
 
         @can('reservar citas')
-        <x-sidebar-link route="appointment.index" pattern="appointment.*" icon="calendar_add_on">
+        <x-sidebar-link route="appointment.index" pattern="appointment.index" icon="calendar_add_on">
             Reservar Cita
+        </x-sidebar-link>
+        @endcan
+
+        @can('ver historial de citas')
+        <x-sidebar-link route="appointment.history" pattern="appointment.history" icon="history">
+            Historial de Citas
         </x-sidebar-link>
         @endcan
 

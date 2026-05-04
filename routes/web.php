@@ -35,9 +35,11 @@ Route::middleware(['auth', 'role:cliente'])->group(function () {
     Route::get('/booking/confirm', [BookingController::class, 'prepareCreate'])->name('booking.prepareCreate');
     Route::post('/booking/store', [BookingController::class, 'store'])->name('appointments.store');
     Route::get('/booking/profesionales-disponibles', [BookingController::class, 'profesionalesDisponibles'])->name('booking.profesionales');
+    Route::get('/mis-citas', [BookingController::class, 'misCitas'])->name('appointment.history');
+    // Perfil
     Route::get('/customer/profile/edit', [CustomerController::class, 'editProfile'])->name('customer.profile.edit');
     Route::put('/customer/profile/update', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
-
+    
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

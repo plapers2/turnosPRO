@@ -26,7 +26,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Citas
         Permission::create(['name' => 'gestionar citas']);
-        Permission::create(['name' => 'ver historial citas']);
+        Permission::create(['name' => 'ver historial de citas']);
         Permission::create(['name' => 'reservar citas']);
 
         // Empresas
@@ -55,7 +55,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Clientes
         $customer->givePermissionTo([
-            'ver historial citas',
+            'ver historial de citas',
             'reservar citas'
         ]);
     }

@@ -123,9 +123,10 @@ class BookingController extends Controller
     // ─── PASO 3 STORE: Guardar cita ─────────────────────────────────────
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        // \Log::info('Store iniciado', $request->all());
+        $validated = validator($request->all(), [
             'company_id'              => 'required|exists:companies,id',
-            'fecha'                   => 'required|date|after:today',
+            'fecha'                   => 'required|date|after_or_equal:today',
             'hora'                    => 'required',
             'asignaciones'            => 'required|array|min:1',
             'asignaciones.*.user_id'  => 'required|exists:users,id',
@@ -133,8 +134,12 @@ class BookingController extends Controller
             'asignaciones.*.hora_inicio' => 'required',
         ]);
 
+        // \Log::info('Errores', $validated->errors()->toArray());
+        // \Log::info('Errores de validacion', session()->get('errors') ? session()->get('errors')->toArray() : []);
+        // \Log::info('Validación pasada');
         try {
             \DB::transaction(function () use ($request) {
+                // \Log::info('Dentro de la transacción');
                 $bookingGroup = \Str::uuid();
                 $fecha        = $request->fecha;
                 $companyId    = $request->company_id;
@@ -144,11 +149,17 @@ class BookingController extends Controller
                     ['email' => $user->email, 'company_id' => $companyId],
                     ['name'  => $user->name, 'phone' => $user->phone ?? '', 'company_id' => $companyId]
                 );
+                // \Log::info('Customer', ['id' => $customer->id]);
 
                 foreach ($request->asignaciones as $asignacion) {
+                    // \Log::info('Procesando asignacion', $asignacion);
                     $servicio  = Service::findOrFail($asignacion['service_id']);
                     $inicio    = Carbon::parse("$fecha {$asignacion['hora_inicio']}:00");
                     $fin       = $inicio->copy()->addMinutes($servicio->duration);
+                    if ($inicio->isPast()) {
+                        throw new \Exception('hora_pasada');
+                    }
+                    // \Log::info('Horario', ['inicio' => $inicio, 'fin' => $fin]);
 
                     // Verificar conflicto con bloqueo pesimista
                     $conflicto = Appointment::where('user_id', $asignacion['user_id'])
@@ -156,6 +167,7 @@ class BookingController extends Controller
                         ->where('end_time', '>', $inicio)
                         ->lockForUpdate()
                         ->exists();
+                    // \Log::info('Conflicto', ['hay_conflicto' => $conflicto]);
 
                     if ($conflicto) throw new \Exception('slot_ocupado');
 
@@ -171,6 +183,7 @@ class BookingController extends Controller
                         'cancel_token'  => Str::random(40),
                         'cancel_token_expires_at' => now()->addDays(7)
                     ]);
+                    // \Log::info('Cita creada', ['id' => $appointment->id]);
 
                     $appointment->services()->attach($asignacion['service_id']);
 
@@ -193,9 +206,16 @@ class BookingController extends Controller
             return redirect()->route('appointment.index')
                 ->with('success', '¡Cita agendada correctamente!');
         } catch (\Exception $e) {
-            $mensaje = $e->getMessage() === 'slot_ocupado'
-                ? 'Un horario fue reservado mientras confirmabas. Por favor selecciona otro.'
-                : 'Ocurrió un error al agendar la cita. Intenta de nuevo.';
+            // \Log::error('Error en store', [
+            //     'mensaje' => $e->getMessage(),
+            //     'linea'   => $e->getLine(),
+            //     'archivo' => $e->getFile(),
+            // ]);
+            $mensaje = match ($e->getMessage()) {
+                'slot_ocupado' => 'Un horario fue reservado mientras confirmabas. Por favor selecciona otro.',
+                'hora_pasada'  => 'No puedes agendar citas en horarios que ya pasaron.',
+                default        => 'Ocurrió un error al agendar la cita. Intenta de nuevo.',
+            };
 
             return redirect()->back()->with('error', $mensaje)->withInput();
         }
@@ -503,8 +523,6 @@ class BookingController extends Controller
             'cancellation_reason' => 'Cancelada por el cliente desde el enlace del correo.',
         ]);
 
-        $appointment->delete();
-
         $appointment->load(['customer', 'user', 'company', 'services']);
         $adminEmail = $appointment->company->email;
         if ($adminEmail) {
@@ -512,5 +530,41 @@ class BookingController extends Controller
         }
 
         return view('appointment.cancel-success', compact('appointment'));
+    }
+    public function misCitas(): View
+    {
+        $user     = auth()->user();
+        $customerIds = Customer::where('email', $user->email)->pluck('id');
+        \Log::info('Customer encontrado', [
+            'user_email' => $user->email,
+            'customerIds' => $customerIds?->toArray(),
+        ]);
+
+        if (!$customerIds) {
+            return view('appointment.history', [
+                'proximas'   => collect(),
+                'historicas' => collect(),
+            ]);
+        }
+
+        $historicas = Appointment::withTrashed()
+            ->whereIn('customer_id', $customerIds)
+            ->where(function ($q) {
+                $q->whereIn('status', ['completed', 'cancelled'])
+                    ->orWhere('start_time', '<', now());
+            })
+            ->with(['services', 'user', 'company'])
+            ->orderBy('start_time', 'desc')
+            ->get();
+
+        $proximas = Appointment::whereIn('customer_id', $customerIds)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where('start_time', '>=', now())
+            ->with(['services', 'user', 'company'])
+            ->orderBy('start_time')
+            ->get();
+        
+
+        return view('appointment.history', compact('proximas', 'historicas'));
     }
 }
