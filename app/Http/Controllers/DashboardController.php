@@ -39,8 +39,8 @@ class DashboardController extends Controller
     // ────────────────────────────────────────────────────────────────────────────
     private function clientDashboard($user)
     {
-        // Buscar el registro Customer vinculado por email
-        $customer = Customer::where('email', $user->email)->first();
+        // Buscar el registro Customer vinculado por id
+        $customer = Customer::where('user_id', $user->id)->first();
 
         if (! $customer) {
             // Cliente sin perfil todavía — vista vacía
