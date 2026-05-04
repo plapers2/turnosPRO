@@ -1,246 +1,287 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-8 py-8 flex flex-col gap-12">
-        <!-- Greeting Header -->
-        <header class="flex flex-col gap-2">
-            <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-headline"
-                style="letter-spacing: -0.02em;">
-                Buenos días, Admin
-            </h1>
-            <p class="text-lg text-on-surface-variant font-body">
-                Lunes 20 de abril — Resumen de operaciones
-            </p>
-        </header>
-        <!-- Content Grid Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <!-- Left Column: KPIs & Next Appointments -->
-            <div class="lg:col-span-8 flex flex-col gap-10">
-                <!-- KPI Bento Grid -->
-                <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- KPI Card 1 -->
-                    <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between"
-                        style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.04);">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-sm font-semibold text-on-surface-variant tracking-wide uppercase">Citas
-                                Hoy</span>
-                            <span
-                                class="material-symbols-outlined text-primary-container bg-surface-container p-2 rounded-full text-sm">calendar_today</span>
-                        </div>
-                        <div class="flex items-end gap-2">
-                            <span class="text-4xl font-bold text-on-surface">12</span>
-                        </div>
-                    </div>
-                    <!-- KPI Card 2 -->
-                    <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between"
-                        style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.04);">
-                        <div class="flex items-center justify-between mb-4">
-                            <span
-                                class="text-sm font-semibold text-on-surface-variant tracking-wide uppercase">Confirmadas</span>
-                            <span
-                                class="material-symbols-outlined text-tertiary-container bg-surface-container p-2 rounded-full text-sm">check_circle</span>
-                        </div>
-                        <div class="flex items-end gap-2">
-                            <span class="text-4xl font-bold text-on-surface">8</span>
-                        </div>
-                    </div>
-                    <!-- KPI Card 3 -->
-                    <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between"
-                        style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.04);">
-                        <div class="flex items-center justify-between mb-4">
-                            <span
-                                class="text-sm font-semibold text-on-surface-variant tracking-wide uppercase">Canceladas</span>
-                            <span
-                                class="material-symbols-outlined text-error bg-error-container p-2 rounded-full text-sm">cancel</span>
-                        </div>
-                        <div class="flex items-end gap-2">
-                            <span class="text-4xl font-bold text-error">2</span>
-                        </div>
-                    </div>
-                    <!-- KPI Card 4 -->
-                    <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between relative overflow-hidden"
-                        style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.04);">
-                        <div
-                            class="absolute top-0 right-0 w-24 h-24 bg-primary-fixed-dim rounded-full blur-3xl opacity-20 -mr-8 -mt-8">
-                        </div>
-                        <div class="flex items-center justify-between mb-4 relative z-10">
-                            <span
-                                class="text-sm font-semibold text-on-surface-variant tracking-wide uppercase">Asistencia</span>
-                            <span
-                                class="material-symbols-outlined text-primary-container bg-surface-container p-2 rounded-full text-sm">trending_up</span>
-                        </div>
-                        <div class="flex items-end gap-2 relative z-10">
-                            <span class="text-4xl font-bold text-primary-container">83%</span>
-                        </div>
-                    </div>
-                </section>
-                <!-- Next Appointments Section -->
-                <section class="flex flex-col gap-6 mt-4">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-2xl font-bold text-on-surface font-headline tracking-tight">Próximas citas</h2>
-                        <span
-                            class="text-sm font-medium text-on-surface-variant bg-surface-container-low px-3 py-1 rounded-full">Siguiente
-                            2 horas</span>
-                    </div>
-                    <div class="flex flex-col gap-4">
-                        <!-- Appointment Card 1 -->
-                        <div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer"
-                            style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.02);">
-                            <div class="flex items-center gap-5">
-                                <div
-                                    class="flex flex-col items-center justify-center bg-surface-container px-4 py-2 rounded-lg min-w-[80px]">
-                                    <span
-                                        class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Hoy</span>
-                                    <span class="text-xl font-bold text-primary-container">10:30</span>
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    <span class="text-lg font-bold text-on-surface">María Gómez</span>
-                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
-                                        <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[16px]">medical_services</span>
-                                            Consulta General</span>
-                                        <span class="text-surface-dim">•</span>
-                                        <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[16px]">person</span> Dr.
-                                            Pérez</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span
-                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span>
-                                    Confirmada
-                                </span>
-                                <button
-                                    class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-on-surface-variant hover:text-primary bg-surface rounded-full">
-                                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Appointment Card 2 -->
-                        <div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer relative overflow-hidden"
-                            style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.02);">
-                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
-                            <div class="flex items-center gap-5 pl-2">
-                                <div
-                                    class="flex flex-col items-center justify-center bg-surface-container px-4 py-2 rounded-lg min-w-[80px]">
-                                    <span
-                                        class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Hoy</span>
-                                    <span class="text-xl font-bold text-primary-container">11:00</span>
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    <span class="text-lg font-bold text-on-surface">Carlos Rodríguez</span>
-                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
-                                        <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[16px]">content_cut</span> Corte
-                                            Premium</span>
-                                        <span class="text-surface-dim">•</span>
-                                        <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[16px]">person</span> Ana
-                                            L.</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span
-                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-surface-container-high text-on-surface-variant flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-outline"></span> Pendiente
-                                </span>
-                                <button
-                                    class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-on-surface-variant hover:text-primary bg-surface rounded-full">
-                                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Appointment Card 3 -->
-                        <div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer"
-                            style="box-shadow: 0 10px 30px rgba(95, 94, 90, 0.02);">
-                            <div class="flex items-center gap-5">
-                                <div
-                                    class="flex flex-col items-center justify-center bg-surface-container px-4 py-2 rounded-lg min-w-[80px]">
-                                    <span
-                                        class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Hoy</span>
-                                    <span class="text-xl font-bold text-primary-container">11:45</span>
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    <span class="text-lg font-bold text-on-surface">Elena Silva</span>
-                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
-                                        <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[16px]">spa</span> Masaje
-                                            Relajante</span>
-                                        <span class="text-surface-dim">•</span>
-                                        <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[16px]">person</span> Marta
-                                            M.</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span
-                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span> Confirmada
-                                </span>
-                                <button
-                                    class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-on-surface-variant hover:text-primary bg-surface rounded-full">
-                                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-            <!-- Right Column: Chart Placeholder & Actions -->
-            <div class="lg:col-span-4 flex flex-col gap-8">
-                <!-- Chart Widget -->
-                <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col h-full min-h-[400px]">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-bold text-on-surface tracking-tight">Ocupación esta semana</h3>
-                        <button class="text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">calendar_month</span>
-                        </button>
-                    </div>
-                    <!-- Chart Placeholder Visuals -->
-                    <div class="flex-1 flex items-end gap-3 pt-8 pb-2 relative">
-                        <!-- Background horizontal lines -->
-                        <div class="absolute inset-0 flex flex-col justify-between py-2 z-0">
-                            <div class="border-b border-surface-container-highest w-full h-0"></div>
-                            <div class="border-b border-surface-container-highest w-full h-0"></div>
-                            <div class="border-b border-surface-container-highest w-full h-0"></div>
-                            <div class="border-b border-surface-container-highest w-full h-0"></div>
-                        </div>
-                        <!-- Bars -->
-                        <div class="w-full flex justify-between items-end h-full z-10 px-2">
+    <main class="flex-1 bg-surface px-8 py-8">
+
+        <div class="max-w-7xl mx-auto flex flex-col gap-8">
+
+            {{-- HEADER --}}
+            <header class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-on-surface">
+                        Buenos días, {{ auth()->user()->name }}
+                    </h1>
+                    <p class="text-sm text-on-surface-variant mt-1">
+                        {{ now()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
+                    </p>
+                </div>
+
+                {{-- TOGGLE PERIODO --}}
+                <div class="flex gap-1 bg-surface-container rounded-full p-1 border border-outline-variant/40">
+                    <button data-period="hoy" class="period-btn btn-toggle">Hoy</button>
+                    <button data-period="semana" class="period-btn btn-toggle">Semana</button>
+                    <button data-period="mes" class="period-btn btn-toggle">Mes</button>
+                </div>
+            </header>
+
+            {{-- KPIs --}}
+            <section id="kpi-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {{-- LEFT --}}
+                <div class="lg:col-span-2 flex flex-col gap-6">
+
+                    {{-- CHART --}}
+                    <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-semibold text-primary">Ocupación</h2>
+
+                            {{-- TOGGLE CHART --}}
                             <div
-                                class="w-8 bg-surface-container-highest rounded-t-md h-[40%] group relative hover:bg-primary-container transition-colors duration-300">
-                            </div>
-                            <div
-                                class="w-8 bg-surface-container-highest rounded-t-md h-[70%] group relative hover:bg-primary-container transition-colors duration-300">
-                            </div>
-                            <div class="w-8 bg-primary-container rounded-t-md h-[85%] relative shadow-sm">
-                                <!-- Tooltip for current day -->
-                                <div
-                                    class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs py-1 px-2 rounded font-medium whitespace-nowrap">
-                                    85% Hoy
-                                </div>
-                            </div>
-                            <div
-                                class="w-8 bg-surface-container-highest rounded-t-md h-[60%] group relative hover:bg-primary-container transition-colors duration-300">
-                            </div>
-                            <div
-                                class="w-8 bg-surface-container-highest rounded-t-md h-[30%] group relative hover:bg-primary-container transition-colors duration-300">
+                                class="flex gap-1 bg-surface-container rounded-full p-1 border border-outline-variant/40">
+                                <button data-chart="barras" class="chart-btn btn-toggle">Barras</button>
+                                <button data-chart="lineas" class="chart-btn btn-toggle">Líneas</button>
                             </div>
                         </div>
+
+                        <div class="h-64">
+                            <canvas id="mainChart"></canvas>
+                        </div>
                     </div>
-                    <!-- X Axis Labels -->
-                    <div
-                        class="flex justify-between items-center px-2 mt-4 text-xs font-semibold text-on-surface-variant uppercase">
-                        <span>L</span>
-                        <span>M</span>
-                        <span class="text-primary-container">M</span>
-                        <span>J</span>
-                        <span>V</span>
+
+                    {{-- APPOINTMENTS --}}
+                    <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm">
+                        <h2 class="font-semibold text-primary mb-4">Próximas citas</h2>
+                        <div id="appts-list" class="flex flex-col gap-3"></div>
                     </div>
+
+                </div>
+
+                {{-- RIGHT --}}
+                <div class="flex flex-col gap-6">
+
+                    {{-- SERVICES --}}
+                    <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm">
+                        <h2 class="font-semibold text-primary mb-4">
+                            Servicios más solicitados
+                        </h2>
+                        <div id="services-list" class="flex flex-col gap-3"></div>
+                    </div>
+
+                    {{-- ATTENDANCE --}}
+                    <div class="bg-primary-container/10 rounded-xl p-6 border border-primary/10 space-y-3">
+                        <p class="text-xs uppercase tracking-widest text-primary">
+                            Tasa de asistencia
+                        </p>
+
+                        <div id="asistencia-value" class="text-5xl font-extrabold text-primary"></div>
+
+                        <p id="asistencia-sub" class="text-sm text-on-surface-variant"></p>
+
+                        <div class="h-1.5 bg-black/10 rounded-full overflow-hidden">
+                            <div id="asistencia-bar" class="h-full bg-primary transition-all duration-500"></div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+
         </div>
-    </div>
+    </main>
+
+    {{-- ESTILOS --}}
+    <style>
+        .btn-toggle {
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #524438;
+            transition: all .2s ease;
+        }
+
+        .btn-toggle:hover {
+            background: #ebe8e2;
+        }
+
+        .btn-active {
+            background: #663a00;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .fade-in {
+            animation: fade .25s ease;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    {{-- JS --}}
+    @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+        <script>
+            const DATA = @json($kpis);
+            const APPTS = @json($appointments);
+            const SERVICES = @json($services);
+
+            // PERSISTENCIA
+            let currentPeriod = localStorage.getItem('dashboard_period') || 'hoy';
+            let currentChart = localStorage.getItem('dashboard_chart') || 'barras';
+
+            let chartInstance = null;
+
+            function setActive(selector, value, attr) {
+                document.querySelectorAll(selector).forEach(btn => {
+                    btn.classList.remove('btn-active');
+                    if (btn.dataset[attr] === value) {
+                        btn.classList.add('btn-active');
+                    }
+                });
+            }
+
+            function renderKPIs(period) {
+                document.getElementById('kpi-grid').innerHTML =
+                    DATA[period].kpis.map(k => `
+                        <div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/20 fade-in">
+                            <span class="text-xs text-on-surface-variant">${k.label}</span>
+                            <span class="text-3xl font-bold text-on-surface mt-1">${k.value}</span>
+                        </div>
+                    `).join('');
+            }
+
+            function renderChart(period, type) {
+
+                if (chartInstance) chartInstance.destroy();
+
+                const isLine = type === 'lineas';
+
+                const colors = {
+                    primary: '#663a00',
+                    soft: '#ffb870',
+                    success: '#046289',
+                    error: '#ba1a1a'
+                };
+
+                let data = JSON.parse(JSON.stringify(DATA[period][type]));
+
+                data.datasets = data.datasets.map((ds, i) => {
+
+                    if (!isLine) {
+                        return {
+                            ...ds,
+                            backgroundColor: colors.soft,
+                            borderRadius: 8
+                        };
+                    }
+
+                    return {
+                        ...ds,
+                        borderColor: i === 0 ? colors.success : colors.error,
+                        tension: 0.4,
+                        pointRadius: 3
+                    };
+                });
+
+                chartInstance = new Chart(document.getElementById('mainChart'), {
+                    type: isLine ? 'line' : 'bar',
+                    data,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            function renderServices(period) {
+                if (!SERVICES || !SERVICES[period]) return;
+
+                document.getElementById('services-list').innerHTML =
+                    SERVICES[period].map(([name, count]) => `
+                        <div class="flex justify-between fade-in">
+                            <span class="text-on-surface">${name}</span>
+                            <span class="text-on-surface-variant">${count}</span>
+                        </div>
+                    `).join('');
+            }
+
+            function renderAppts() {
+                document.getElementById('appts-list').innerHTML =
+                    APPTS.map(a => `
+                        <div class="p-4 rounded-xl bg-surface-container-low fade-in">
+                            <b class="text-primary">${a.time}</b>
+                            <span class="ml-2 text-on-surface">${a.name}</span>
+                        </div>
+                    `).join('');
+            }
+
+            function renderAsistencia(period) {
+                const a = DATA[period].asistencia;
+
+                document.getElementById('asistencia-value').textContent = a.pct + '%';
+                document.getElementById('asistencia-sub').textContent = a.text;
+                document.getElementById('asistencia-bar').style.width = a.pct + '%';
+            }
+
+            function updateDashboard() {
+                setActive('.period-btn', currentPeriod, 'period');
+                setActive('.chart-btn', currentChart, 'chart');
+
+                renderKPIs(currentPeriod);
+                renderChart(currentPeriod, currentChart);
+                renderAppts();
+                renderAsistencia(currentPeriod);
+
+                if (SERVICES) renderServices(currentPeriod);
+            }
+
+            // EVENTS
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentPeriod = btn.dataset.period;
+
+                    localStorage.setItem('dashboard_period', currentPeriod);
+
+                    updateDashboard();
+                });
+            });
+
+            document.querySelectorAll('.chart-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentChart = btn.dataset.chart;
+
+                    localStorage.setItem('dashboard_chart', currentChart);
+
+                    renderChart(currentPeriod, currentChart);
+                    setActive('.chart-btn', currentChart, 'chart');
+                });
+            });
+
+            updateDashboard();
+        </script>
+    @endpush
 </x-app-layout>
