@@ -40,7 +40,6 @@ Route::middleware(['auth', 'role:cliente'])->group(function () {
     // Perfil
     Route::get('/customer/profile/edit', [CustomerController::class, 'editProfile'])->name('customer.profile.edit');
     Route::put('/customer/profile/update', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
-    
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -58,10 +57,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Tipos de empresas
     Route::resource('/type-companies', TypeCompanyController::class);
 
-    // Seleccionar empresa
-    Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
-    Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
-
     // Horarios de empresa
     Route::resource('/opening-hours', OpeningHourController::class);
     Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore']);
@@ -71,7 +66,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Notificaciones
     Route::get('/notification-logs', [NotificationLogController::class, 'index'])->name('notification-logs.index');
-
 });
 
 // Ruta para cancelar cita desde email
@@ -84,6 +78,12 @@ Route::get('/test-mail', function () {
     \Mail::to('test@test.com')->send(new \App\Mail\AppointmentConfirmationMail($appointment));
 
     return 'Email enviado — revisa Mailtrap o el log';
+});
+
+Route::middleware(['auth', 'role:admin|empleado'])->group(function () {
+    // Seleccionar empresa
+    Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
+    Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
 });
 
 Route::middleware(['auth', 'role:admin|empleado|cliente'])->group(
