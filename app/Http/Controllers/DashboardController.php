@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -24,6 +25,163 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        // ── Si el usuario es cliente, redirigir a su propio dashboard ──
+        if ($user->hasRole('cliente')) {
+            return $this->clientDashboard($user);
+        }
+
+        return $this->adminDashboard($user);
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // DASHBOARD CLIENTE
+    // ────────────────────────────────────────────────────────────────────────────
+    private function clientDashboard($user)
+    {
+        // Buscar el registro Customer vinculado por email
+        $customer = Customer::where('email', $user->email)->first();
+
+        if (! $customer) {
+            // Cliente sin perfil todavía — vista vacía
+            return view('dashboard-cliente', [
+                'customer'     => null,
+                'stats'        => [],
+                'upcoming'     => collect(),
+                'history'      => collect(),
+                'topServices'  => collect(),
+            ]);
+        }
+
+        $now = now();
+
+        // ── Citas próximas (activas/pendientes) ──
+        $upcoming = Appointment::where('customer_id', $customer->id)
+            ->whereIn('status', [
+                Appointment::STATUS_CONFIRMED,
+                Appointment::STATUS_PENDING,
+            ])
+            ->where('start_time', '>=', $now)
+            ->with(['services', 'user'])
+            ->orderBy('start_time')
+            ->limit(5)
+            ->get()
+            ->map(fn($a) => [
+                'id'       => $a->id,
+                'date'     => $a->start_time->isoFormat('ddd D MMM'),
+                'time'     => $a->start_time->format('H:i'),
+                'services' => $a->services->pluck('name')->join(', '),
+                'staff'    => optional($a->user)->name ?? 'Sin asignar',
+                'status'   => $a->status,
+                'label'    => match ($a->status) {
+                    Appointment::STATUS_CONFIRMED => 'Confirmada',
+                    Appointment::STATUS_PENDING   => 'Pendiente',
+                    default                       => $a->status,
+                },
+            ]);
+
+        // ── Historial reciente (completadas/canceladas) ──
+        $history = Appointment::where('customer_id', $customer->id)
+            ->whereIn('status', [
+                Appointment::STATUS_COMPLETED,
+                Appointment::STATUS_CANCELLED,
+            ])
+            ->with(['services', 'user'])
+            ->orderByDesc('start_time')
+            ->limit(5)
+            ->get()
+            ->map(fn($a) => [
+                'id'       => $a->id,
+                'date'     => $a->start_time->isoFormat('D MMM YYYY'),
+                'time'     => $a->start_time->format('H:i'),
+                'services' => $a->services->pluck('name')->join(', '),
+                'staff'    => optional($a->user)->name ?? 'Sin asignar',
+                'status'   => $a->status,
+                'label'    => match ($a->status) {
+                    Appointment::STATUS_COMPLETED => 'Completada',
+                    Appointment::STATUS_CANCELLED => 'Cancelada',
+                    default                       => $a->status,
+                },
+            ]);
+
+        // ── Totales globales del cliente ──
+        $allAppointments = Appointment::where('customer_id', $customer->id);
+
+        $totalCitas      = (clone $allAppointments)->count();
+        $citasCompletadas = (clone $allAppointments)->where('status', Appointment::STATUS_COMPLETED)->count();
+        $citasCanceladas  = (clone $allAppointments)->where('status', Appointment::STATUS_CANCELLED)->count();
+        $citasActivas     = (clone $allAppointments)
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->where('start_time', '>=', $now)
+            ->count();
+
+        // ── Citas últimos 30 días (para gráfico de actividad) ──
+        $last30 = Appointment::where('customer_id', $customer->id)
+            ->where('start_time', '>=', $now->copy()->subDays(29)->startOfDay())
+            ->selectRaw("DATE(start_time) as day, COUNT(*) as total")
+            ->groupByRaw("DATE(start_time)")
+            ->pluck('total', 'day');
+
+        $chartLabels = [];
+        $chartData   = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $day           = $now->copy()->subDays($i)->format('Y-m-d');
+            $chartLabels[] = $now->copy()->subDays($i)->format('d/m');
+            $chartData[]   = (int) ($last30[$day] ?? 0);
+        }
+
+        // ── Servicios más usados por el cliente ──
+        $topServices = DB::table('appointment_service')
+            ->join('appointments', 'appointments.id', '=', 'appointment_service.appointment_id')
+            ->join('services', 'services.id', '=', 'appointment_service.service_id')
+            ->where('appointments.customer_id', $customer->id)
+            ->whereNull('appointments.deleted_at')
+            ->where('appointments.status', '!=', Appointment::STATUS_CANCELLED)
+            ->select('services.name', DB::raw('COUNT(*) as count'))
+            ->groupBy('services.id', 'services.name')
+            ->orderByDesc('count')
+            ->limit(4)
+            ->get();
+
+        // ── Tasa de asistencia ──
+        $attended    = $citasCompletadas;
+        $attendedPct = $totalCitas > 0 ? round(($attended / $totalCitas) * 100) : 0;
+
+        // ── Próxima cita (la más inmediata) ──
+        $nextAppointment = Appointment::where('customer_id', $customer->id)
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->where('start_time', '>=', $now)
+            ->with('services')
+            ->orderBy('start_time')
+            ->first();
+
+        $stats = [
+            'total'       => $totalCitas,
+            'completadas' => $citasCompletadas,
+            'canceladas'  => $citasCanceladas,
+            'activas'     => $citasActivas,
+            'attendedPct' => $attendedPct,
+            'chart'       => [
+                'labels' => $chartLabels,
+                'data'   => $chartData,
+            ],
+        ];
+
+        return view('dashboard-cliente', compact(
+            'customer',
+            'stats',
+            'upcoming',
+            'history',
+            'topServices',
+            'nextAppointment'
+        ));
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // DASHBOARD ADMIN / EMPLEADO
+    // ────────────────────────────────────────────────────────────────────────────
+    private function adminDashboard($user)
+    {
         $companyId = session('active_company_id');
 
         $periods = [
@@ -47,7 +205,6 @@ class DashboardController extends Controller
 
             $attendedPct = $total > 0 ? round(($confirmed / $total) * 100) : 0;
 
-            // ── Agrupación por día (para charts) ──
             $rows = (clone $base)
                 ->selectRaw("DATE(start_time) as day, status, COUNT(*) as total")
                 ->groupByRaw("DATE(start_time), status")
@@ -76,69 +233,45 @@ class DashboardController extends Controller
                 (int) $rows->where('day', $d)->sum('total')
             )->toArray();
 
-            // ── ESTRUCTURA FINAL QUE TU JS NECESITA ──
             $kpis[$key] = [
-
                 'kpis' => [
-                    [
-                        'label' => 'Total',
-                        'value' => $total,
-                        'style' => 'primary'
-                    ],
-                    [
-                        'label' => 'Confirmadas',
-                        'value' => $confirmed,
-                        'style' => 'success'
-                    ],
-                    [
-                        'label' => 'Canceladas',
-                        'value' => $cancelled,
-                        'style' => 'error'
-                    ],
-                    [
-                        'label' => 'Pendientes',
-                        'value' => $pending,
-                        'style' => 'default'
-                    ],
+                    ['label' => 'Total',        'value' => $total,     'style' => 'primary'],
+                    ['label' => 'Confirmadas',  'value' => $confirmed, 'style' => 'success'],
+                    ['label' => 'Canceladas',   'value' => $cancelled, 'style' => 'error'],
+                    ['label' => 'Pendientes',   'value' => $pending,   'style' => 'default'],
                 ],
-
                 'barras' => [
-                    'labels' => $labels,
-                    'datasets' => [
-                        [
-                            'label' => 'Citas',
-                            'data' => $totalPerDay,
-                            'backgroundColor' => '#6366f1'
-                        ]
-                    ]
+                    'labels'   => $labels,
+                    'datasets' => [[
+                        'label'           => 'Citas',
+                        'data'            => $totalPerDay,
+                        'backgroundColor' => '#6366f1',
+                    ]],
                 ],
-
                 'lineas' => [
-                    'labels' => $labels,
+                    'labels'   => $labels,
                     'datasets' => [
                         [
-                            'label' => 'Confirmadas',
-                            'data' => $confirmedData,
+                            'label'       => 'Confirmadas',
+                            'data'        => $confirmedData,
                             'borderColor' => '#22c55e',
-                            'fill' => false,
-                            'tension' => 0.4
+                            'fill'        => false,
+                            'tension'     => 0.4,
                         ],
                         [
-                            'label' => 'Canceladas',
-                            'data' => $cancelledData,
+                            'label'       => 'Canceladas',
+                            'data'        => $cancelledData,
                             'borderColor' => '#ef4444',
-                            'borderDash' => [5, 5],
-                            'fill' => false,
-                            'tension' => 0.4
-                        ]
-                    ]
+                            'borderDash'  => [5, 5],
+                            'fill'        => false,
+                            'tension'     => 0.4,
+                        ],
+                    ],
                 ],
-
                 'asistencia' => [
                     'pct'  => $attendedPct,
-                    'text' => "{$confirmed} de {$total} citas confirmadas"
-                ]
-                
+                    'text' => "{$confirmed} de {$total} citas confirmadas",
+                ],
             ];
         }
 
@@ -169,7 +302,6 @@ class DashboardController extends Controller
 
         if ($user->hasRole('admin')) {
             foreach ($periods as $key => [$start, $end]) {
-
                 $services[$key] = DB::table('appointment_service')
                     ->join('appointments', 'appointments.id', '=', 'appointment_service.appointment_id')
                     ->join('services', 'services.id', '=', 'appointment_service.service_id')
@@ -189,16 +321,12 @@ class DashboardController extends Controller
                     ->map(fn($s) => [
                         $s->name,
                         (int) $s->count,
-                        (float) $s->income
+                        (float) $s->income,
                     ])
                     ->values();
             }
         }
 
-        return view('dashboard', compact(
-            'kpis',
-            'appointments',
-            'services'
-        ));
+        return view('dashboard', compact('kpis', 'appointments', 'services'));
     }
 }

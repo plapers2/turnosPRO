@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware(['auth', 'role:cliente'])->group(function () {
@@ -89,7 +90,7 @@ Route::get('/test-mail', function () {
 });
 
 Route::middleware(['auth', 'role:admin|empleado'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     // Seleccionar empresa
     Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');
     Route::post('/select-company', [CompanySelectionController::class, 'store'])->name('company.select.store');
