@@ -10,39 +10,49 @@ use App\Models\User;
 class CompaniesUsersSeeder extends Seeder
 {
     public function run(): void
-{
-    $companies = Company::all();
-    $users     = User::role('empleado')->get(); // ← solo empleados
+    {
+        $companies = Company::all();
+        $users     = User::role('empleado')->get(); // ← solo empleados
 
-    if ($companies->isEmpty() || $users->isEmpty()) {
-        $this->command->warn('No hay empresas o usuarios empleados. Ejecuta sus seeders primero.');
-        return;
-    }
+        if ($companies->isEmpty() || $users->isEmpty()) {
+            $this->command->warn('No hay empresas o usuarios empleados. Ejecuta sus seeders primero.');
+            return;
+        }
 
-    $shuffledUsers = $users->shuffle();
-    $userIndex     = 0;
+        $shuffledUsers = $users->shuffle();
+        $userIndex     = 0;
+        $adminGlobal = User::role('admin')->first();
 
-    foreach ($companies as $company) {
-        $usuarioFijo = $shuffledUsers[$userIndex % $shuffledUsers->count()];
-        DB::table('company_user')->insertOrIgnore([
-            'company_id' => $company->id,
-            'user_id'    => $usuarioFijo->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        $userIndex++;
 
-        $extras = $users->random(min(rand(1, 2), $users->count()));
-        foreach ($extras as $user) {
+        foreach ($companies as $company) {
+            if ($adminGlobal) {
+                DB::table('company_user')->insertOrIgnore([
+                    'company_id' => $company->id,
+                    'user_id'    => $adminGlobal->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            $usuarioFijo = $shuffledUsers[$userIndex % $shuffledUsers->count()];
             DB::table('company_user')->insertOrIgnore([
                 'company_id' => $company->id,
-                'user_id'    => $user->id,
+                'user_id'    => $usuarioFijo->id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-        }
-    }
+            $userIndex++;
 
-    $this->command->info('CompaniesUsersSeeder ejecutado correctamente.');
-}
+            $extras = $users->random(min(rand(1, 2), $users->count()));
+            foreach ($extras as $user) {
+                DB::table('company_user')->insertOrIgnore([
+                    'company_id' => $company->id,
+                    'user_id'    => $user->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        $this->command->info('CompaniesUsersSeeder ejecutado correctamente.');
+    }
 }
