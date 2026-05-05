@@ -17,13 +17,7 @@ class OpeningHourController extends Controller
      */
     public function index(): View
     {
-        $companyId = session('active_company_id');
-        $openingHours = OpeningHour::withTrashed()->where('company_id', "=", $companyId)->orderByRaw("
-        FIELD(day_of_week,
-        'monday','tuesday','wednesday','thursday','friday','saturday','sunday')
-    ")->get()->groupBy('day_of_week');
-
-        return view('opening-hour.index', compact('openingHours'));
+        return view('opening-hour.index');
     }
 
     /**
