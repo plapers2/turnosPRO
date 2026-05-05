@@ -20,21 +20,21 @@ class UserSeeder extends Seeder
         // User 1
         DB::table('users')->insert([
             'name' => "Administrador",
-            'email' => "admin2@gmail.com",
+            'email' => "admin@gmail.com",
             'password' => Hash::make("12345"),
             'phone' => "123456789",
         ]);
         // User 2
         DB::table('users')->insert([
             'name' => "Empleado",
-            'email' => "empleado2@gmail.com",
+            'email' => "empleado@gmail.com",
             'password' => Hash::make("12345"),
             'phone' => "987654321",
         ]);
         // User 3
         DB::table('users')->insert([
             'name' => "Cliente",
-            'email' => "cliente2@gmail.com",
+            'email' => "cliente@gmail.com",
             'password' => Hash::make("12345"),
             'phone' => "0192837465",
         ]);
