@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     private function baseQuery()
     {
-        $user = auth()->user();
+        $user      = auth()->user();
         $companyId = session('active_company_id');
 
         $query = Appointment::forCompany($companyId);
@@ -26,7 +26,6 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // ── Si el usuario es cliente, redirigir a su propio dashboard ──
         if ($user->hasRole('cliente')) {
             return $this->clientDashboard($user);
         }
@@ -39,24 +38,27 @@ class DashboardController extends Controller
     // ────────────────────────────────────────────────────────────────────────────
     private function clientDashboard($user)
     {
-        // Buscar el registro Customer vinculado por email
-        $customer = Customer::where('user_id', $user->id)->first();
+        // Un cliente puede estar registrado en varias empresas → traer todos sus customer IDs
+        $customerIds = Customer::where('user_id', $user->id)->pluck('id');
 
-        if (! $customer) {
-            // Cliente sin perfil todavía — vista vacía
+        if ($customerIds->isEmpty()) {
             return view('dashboard-cliente', [
-                'customer'     => null,
-                'stats'        => [],
-                'upcoming'     => collect(),
-                'history'      => collect(),
-                'topServices'  => collect(),
+                'customer'        => null,
+                'stats'           => [],
+                'upcoming'        => collect(),
+                'history'         => collect(),
+                'topServices'     => collect(),
+                'nextAppointment' => null,
             ]);
         }
+
+        // Customer "principal" para mostrar nombre/datos del perfil en la vista
+        $customer = Customer::where('user_id', $user->id)->first();
 
         $now = now();
 
         // ── Citas próximas (activas/pendientes) ──
-        $upcoming = Appointment::where('customer_id', $customer->id)
+        $upcoming = Appointment::whereIn('customer_id', $customerIds)
             ->whereIn('status', [
                 Appointment::STATUS_CONFIRMED,
                 Appointment::STATUS_PENDING,
@@ -81,7 +83,7 @@ class DashboardController extends Controller
             ]);
 
         // ── Historial reciente (completadas/canceladas) ──
-        $history = Appointment::where('customer_id', $customer->id)
+        $history = Appointment::whereIn('customer_id', $customerIds)
             ->whereIn('status', [
                 Appointment::STATUS_COMPLETED,
                 Appointment::STATUS_CANCELLED,
@@ -105,18 +107,18 @@ class DashboardController extends Controller
             ]);
 
         // ── Totales globales del cliente ──
-        $allAppointments = Appointment::where('customer_id', $customer->id);
+        $allAppointments = Appointment::whereIn('customer_id', $customerIds);
 
-        $totalCitas      = (clone $allAppointments)->count();
+        $totalCitas       = (clone $allAppointments)->count();
         $citasCompletadas = (clone $allAppointments)->where('status', Appointment::STATUS_COMPLETED)->count();
         $citasCanceladas  = (clone $allAppointments)->where('status', Appointment::STATUS_CANCELLED)->count();
         $citasActivas     = (clone $allAppointments)
             ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
-            ->where('start_time', '>=', $now)
+            ->where('start_time', '>=', $now->copy())
             ->count();
 
         // ── Citas últimos 30 días (para gráfico de actividad) ──
-        $last30 = Appointment::where('customer_id', $customer->id)
+        $last30 = Appointment::whereIn('customer_id', $customerIds)
             ->where('start_time', '>=', $now->copy()->subDays(29)->startOfDay())
             ->selectRaw("DATE(start_time) as day, COUNT(*) as total")
             ->groupByRaw("DATE(start_time)")
@@ -134,7 +136,7 @@ class DashboardController extends Controller
         $topServices = DB::table('appointment_service')
             ->join('appointments', 'appointments.id', '=', 'appointment_service.appointment_id')
             ->join('services', 'services.id', '=', 'appointment_service.service_id')
-            ->where('appointments.customer_id', $customer->id)
+            ->whereIn('appointments.customer_id', $customerIds)
             ->whereNull('appointments.deleted_at')
             ->where('appointments.status', '!=', Appointment::STATUS_CANCELLED)
             ->select('services.name', DB::raw('COUNT(*) as count'))
@@ -144,13 +146,14 @@ class DashboardController extends Controller
             ->get();
 
         // ── Tasa de asistencia ──
-        $attended    = $citasCompletadas;
-        $attendedPct = $totalCitas > 0 ? round(($attended / $totalCitas) * 100) : 0;
+        $attendedPct = $totalCitas > 0
+            ? round(($citasCompletadas / $totalCitas) * 100)
+            : 0;
 
         // ── Próxima cita (la más inmediata) ──
-        $nextAppointment = Appointment::where('customer_id', $customer->id)
+        $nextAppointment = Appointment::whereIn('customer_id', $customerIds)
             ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
-            ->where('start_time', '>=', $now)
+            ->where('start_time', '>=', $now->copy())
             ->with('services')
             ->orderBy('start_time')
             ->first();
@@ -185,8 +188,8 @@ class DashboardController extends Controller
         $companyId = session('active_company_id');
 
         $periods = [
-            'hoy'    => [now()->startOfDay(), now()->endOfDay()],
-            'semana' => [now()->startOfWeek(), now()->endOfWeek()],
+            'hoy'    => [now()->startOfDay(),   now()->endOfDay()],
+            'semana' => [now()->startOfWeek(),  now()->endOfWeek()],
             'mes'    => [now()->startOfMonth(), now()->endOfMonth()],
         ];
 
@@ -210,35 +213,45 @@ class DashboardController extends Controller
                 ->groupByRaw("DATE(start_time), status")
                 ->get();
 
-            $days = collect(range(0, 6))->map(fn($i) => now()->startOfWeek()->addDays($i)->format('Y-m-d'));
+            // ── Generar días según el período real ──
+            $days = match ($key) {
+                'hoy'    => collect([now()->format('Y-m-d')]),
+                'semana' => collect(range(0, 6))->map(
+                    fn($i) => now()->startOfWeek()->addDays($i)->format('Y-m-d')
+                ),
+                'mes'    => collect(range(0, now()->daysInMonth - 1))->map(
+                    fn($i) => now()->startOfMonth()->addDays($i)->format('Y-m-d')
+                ),
+            };
 
-            $labels = $days->map(fn($d) => \Carbon\Carbon::parse($d)->isoFormat('ddd'))->toArray();
+            $labels = $days->map(
+                fn($d) => \Carbon\Carbon::parse($d)->isoFormat('ddd D')
+            )->toArray();
 
             $confirmedData = $days->map(
-                fn($d) =>
-                (int) $rows->where('day', $d)
+                fn($d) => (int) $rows
+                    ->where('day', $d)
                     ->where('status', Appointment::STATUS_CONFIRMED)
                     ->sum('total')
             )->toArray();
 
             $cancelledData = $days->map(
-                fn($d) =>
-                (int) $rows->where('day', $d)
+                fn($d) => (int) $rows
+                    ->where('day', $d)
                     ->where('status', Appointment::STATUS_CANCELLED)
                     ->sum('total')
             )->toArray();
 
             $totalPerDay = $days->map(
-                fn($d) =>
-                (int) $rows->where('day', $d)->sum('total')
+                fn($d) => (int) $rows->where('day', $d)->sum('total')
             )->toArray();
 
             $kpis[$key] = [
                 'kpis' => [
-                    ['label' => 'Total',        'value' => $total,     'style' => 'primary'],
-                    ['label' => 'Confirmadas',  'value' => $confirmed, 'style' => 'success'],
-                    ['label' => 'Canceladas',   'value' => $cancelled, 'style' => 'error'],
-                    ['label' => 'Pendientes',   'value' => $pending,   'style' => 'default'],
+                    ['label' => 'Total',       'value' => $total,     'style' => 'primary'],
+                    ['label' => 'Confirmadas', 'value' => $confirmed, 'style' => 'success'],
+                    ['label' => 'Canceladas',  'value' => $cancelled, 'style' => 'error'],
+                    ['label' => 'Pendientes',  'value' => $pending,   'style' => 'default'],
                 ],
                 'barras' => [
                     'labels'   => $labels,
@@ -275,7 +288,7 @@ class DashboardController extends Controller
             ];
         }
 
-        // ── Próximas citas ──
+        // ── Próximas citas (próximas 2 horas) ──
         $appointments = $this->baseQuery()
             ->with(['customer', 'services', 'user'])
             ->whereBetween('start_time', [now(), now()->addHours(2)])
@@ -297,7 +310,7 @@ class DashboardController extends Controller
                 },
             ]);
 
-        // ── Servicios (solo admin) ──
+        // ── Servicios más usados (solo admin) ──
         $services = null;
 
         if ($user->hasRole('admin')) {
@@ -327,6 +340,7 @@ class DashboardController extends Controller
             }
         }
 
+        // ── dd() eliminado ──
         return view('dashboard', compact('kpis', 'appointments', 'services'));
     }
 }
