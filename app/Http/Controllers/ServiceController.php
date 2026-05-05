@@ -18,26 +18,7 @@ class ServiceController extends Controller
      */
     public function index(Request $request): View
     {
-        $companyId = session('active_company_id');
-
-        $query = Service::query()->withTrashed();
-
-        if ($companyId) {
-            $query->where('company_id', $companyId);
-        }
-
-        if (auth()->user()->hasRole('empleado')) {
-            $userId = auth()->id();
-
-            $query->whereHas('users', function ($q) use ($userId) {
-                $q->where('users.id', $userId);
-            });
-        }
-
-        $services = $query->paginate(9);
-
-        return view('services.index', compact('services'))
-            ->with('i', ($request->input('page', 1) - 1) * $services->perPage());
+        return view('services.index');
     }
 
     /**
