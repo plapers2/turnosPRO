@@ -4,7 +4,6 @@ import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import dayGridPlugin from "@fullcalendar/daygrid";
 
-
 const calendarEl = document.getElementById("calendar");
 if (calendarEl) {
     // Variables globales del blade — las lee del DOM para no depender de window
@@ -35,6 +34,10 @@ if (calendarEl) {
     let paintTimer = null;
 
     async function init() {
+        // Mostrar spinner, ocultar calendario
+        document.getElementById("calendarLoading").classList.remove("hidden");
+        document.getElementById("calendar").classList.add("hidden");
+
         await cargarHorarios();
 
         const hoy = new Date();
@@ -47,6 +50,10 @@ if (calendarEl) {
             formatDate(inicioSemana),
             formatDate(finSemana),
         );
+
+        // Ocultar spinner, mostrar calendario
+        document.getElementById("calendarLoading").classList.add("hidden");
+        document.getElementById("calendar").classList.remove("hidden");
 
         const { globalMin, globalMax } = getGlobalRange();
         let fetchId = 0;

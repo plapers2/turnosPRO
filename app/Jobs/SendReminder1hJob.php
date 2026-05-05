@@ -28,7 +28,7 @@ class SendReminder1hJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Appointment::whereIn('status', ['confirmada', 'reprogramada'])
+        Appointment::whereIn('status', ['confirmed'])
             ->where('reminder_1h_sent', false)
             ->whereBetween('start_time', [now()->addMinutes(50), now()->addMinutes(70)])
             ->with(['customer', 'user', 'company', 'services'])
