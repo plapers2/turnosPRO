@@ -2,6 +2,7 @@
 @import "tom-select/dist/css/tom-select.css";
 @import "tom-select-custom.css";
 @import "./appointments.css";
+@import "./dashboard.css";
 
 @tailwind base;
 @tailwind components;

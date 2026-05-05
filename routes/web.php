@@ -47,10 +47,6 @@ Route::middleware(['auth', 'role:cliente'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    // Servicios
-    Route::resource('/services', ServiceController::class);
-    Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore');
-
     // Usuarios
     Route::resource('/users', UserController::class);
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
@@ -60,10 +56,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Tipos de empresas
     Route::resource('/type-companies', TypeCompanyController::class);
-
-    // Horarios de empresa
-    Route::resource('/opening-hours', OpeningHourController::class);
-    Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore']);
 
     // Clientes
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
@@ -91,6 +83,14 @@ Route::get('/test-mail', function () {
 });
 
 Route::middleware(['auth', 'role:admin|empleado'])->group(function () {
+
+    // Servicios
+    Route::resource('/services', ServiceController::class);
+    Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore');
+
+    // Horarios de empresa
+    Route::resource('/opening-hours', OpeningHourController::class);
+    Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore']);
 
     // Seleccionar empresa
     Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');

@@ -36,7 +36,7 @@
             </x-sidebar-link>
         @endcan
 
-        @can('gestionar servicios')
+        @can(['gestionar servicios', 'ver servicios'])
             <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
                 Servicios
             </x-sidebar-link>
@@ -49,14 +49,15 @@
         @endcan
 
         <!-- Separador visual para sección Empresa -->
-        @can('gestionar empresas')
+        @canany(['gestionar empresas', 'ver horarios'])
             <div class="pt-3 pb-1 px-2">
                 <span class="text-[10px] font-semibold uppercase tracking-widest"
                     style="color: #847467; letter-spacing: 0.12em;">
                     Configuración
                 </span>
             </div>
-
+        @endcanany
+        @can('gestionar empresas')
             <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
                 Empresa
             </x-sidebar-link>
@@ -64,7 +65,9 @@
             <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="add_business">
                 Tipos de Empresa
             </x-sidebar-link>
+        @endcan
 
+        @can('ver horarios')
             <x-sidebar-link route="opening-hours.index" pattern="opening-hours.*" icon="calendar_month">
                 Horarios de atención
             </x-sidebar-link>

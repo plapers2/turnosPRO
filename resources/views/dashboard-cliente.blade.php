@@ -3,18 +3,6 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-    <style>
-        .material-symbols-rounded {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            user-select: none;
-        }
-
-        /* Variante outline (sin relleno) para algunos iconos */
-        .ms-outline {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-    </style>
-
     <main class="flex-1 bg-surface px-8 py-8">
         <div class="max-w-5xl mx-auto flex flex-col gap-8">
 

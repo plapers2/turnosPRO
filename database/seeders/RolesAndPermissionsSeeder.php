@@ -20,6 +20,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         //! Servicios
         Permission::create(['name' => 'gestionar servicios']);
+        Permission::create(['name' => 'ver servicios']);
 
         //! Usuarios
         Permission::create(['name' => 'gestionar usuarios']);
@@ -31,6 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         //! Empresas
         Permission::create(['name' => 'gestionar empresas']);
+        Permission::create(['name' => 'ver horarios']);
 
         //! Clientes
         Permission::create(['name' => 'gestionar clientes']);
@@ -62,7 +64,8 @@ class RolesAndPermissionsSeeder extends Seeder
         //! Empleados
         $employee->givePermissionTo([
             'gestionar citas',
-            'gestionar dashboard'
+            'gestionar dashboard',
+            'ver horarios'
         ]);
 
         //! Clientes
