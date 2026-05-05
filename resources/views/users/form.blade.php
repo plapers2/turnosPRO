@@ -34,10 +34,12 @@
         <x-form.field label="Rol del Usuario" for="roles_id">
             <x-form.select name="role" id="role">
                 @forelse ($roles as $role)
-                    <option {{ old('role', $user->roles->first()?->name) === $role->name ? 'selected' : '' }}
-                        value="{{ $role->name }}">
-                        {{ ucfirst($role->name) }}
-                    </option>
+                    @if ($role->name != 'cliente')
+                        <option {{ old('role', $user->roles->first()?->name) === $role->name ? 'selected' : '' }}
+                            value="{{ $role->name }}">
+                            {{ ucfirst($role->name) }}
+                        </option>
+                    @endif
                 @empty
                     <option value="">No hay ningún rol en el sistema</option>
                 @endforelse

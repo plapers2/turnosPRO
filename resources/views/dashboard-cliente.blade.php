@@ -29,7 +29,7 @@
                     <span class="material-symbols-rounded text-on-surface-variant ms-outline"
                         style="font-size: 2.5rem;">person_off</span>
                     <p class="text-on-surface-variant text-sm">
-                        Aún no tienes un perfil de cliente vinculado a tu cuenta.
+                        Aún no puedes ver el dashboard de tu cuenta. Crea primero una cita y se habilitará este apartado
                     </p>
                 </div>
             @else

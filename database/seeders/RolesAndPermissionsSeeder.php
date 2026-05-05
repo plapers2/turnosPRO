@@ -32,6 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         //! Empresas
         Permission::create(['name' => 'gestionar empresas']);
+        Permission::create(['name' => 'ver empresas']);
         Permission::create(['name' => 'ver horarios']);
 
         //! Clientes
@@ -66,7 +67,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'gestionar citas',
             'gestionar dashboard',
             'ver horarios',
-            'ver servicios'
+            'ver servicios',
+            'ver empresas'
         ]);
 
         //! Clientes
