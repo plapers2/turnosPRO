@@ -19,17 +19,21 @@ Route::get('/', function () {
     return redirect()->route("dashboard");
 });
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Rutas publicas o con restricciones
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Horarios de empresa
+    Route::resource('/opening-hours', OpeningHourController::class)->middleware('role:admin');
+    Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore'])->middleware('role:admin');
+    Route::get('/opening-hours', [OpeningHourController::class, 'index'])->name('opening-hours.index');
 });
 
+// Rutas para clientes
 Route::middleware(['auth', 'role:cliente'])->group(function () {
     // Citas
     Route::get('/booking/citas-ocupadas', [BookingController::class, 'citasOcupadas']);
@@ -46,7 +50,12 @@ Route::middleware(['auth', 'role:cliente'])->group(function () {
     Route::put('/customer/profile/update', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
 });
 
+// Rutas exclusivas de admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    // Servicios
+    Route::resource('/services', ServiceController::class);
+    Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore');
+
     // Usuarios
     Route::resource('/users', UserController::class);
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
@@ -82,15 +91,8 @@ Route::get('/test-mail', function () {
     return 'Email enviado — revisa Mailtrap o el log';
 });
 
+// Rutas para admin y empleado
 Route::middleware(['auth', 'role:admin|empleado'])->group(function () {
-
-    // Servicios
-    Route::resource('/services', ServiceController::class);
-    Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore');
-
-    // Horarios de empresa
-    Route::resource('/opening-hours', OpeningHourController::class);
-    Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore']);
 
     // Seleccionar empresa
     Route::get('/select-company', [CompanySelectionController::class, 'index'])->name('company.select');

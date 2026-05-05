@@ -20,13 +20,14 @@
             {{ $mensaje }}
         </p>
     </div>
-
-    @if ($textoBoton && $ruta)
-    <a href="{{ route($ruta . '.create') }}"
-        class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold
+    @role('admin')
+        @if ($textoBoton && $ruta)
+            <a href="{{ route($ruta . '.create') }}"
+                class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold
            bg-primary text-white hover:bg-primary/90 transition shadow-sm">
-        <span class="material-symbols-outlined text-[18px]">add</span>
-        {{ $textoBoton }}
-    </a>
-    @endif
+                <span class="material-symbols-outlined text-[18px]">add</span>
+                {{ $textoBoton }}
+            </a>
+        @endif
+    @endrole
 </header>

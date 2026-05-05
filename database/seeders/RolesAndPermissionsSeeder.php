@@ -65,7 +65,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $employee->givePermissionTo([
             'gestionar citas',
             'gestionar dashboard',
-            'ver horarios'
+            'ver horarios',
+            'ver servicios'
         ]);
 
         //! Clientes

@@ -73,27 +73,29 @@
                                                 </div>
 
                                                 <!-- ACCIONES -->
-                                                <div
-                                                    class="flex items-center justify-end gap-4 text-xs border-t border-outline-variant/20 pt-2">
+                                                @role('admin')
+                                                    <div
+                                                        class="flex items-center justify-end gap-4 text-xs border-t border-outline-variant/20 pt-2">
 
-                                                    @if ($hour->deleted_at)
-                                                        <button onclick="restoreHour(this, {{ $hour->id }})"
-                                                            class="text-green-600 font-medium hover:underline">
-                                                            Restaurar
-                                                        </button>
-                                                    @else
-                                                        <a href="{{ route('opening-hours.edit', $hour->id) }}"
-                                                            class="text-primary font-medium hover:underline">
-                                                            Editar
-                                                        </a>
+                                                        @if ($hour->deleted_at)
+                                                            <button onclick="restoreHour(this, {{ $hour->id }})"
+                                                                class="text-green-600 font-medium hover:underline">
+                                                                Restaurar
+                                                            </button>
+                                                        @else
+                                                            <a href="{{ route('opening-hours.edit', $hour->id) }}"
+                                                                class="text-primary font-medium hover:underline">
+                                                                Editar
+                                                            </a>
 
-                                                        <button onclick="deleteHour({{ $hour->id }})"
-                                                            class="text-error font-medium hover:underline">
-                                                            Eliminar
-                                                        </button>
-                                                    @endif
+                                                            <button onclick="deleteHour({{ $hour->id }})"
+                                                                class="text-error font-medium hover:underline">
+                                                                Eliminar
+                                                            </button>
+                                                        @endif
 
-                                                </div>
+                                                    </div>
+                                                @endrole
 
                                             </div>
 
