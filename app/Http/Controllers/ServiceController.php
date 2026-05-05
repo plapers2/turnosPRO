@@ -26,6 +26,14 @@ class ServiceController extends Controller
             $query->where('company_id', $companyId);
         }
 
+        if (auth()->user()->hasRole('empleado')) {
+            $userId = auth()->id();
+
+            $query->whereHas('users', function ($q) use ($userId) {
+                $q->where('users.id', $userId);
+            });
+        }
+
         $services = $query->paginate(9);
 
         return view('services.index', compact('services'))
