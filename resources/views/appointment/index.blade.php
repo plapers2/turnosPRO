@@ -202,14 +202,24 @@
     // ─── Búsqueda en tiempo real ───────────────────────────────────────────
     searchInput.addEventListener('input', e => filterBySearch(e.target.value));
 
+    function normalize(str) {
+        return str.toLowerCase().trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[-]/g, ' ')
+            .replace(/[^a-z0-9\s]/g, '');
+    }
+
     function filterBySearch(query) {
-        const q = query.toLowerCase().trim();
+        const q = normalize(query);
+        const qCompact = q.replace(/\s/g, ''); // sin espacios
         const cards = document.querySelectorAll('.company-card');
         let visibleCount = 0;
 
         cards.forEach(card => {
-            const name = card.dataset.name || '';
-            const match = !q || name.includes(q);
+            const name = normalize(card.dataset.name || '');
+            const nameCompact = name.replace(/\s/g, ''); // sin espacios
+            const match = !q || name.includes(q) || nameCompact.includes(qCompact);
             card.style.display = match ? '' : 'none';
             if (match) visibleCount++;
         });
