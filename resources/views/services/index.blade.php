@@ -46,21 +46,23 @@
                                     {{ $service->deleted_at ? 'Inactivo' : 'Activo' }}
                                 </span>
                             </div>
-                            <div class="flex justify-end gap-4 pt-4 mt-2">
-                                @if ($service->trashed())
-                                    <!-- RESTAURAR -->
-                                    <button onclick="restoreService(this, {{ $service->id }})"
-                                        class="text-green-600 hover:text-green-800 transition">
-                                        Restaurar
-                                    </button>
-                                @else
-                                    <a href="{{ route('services.edit', $service->id) }}"
-                                        class="text-sm font-semibold text-primary hover:text-primary-container transition-colors px-2 py-1 rounded">Editar</a>
-                                    <button id="btnEliminar" onclick="deleteService({{ $service->id }})"
-                                        class="text-sm font-semibold text-error hover:text-on-error-container transition-colors px-2 py-1 rounded btnEliminar">Eliminar</button>
-                                @endif
+                            @role('admin')
+                                <div class="flex justify-end gap-4 pt-4 mt-2">
+                                    @if ($service->trashed())
+                                        <!-- RESTAURAR -->
+                                        <button onclick="restoreService(this, {{ $service->id }})"
+                                            class="text-green-600 hover:text-green-800 transition">
+                                            Restaurar
+                                        </button>
+                                    @else
+                                        <a href="{{ route('services.edit', $service->id) }}"
+                                            class="text-sm font-semibold text-primary hover:text-primary-container transition-colors px-2 py-1 rounded">Editar</a>
+                                        <button id="btnEliminar" onclick="deleteService({{ $service->id }})"
+                                            class="text-sm font-semibold text-error hover:text-on-error-container transition-colors px-2 py-1 rounded btnEliminar">Eliminar</button>
+                                    @endif
 
-                            </div>
+                                </div>
+                            @endrole
                         </div>
                     </article>
                 @empty

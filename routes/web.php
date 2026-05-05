@@ -30,7 +30,13 @@ Route::middleware('auth')->group(function () {
     // Horarios de empresa
     Route::resource('/opening-hours', OpeningHourController::class)->middleware('role:admin');
     Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore'])->middleware('role:admin');
-    Route::get('/opening-hours', [OpeningHourController::class, 'index'])->name('opening-hours.index');
+    Route::get('/opening-hours', [OpeningHourController::class, 'index'])->middleware('permission:ver horarios')->name('opening-hours.index');
+
+    // Servicios
+    // Servicios
+    Route::resource('/services', ServiceController::class)->middleware('role:admin');
+    Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore')->middleware('role:admin');
+    Route::get('/services', [ServiceController::class, 'index'])->middleware('permission:ver servicios')->name('services.index');
 });
 
 // Rutas para clientes
@@ -52,9 +58,6 @@ Route::middleware(['auth', 'role:cliente'])->group(function () {
 
 // Rutas exclusivas de admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    // Servicios
-    Route::resource('/services', ServiceController::class);
-    Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore');
 
     // Usuarios
     Route::resource('/users', UserController::class);

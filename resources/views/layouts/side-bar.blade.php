@@ -36,11 +36,11 @@
             </x-sidebar-link>
         @endcan
 
-        @can(['gestionar servicios', 'ver servicios'])
+        @canany(['gestionar servicios', 'ver servicios'])
             <x-sidebar-link route="services.index" pattern="services.*" icon="service_toolbox">
                 Servicios
             </x-sidebar-link>
-        @endcan
+        @endcanany
 
         @can('gestionar clientes')
             <x-sidebar-link route="customers.index" pattern="customers.*" icon="groups">
