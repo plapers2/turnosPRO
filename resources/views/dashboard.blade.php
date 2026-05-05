@@ -1,5 +1,4 @@
 <x-app-layout>
-    {{-- Material Symbols Rounded --}}
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
@@ -15,26 +14,48 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
-        .btn-toggle {
-            padding: 6px 14px;
+        .period-btn {
+            padding: 5px 14px;
             border-radius: 9999px;
             font-size: 13px;
             font-weight: 600;
-            color: #524438;
+            color: var(--md-sys-color-on-surface-variant, #524438);
             transition: all .2s ease;
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
         }
 
-        .btn-toggle:hover {
-            background: #ebe8e2;
+        .period-btn:hover {
+            background: rgba(0, 0, 0, .06);
         }
 
         .btn-active {
-            background: #663a00;
-            color: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+            background: #663a00 !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(102, 58, 0, .18);
+        }
+
+        .chart-btn {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--md-sys-color-on-surface-variant, #524438);
+            transition: all .2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .chart-btn:hover {
+            background: rgba(0, 0, 0, .06);
         }
 
         .kpi-card {
@@ -44,7 +65,7 @@
             border: 1px solid rgba(0, 0, 0, .06);
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             transition: box-shadow .2s;
         }
 
@@ -52,14 +73,14 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, .07);
         }
 
-        .kpi-icon {
+        .kpi-icon-wrap {
             width: 40px;
             height: 40px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .status-badge {
@@ -73,13 +94,13 @@
         }
 
         .fade-in {
-            animation: fade .25s ease;
+            animation: fadeUp .25s ease both;
         }
 
-        @keyframes fade {
+        @keyframes fadeUp {
             from {
                 opacity: 0;
-                transform: translateY(4px);
+                transform: translateY(6px);
             }
 
             to {
@@ -89,33 +110,37 @@
         }
     </style>
 
-    <main class="flex-1 bg-surface px-6 py-8">
+    <main class="flex-1 bg-surface px-8 py-8">
         <div class="max-w-7xl mx-auto flex flex-col gap-8">
 
             {{-- HEADER --}}
             <header class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-on-surface">
-                        Buenos días, {{ auth()->user()->name }}
-                    </h1>
-                    <p class="text-sm text-on-surface-variant mt-1 flex items-center gap-1.5">
-                        <span class="material-symbols-rounded ms-outline text-on-surface-variant"
-                            style="font-size:1rem;">calendar_today</span>
-                        {{ now()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
-                    </p>
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-rounded text-primary ms-outline"
+                        style="font-size:2rem;">waving_hand</span>
+                    <div>
+                        <h1 class="text-3xl font-bold text-on-surface">
+                            Hola, {{ auth()->user()->name }}
+                        </h1>
+                        <p class="text-sm text-on-surface-variant mt-1 flex items-center gap-1.5">
+                            <span class="material-symbols-rounded ms-outline text-on-surface-variant"
+                                style="font-size:1rem;">calendar_today</span>
+                            {{ now()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
+                        </p>
+                    </div>
                 </div>
 
                 {{-- TOGGLE PERÍODO --}}
                 <div class="flex gap-1 bg-surface-container rounded-full p-1 border border-outline-variant/40">
-                    <button data-period="hoy" class="period-btn btn-toggle">
+                    <button data-period="hoy" class="period-btn">
                         <span class="material-symbols-rounded ms-outline" style="font-size:.95rem;">today</span>
                         Hoy
                     </button>
-                    <button data-period="semana" class="period-btn btn-toggle">
+                    <button data-period="semana" class="period-btn">
                         <span class="material-symbols-rounded ms-outline" style="font-size:.95rem;">date_range</span>
                         Semana
                     </button>
-                    <button data-period="mes" class="period-btn btn-toggle">
+                    <button data-period="mes" class="period-btn">
                         <span class="material-symbols-rounded ms-outline"
                             style="font-size:.95rem;">calendar_month</span>
                         Mes
@@ -131,22 +156,22 @@
                 {{-- LEFT --}}
                 <div class="lg:col-span-2 flex flex-col gap-6">
 
-                    {{-- CHART --}}
+                    {{-- GRÁFICO --}}
                     <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 shadow-sm">
                         <div class="flex justify-between items-center mb-5">
                             <h2 class="font-semibold text-primary flex items-center gap-2">
                                 <span class="material-symbols-rounded ms-outline"
-                                    style="font-size:1.15rem;">bar_chart</span>
+                                    style="font-size:1.1rem;">bar_chart</span>
                                 Ocupación
                             </h2>
                             <div
                                 class="flex gap-1 bg-surface-container rounded-full p-1 border border-outline-variant/40">
-                                <button data-chart="barras" class="chart-btn btn-toggle">
+                                <button data-chart="barras" class="chart-btn">
                                     <span class="material-symbols-rounded ms-outline"
                                         style="font-size:.9rem;">bar_chart</span>
                                     Barras
                                 </button>
-                                <button data-chart="lineas" class="chart-btn btn-toggle">
+                                <button data-chart="lineas" class="chart-btn">
                                     <span class="material-symbols-rounded ms-outline"
                                         style="font-size:.9rem;">show_chart</span>
                                     Líneas
@@ -158,10 +183,10 @@
                         </div>
                     </div>
 
-                    {{-- APPOINTMENTS --}}
+                    {{-- PRÓXIMAS CITAS --}}
                     <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 shadow-sm">
                         <h2 class="font-semibold text-primary mb-4 flex items-center gap-2">
-                            <span class="material-symbols-rounded ms-outline" style="font-size:1.15rem;">upcoming</span>
+                            <span class="material-symbols-rounded ms-outline" style="font-size:1.1rem;">upcoming</span>
                             Próximas citas
                         </h2>
                         <div id="appts-list" class="flex flex-col gap-3"></div>
@@ -172,16 +197,7 @@
                 {{-- RIGHT --}}
                 <div class="flex flex-col gap-6">
 
-                    {{-- SERVICES --}}
-                    <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 shadow-sm">
-                        <h2 class="font-semibold text-primary mb-4 flex items-center gap-2">
-                            <span class="material-symbols-rounded ms-outline" style="font-size:1.15rem;">star</span>
-                            Servicios más solicitados
-                        </h2>
-                        <div id="services-list" class="flex flex-col gap-3"></div>
-                    </div>
-
-                    {{-- ATTENDANCE --}}
+                    {{-- TASA DE ASISTENCIA --}}
                     <div class="bg-primary-container/10 rounded-2xl p-6 border border-primary/10 space-y-3">
                         <p class="text-xs uppercase tracking-widest text-primary flex items-center gap-1.5">
                             <span class="material-symbols-rounded" style="font-size:1rem;">monitoring</span>
@@ -192,6 +208,15 @@
                         <div class="h-1.5 bg-black/10 rounded-full overflow-hidden">
                             <div id="asistencia-bar" class="h-full bg-primary transition-all duration-500"></div>
                         </div>
+                    </div>
+
+                    {{-- SERVICIOS MÁS SOLICITADOS --}}
+                    <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 shadow-sm">
+                        <h2 class="font-semibold text-primary mb-4 flex items-center gap-2">
+                            <span class="material-symbols-rounded ms-outline" style="font-size:1.1rem;">star</span>
+                            Servicios más solicitados
+                        </h2>
+                        <div id="services-list" class="flex flex-col gap-3"></div>
                     </div>
 
                 </div>
@@ -208,27 +233,26 @@
             const APPTS = @json($appointments);
             const SERVICES = @json($services);
 
-            // Configuración de cada KPI card: icono, colores bg/icon
             const KPI_META = [{
                     icon: 'calendar_month',
-                    bg: '#f0f4ff',
-                    color: '#3b5bdb'
-                }, // Total
+                    bg: '#ede9fe',
+                    color: '#6d28d9'
+                },
                 {
                     icon: 'task_alt',
-                    bg: '#f0fdf4',
-                    color: '#16a34a'
-                }, // Confirmadas
+                    bg: '#d1fae5',
+                    color: '#059669'
+                },
                 {
                     icon: 'event_busy',
-                    bg: '#fff1f2',
+                    bg: '#fee2e2',
                     color: '#dc2626'
-                }, // Canceladas
+                },
                 {
                     icon: 'hourglass_empty',
-                    bg: '#fffbeb',
+                    bg: '#fef3c7',
                     color: '#d97706'
-                }, // Pendientes
+                },
             ];
 
             let currentPeriod = localStorage.getItem('dashboard_period') || 'hoy';
@@ -251,11 +275,11 @@
                         };
                         return `
                         <div class="kpi-card fade-in">
-                            <div class="kpi-icon" style="background:${m.bg}">
+                            <div class="kpi-icon-wrap" style="background:${m.bg}">
                                 <span class="material-symbols-rounded" style="font-size:1.25rem;color:${m.color}">${m.icon}</span>
                             </div>
                             <span class="text-xs text-on-surface-variant">${k.label}</span>
-                            <span class="text-3xl font-bold text-on-surface">${k.value}</span>
+                            <span class="text-3xl font-bold text-on-surface mt-1">${k.value}</span>
                         </div>`;
                     }).join('');
             }
@@ -264,36 +288,29 @@
                 if (chartInstance) chartInstance.destroy();
 
                 const isLine = type === 'lineas';
-                const colors = {
-                    primary: '#663a00',
-                    soft: '#ffb870',
-                    success: '#046289',
-                    error: '#ba1a1a'
-                };
-
                 let data = JSON.parse(JSON.stringify(DATA[period][type]));
 
-                data.datasets = data.datasets.map((ds, i) => {
-                    if (!isLine) {
-                        return {
-                            ...ds,
-                            backgroundColor: colors.soft,
-                            borderRadius: 8
-                        };
-                    }
-                    return {
+                data.datasets = data.datasets.map((ds, i) => isLine ?
+                    {
                         ...ds,
-                        borderColor: i === 0 ? colors.success : colors.error,
+                        borderColor: i === 0 ? '#046289' : '#ba1a1a',
+                        backgroundColor: 'transparent',
                         tension: 0.4,
                         pointRadius: 3
-                    };
-                });
+                    } :
+                    {
+                        ...ds,
+                        backgroundColor: '#663a00',
+                        borderRadius: 8
+                    }
+                );
 
                 chartInstance = new Chart(document.getElementById('mainChart'), {
                     type: isLine ? 'line' : 'bar',
                     data,
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 display: false
@@ -303,18 +320,28 @@
                             x: {
                                 grid: {
                                     display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    }
                                 }
                             },
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    font: {
+                                        size: 11
+                                    }
+                                }
                             }
                         }
                     }
                 });
             }
 
-            // Badges de estado con icono
-            const STATUS_CONFIG = {
+            const STATUS_CFG = {
                 confirmed: {
                     label: 'Confirmada',
                     icon: 'check_circle',
@@ -341,62 +368,56 @@
                 },
             };
 
-            function statusBadge(status, label) {
-                const cfg = STATUS_CONFIG[status] || {
-                    label,
+            function statusBadge(status) {
+                const c = STATUS_CFG[status] || {
+                    label: status,
                     icon: 'info',
                     bg: '#f5f5f5',
                     color: '#555'
                 };
-                return `<span class="status-badge" style="background:${cfg.bg};color:${cfg.color}">
-                            <span class="material-symbols-rounded" style="font-size:.85rem">${cfg.icon}</span>
-                            ${cfg.label}
+                return `<span class="status-badge" style="background:${c.bg};color:${c.color}">
+                            <span class="material-symbols-rounded" style="font-size:.85rem">${c.icon}</span>
+                            ${c.label}
                         </span>`;
             }
 
             function renderAppts() {
-                if (!APPTS || !APPTS.length) {
+                if (!APPTS?.length) {
                     document.getElementById('appts-list').innerHTML =
                         `<p class="text-sm text-on-surface-variant flex items-center gap-2">
                             <span class="material-symbols-rounded ms-outline" style="font-size:1.1rem">event_busy</span>
-                            No hay citas en las próximas 2 horas.
-                         </p>`;
+                            No hay citas próximas.
+                        </p>`;
                     return;
                 }
-
-                document.getElementById('appts-list').innerHTML =
-                    APPTS.map(a => `
-                        <div class="flex items-center justify-between p-4 rounded-xl bg-surface-container-low fade-in">
-                            <div class="flex items-start gap-3">
-                                <span class="material-symbols-rounded text-primary ms-outline mt-0.5" style="font-size:1.1rem">schedule</span>
-                                <div>
-                                    <p class="text-sm font-semibold text-on-surface">
-                                        <span class="text-primary">${a.time}</span>
-                                        &nbsp;·&nbsp;${a.name}
-                                    </p>
-                                    <p class="text-xs text-on-surface-variant mt-0.5">
-                                        ${a.service}${a.staff !== 'Sin asignar' ? ' &mdash; ' + a.staff : ''}
-                                    </p>
-                                </div>
+                document.getElementById('appts-list').innerHTML = APPTS.map(a => `
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-surface-container-low fade-in">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-rounded text-primary ms-outline mt-0.5" style="font-size:1.1rem">schedule</span>
+                            <div>
+                                <p class="text-sm font-semibold text-on-surface">
+                                    <span class="text-primary">${a.time}</span>
+                                    &nbsp;·&nbsp;${a.name}
+                                </p>
+                                <p class="text-xs text-on-surface-variant mt-0.5">
+                                    ${a.service}${a.staff !== 'Sin asignar' ? ' &mdash; ' + a.staff : ''}
+                                </p>
                             </div>
-                            ${statusBadge(a.status, a.label)}
                         </div>
-                    `).join('');
+                        ${statusBadge(a.status)}
+                    </div>`).join('');
             }
 
             function renderServices(period) {
-                if (!SERVICES || !SERVICES[period]) return;
-
-                document.getElementById('services-list').innerHTML =
-                    SERVICES[period].map(([name, count]) => `
-                        <div class="flex items-center justify-between fade-in">
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-rounded text-on-surface-variant ms-outline" style="font-size:1rem">auto_fix_normal</span>
-                                <span class="text-sm text-on-surface">${name}</span>
-                            </div>
-                            <span class="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">${count}x</span>
+                if (!SERVICES?.[period]) return;
+                document.getElementById('services-list').innerHTML = SERVICES[period].map(([name, count]) => `
+                    <div class="flex items-center justify-between fade-in">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-rounded text-on-surface-variant ms-outline" style="font-size:1rem">auto_fix_normal</span>
+                            <span class="text-sm text-on-surface">${name}</span>
                         </div>
-                    `).join('');
+                        <span class="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">${count}x</span>
+                    </div>`).join('');
             }
 
             function renderAsistencia(period) {
@@ -409,32 +430,29 @@
             function updateDashboard() {
                 setActive('.period-btn', currentPeriod, 'period');
                 setActive('.chart-btn', currentChart, 'chart');
-
                 renderKPIs(currentPeriod);
                 renderChart(currentPeriod, currentChart);
                 renderAppts();
                 renderAsistencia(currentPeriod);
-
                 if (SERVICES) renderServices(currentPeriod);
             }
 
-            // EVENTS
-            document.querySelectorAll('.period-btn').forEach(btn => {
+            document.querySelectorAll('.period-btn').forEach(btn =>
                 btn.addEventListener('click', () => {
                     currentPeriod = btn.dataset.period;
                     localStorage.setItem('dashboard_period', currentPeriod);
                     updateDashboard();
-                });
-            });
+                })
+            );
 
-            document.querySelectorAll('.chart-btn').forEach(btn => {
+            document.querySelectorAll('.chart-btn').forEach(btn =>
                 btn.addEventListener('click', () => {
                     currentChart = btn.dataset.chart;
                     localStorage.setItem('dashboard_chart', currentChart);
                     renderChart(currentPeriod, currentChart);
                     setActive('.chart-btn', currentChart, 'chart');
-                });
-            });
+                })
+            );
 
             updateDashboard();
         </script>
