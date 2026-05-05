@@ -24,17 +24,7 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $companyId = session('active_company_id');
-        $users = User::withTrashed()
-            ->where('id', '!=', auth()->id())
-            ->whereHas('companies', function ($query) use ($companyId) {
-                $query->where('companies.id', $companyId);
-            })
-            ->orderByRaw('deleted_at IS NOT NULL')
-            ->paginate(5);
-
-        return view('users.index', compact('users'))
-            ->with('i', ($request->input('page', 1) - 1) * $users->perPage());
+        return view('users.index');
     }
 
     /**
