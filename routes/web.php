@@ -40,6 +40,7 @@ Route::middleware(['auth', 'role:cliente'])->group(function () {
     Route::post('/booking/store', [BookingController::class, 'store'])->name('appointments.store');
     Route::get('/booking/profesionales-disponibles', [BookingController::class, 'profesionalesDisponibles'])->name('booking.profesionales');
     Route::get('/mis-citas', [BookingController::class, 'misCitas'])->name('appointment.history');
+    Route::get('/booking/validar-combinacion', [BookingController::class, 'validarCombinacion']);
     // Perfil
     Route::get('/customer/profile/edit', [CustomerController::class, 'editProfile'])->name('customer.profile.edit');
     Route::put('/customer/profile/update', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');

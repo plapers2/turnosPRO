@@ -52,7 +52,55 @@ class BookingController extends Controller
 
         $company  = Company::findOrFail($companyId);
         $services = Service::whereIn('id', $serviceIds)->get();
+        // ── Validación de combinación ────────────────────────────────────────
+        if ($services->count() > 1) {
+            $profesionales = User::whereHas('companies', fn($q) =>
+            $q->where('companies.id', $companyId))
+                ->whereHas('services', fn($q) =>
+                $q->whereIn('services.id', $serviceIds))
+                ->whereHas('roles', fn($q) =>
+                $q->where('name', 'empleado'))
+                ->with(['professionalAvailabilities', 'services'])
+                ->get();
 
+            $diasSemana = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            $combinacionValida = false;
+
+            foreach ($diasSemana as $dia) {
+                $horasInicio = $profesionales
+                    ->flatMap->professionalAvailabilities
+                    ->where('day_of_week', $dia)
+                    ->pluck('start_time')
+                    ->filter();
+
+                if ($horasInicio->isEmpty()) continue;
+
+                $slotInicio = \Carbon\Carbon::parse('2025-01-06 ' . $horasInicio->min());
+                $contador   = 0;
+
+                $this->contarCadenas(
+                    0,
+                    $services,
+                    $profesionales,
+                    collect(),
+                    $slotInicio,
+                    $dia,
+                    [],
+                    $contador
+                );
+
+                if ($contador > 0) {
+                    $combinacionValida = true;
+                    break;
+                }
+            }
+
+            if (!$combinacionValida) {
+                return redirect()->back()
+                    ->with('error', 'La combinación de servicios seleccionada no puede ser atendida por ningún profesional. Intenta con una combinación diferente.')
+                    ->withInput();
+            }
+        }
         $totalDuration = $services->sum('duration');
         $totalPrice    = $services->sum('price');
 
@@ -653,5 +701,69 @@ class BookingController extends Controller
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('citas-' . now()->format('Y-m-d') . '.pdf');
+    }
+    public function validarCombinacion(Request $request): JsonResponse
+    {
+        $companyId  = $request->company_id;
+        $serviceIds = (array) $request->services;
+
+        if (empty($serviceIds)) {
+            return response()->json(['valido' => true]);
+        }
+
+        $services = Service::whereIn('id', $serviceIds)->orderBy('id')->get();
+
+        // Profesionales de la empresa que atienden AL MENOS UNO de los servicios
+        $profesionales = User::whereHas('companies', fn($q) =>
+        $q->where('companies.id', $companyId))
+            ->whereHas('services', fn($q) =>
+            $q->whereIn('services.id', $serviceIds))
+            ->whereHas('roles', fn($q) =>
+            $q->where('name', 'empleado'))
+            ->with(['professionalAvailabilities', 'services'])
+            ->get();
+
+        if ($profesionales->isEmpty()) {
+            return response()->json(['valido' => false, 'razon' => 'sin_profesionales']);
+        }
+
+        // Intentar con cada día de la semana que tenga disponibilidad
+        $diasSemana = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        foreach ($diasSemana as $dia) {
+            // Encontrar la hora de inicio más temprana de ese día entre todos los profesionales
+            $horasInicio = $profesionales
+                ->flatMap->professionalAvailabilities
+                ->where('day_of_week', $dia)
+                ->pluck('start_time')
+                ->filter();
+
+            if ($horasInicio->isEmpty()) continue;
+
+            $horaInicio = $horasInicio->min();
+            $slotInicio = \Carbon\Carbon::parse("2025-01-06 $horaInicio"); // lunes fijo para prueba
+
+            $contador = 0;
+            $this->contarCadenas(
+                0,
+                $services,
+                $profesionales,
+                collect(), // sin citas existentes — validación estructural pura
+                $slotInicio,
+                $dia,
+                [],
+                $contador
+            );
+
+            if ($contador > 0) {
+                return response()->json(['valido' => true]);
+            }
+        }
+
+        return response()->json([
+            'valido' => false,
+            'razon'  => 'sin_combinacion',
+            'duracion_total' => $services->sum('duration'),
+        ]);
     }
 }
