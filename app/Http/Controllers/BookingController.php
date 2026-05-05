@@ -25,8 +25,16 @@ class BookingController extends Controller
     // ─── PASO 1: Seleccionar empresa ────────────────────────────────────
     public function selectCompany(): View
     {
-        $tiposNegocio = TypeCompany::with(['companies'])
-            ->get();
+        $tiposNegocio = TypeCompany::with(['companies' => function ($q) {
+            $q->whereHas('services')
+                ->whereHas(
+                    'users',
+                    fn($u) =>
+                    $u->whereHas('roles', fn($r) =>
+                    $r->where('name', 'empleado'))
+                        ->whereHas('services') // que tenga al menos un servicio asignado
+                );
+        }])->get();
 
         return view('appointment.index', compact('tiposNegocio'));
     }
