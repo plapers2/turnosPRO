@@ -57,21 +57,24 @@
                 </span>
             </div>
         @endcanany
-        @can('gestionar empresas')
+
+        @canany(['ver empresas', 'gestionar empresas'])
             <x-sidebar-link route="companies.index" pattern="companies.*" icon="business">
                 Empresa
             </x-sidebar-link>
+        @endcan
 
+        @can('gestionar empresas')
             <x-sidebar-link route="type-companies.index" pattern="type-companies.*" icon="add_business">
                 Tipos de Empresa
             </x-sidebar-link>
         @endcan
 
-        @can('ver horarios')
+        @canany(['ver horarios', 'gestionar empresas'])
             <x-sidebar-link route="opening-hours.index" pattern="opening-hours.*" icon="calendar_month">
                 Horarios de atención
             </x-sidebar-link>
-        @endcan
+        @endcanany
 
         @canany(['reservar citas', 'ver historial de citas'])
             <div class="pt-3 pb-1 px-2">

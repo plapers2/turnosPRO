@@ -2,12 +2,8 @@
     <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
 
         <!-- HEADER -->
-        <x-header-admin
-            icono="business"
-            titulo="Gestión de Empresas"
-            mensaje="Administra las empresas registradas en el sistema"
-            textoBoton="Nueva Empresa"
-            ruta="companies" />
+        <x-header-admin icono="business" titulo="Gestión de Empresas"
+            mensaje="Administra las empresas registradas en el sistema" textoBoton="Nueva Empresa" ruta="companies" />
 
         <!-- TABLA -->
         <div class="px-8 pb-20">
@@ -35,7 +31,9 @@
                                 <th class="px-6 py-4 text-left font-semibold">Contacto</th>
                                 <th class="px-6 py-4 text-left font-semibold">Dirección</th>
                                 <th class="px-6 py-4 text-left font-semibold">Tipo</th>
-                                <th class="px-6 py-4 text-right font-semibold">Acciones</th>
+                                @role('admin')
+                                    <th class="px-6 py-4 text-right font-semibold">Acciones</th>
+                                @endrole
                             </tr>
                         </thead>
 
@@ -43,109 +41,106 @@
                         <tbody class="divide-y divide-outline-variant/10">
 
                             @forelse ($companies as $company)
-                            <tr class="hover:bg-surface/40 transition">
+                                <tr class="hover:bg-surface/40 transition">
 
-                                <!-- EMPRESA -->
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-4">
+                                    <!-- EMPRESA -->
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-4">
 
-                                        <img class="w-12 h-12 rounded-lg object-cover"
-                                            src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . $company->name }}"
-                                            alt="{{ $company->name }}">
+                                            <img class="w-12 h-12 rounded-lg object-cover"
+                                                src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . $company->name }}"
+                                                alt="{{ $company->name }}">
 
-                                        <div>
-                                            <p class="font-semibold text-primary">
-                                                {{ $company->name }}
-                                            </p>
+                                            <div>
+                                                <p class="font-semibold text-primary">
+                                                    {{ $company->name }}
+                                                </p>
 
-                                            <p class="text-xs text-on-surface-variant">
-                                                ID: {{ $company->id }}
-                                            </p>
+                                                <p class="text-xs text-on-surface-variant">
+                                                    ID: {{ $company->id }}
+                                                </p>
+                                            </div>
+
                                         </div>
+                                    </td>
 
-                                    </div>
-                                </td>
+                                    <!-- CONTACTO -->
+                                    <td class="px-6 py-4">
+                                        <p class="text-on-surface-variant">
+                                            {{ $company->email }}
+                                        </p>
 
-                                <!-- CONTACTO -->
-                                <td class="px-6 py-4">
-                                    <p class="text-on-surface-variant">
-                                        {{ $company->email }}
-                                    </p>
+                                        <p class="text-xs text-on-surface-variant">
+                                            {{ $company->phone ?? 'Sin teléfono' }}
+                                        </p>
+                                    </td>
 
-                                    <p class="text-xs text-on-surface-variant">
-                                        {{ $company->phone ?? 'Sin teléfono' }}
-                                    </p>
-                                </td>
+                                    <!-- DIRECCIÓN -->
+                                    <td class="px-6 py-4">
+                                        <p class="text-on-surface-variant">
+                                            {{ $company->address ?? 'Sin dirección' }}
+                                        </p>
+                                    </td>
 
-                                <!-- DIRECCIÓN -->
-                                <td class="px-6 py-4">
-                                    <p class="text-on-surface-variant">
-                                        {{ $company->address ?? 'Sin dirección' }}
-                                    </p>
-                                </td>
-
-                                <!-- TIPO -->
-                                <td class="px-6 py-4">
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold
+                                    <!-- TIPO -->
+                                    <td class="px-6 py-4">
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold
                                             bg-blue-100 text-blue-700">
-                                        {{ $company->typeCompany->name }}
-                                    </span>
-                                </td>
+                                            {{ $company->typeCompany->name }}
+                                        </span>
+                                    </td>
 
-                                <!-- ACCIONES -->
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex justify-end gap-3">
+                                    <!-- ACCIONES -->
+                                    @role('admin')
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex justify-end gap-3">
 
-                                        <a
-                                            href="{{ route('companies.show', $company->id) }}"
-                                            class="text-secondary hover:text-primary transition">
-                                            Ver
-                                        </a>
+                                                <a href="{{ route('companies.show', $company->id) }}"
+                                                    class="text-secondary hover:text-primary transition">
+                                                    Ver
+                                                </a>
 
-                                        <a
-                                            href="{{ route('companies.edit', $company->id) }}"
-                                            class="text-primary hover:text-primary-container transition">
-                                            Editar
-                                        </a>
+                                                <a href="{{ route('companies.edit', $company->id) }}"
+                                                    class="text-primary hover:text-primary-container transition">
+                                                    Editar
+                                                </a>
 
-                                        <button
-                                            onclick="deletecompany({{ $company->id }})"
-                                            class="text-error hover:text-on-error-container transition">
-                                            Eliminar
-                                        </button>
+                                                <button onclick="deletecompany({{ $company->id }})"
+                                                    class="text-error hover:text-on-error-container transition">
+                                                    Eliminar
+                                                </button>
 
-                                    </div>
-                                </td>
+                                            </div>
+                                        </td>
+                                    @endrole('admin')
 
-                            </tr>
+                                </tr>
 
                             @empty
 
-                            <tr>
-                                <td colspan="6" class="text-center py-16">
+                                <tr>
+                                    <td colspan="6" class="text-center py-16">
 
-                                    <div class="flex flex-col items-center gap-4">
+                                        <div class="flex flex-col items-center gap-4">
 
-                                        <span class="material-symbols-outlined text-4xl text-primary">
-                                            business
-                                        </span>
+                                            <span class="material-symbols-outlined text-4xl text-primary">
+                                                business
+                                            </span>
 
-                                        <p class="text-on-surface-variant">
-                                            No hay empresas registradas
-                                        </p>
+                                            <p class="text-on-surface-variant">
+                                                No hay empresas registradas
+                                            </p>
 
-                                        <a
-                                            href="{{ route('companies.create') }}"
-                                            class="px-4 py-2 rounded-lg bg-primary text-white text-sm">
-                                            Crear empresa
-                                        </a>
+                                            <a href="{{ route('companies.create') }}"
+                                                class="px-4 py-2 rounded-lg bg-primary text-white text-sm">
+                                                Crear empresa
+                                            </a>
 
-                                    </div>
+                                        </div>
 
-                                </td>
-                            </tr>
-
+                                    </td>
+                                </tr>
                             @endforelse
 
                         </tbody>
@@ -157,84 +152,81 @@
                 <div class="md:hidden space-y-4">
 
                     @forelse ($companies as $company)
-                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-4 shadow-sm">
+                        <div
+                            class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-4 shadow-sm">
 
-                        <!-- TOP -->
-                        <div class="flex items-center gap-4 mb-3">
+                            <!-- TOP -->
+                            <div class="flex items-center gap-4 mb-3">
 
-                            <img class="w-12 h-12 rounded-lg object-cover"
-                                src="{{ $company->image ? asset('storage/' . $company->image) : 'https://ui-avatars.com/api/?name=' . $company->name }}"
-                                alt="{{ $company->name }}">
+                                <img class="w-12 h-12 rounded-lg object-cover"
+                                    src="{{ $company->image ? asset('storage/' . $company->image) : 'https://ui-avatars.com/api/?name=' . $company->name }}"
+                                    alt="{{ $company->name }}">
 
-                            <div>
-                                <p class="font-semibold text-primary">
-                                    {{ $company->name }}
-                                </p>
+                                <div>
+                                    <p class="font-semibold text-primary">
+                                        {{ $company->name }}
+                                    </p>
 
-                                <p class="text-xs text-on-surface-variant">
-                                    ID: {{ $company->id }}
-                                </p>
+                                    <p class="text-xs text-on-surface-variant">
+                                        ID: {{ $company->id }}
+                                    </p>
+                                </div>
+
                             </div>
 
-                        </div>
+                            <!-- INFO -->
+                            <div class="space-y-2 text-sm">
 
-                        <!-- INFO -->
-                        <div class="space-y-2 text-sm">
+                                <p class="text-on-surface-variant">
+                                    <span class="text-secondary font-bold">Email:</span>
+                                    {{ $company->email }}
+                                </p>
 
-                            <p class="text-on-surface-variant">
-                                <span class="text-secondary font-bold">Email:</span>
-                                {{ $company->email }}
-                            </p>
+                                <p class="text-on-surface-variant">
+                                    <span class="text-secondary font-bold">Teléfono:</span>
+                                    {{ $company->phone ?? 'Sin teléfono' }}
+                                </p>
 
-                            <p class="text-on-surface-variant">
-                                <span class="text-secondary font-bold">Teléfono:</span>
-                                {{ $company->phone ?? 'Sin teléfono' }}
-                            </p>
+                                <p class="text-on-surface-variant">
+                                    <span class="text-secondary font-bold">Dirección:</span>
+                                    {{ $company->address ?? 'Sin dirección' }}
+                                </p>
 
-                            <p class="text-on-surface-variant">
-                                <span class="text-secondary font-bold">Dirección:</span>
-                                {{ $company->address ?? 'Sin dirección' }}
-                            </p>
-
-                            <div>
-                                <span
-                                    class="inline-block text-xs px-2 py-1 rounded-md
+                                <div>
+                                    <span
+                                        class="inline-block text-xs px-2 py-1 rounded-md
                                         bg-secondary-fixed text-on-secondary-fixed">
-                                    {{ $company->state }}
-                                </span>
+                                        {{ $company->state }}
+                                    </span>
+                                </div>
+
                             </div>
 
-                        </div>
+                            <!-- ACCIONES -->
+                            @role('admin')
+                                <div class="flex justify-end gap-4 mt-4 border-t pt-3">
 
-                        <!-- ACCIONES -->
-                        <div class="flex justify-end gap-4 mt-4 border-t pt-3">
+                                    <a href="{{ route('companies.show', $company->id) }}" class="text-secondary text-sm">
+                                        Ver
+                                    </a>
 
-                            <a
-                                href="{{ route('companies.show', $company->id) }}"
-                                class="text-secondary text-sm">
-                                Ver
-                            </a>
+                                    <a href="{{ route('companies.edit', $company->id) }}" class="text-primary text-sm">
+                                        Editar
+                                    </a>
 
-                            <a
-                                href="{{ route('companies.edit', $company->id) }}"
-                                class="text-primary text-sm">
-                                Editar
-                            </a>
+                                    <button onclick="deletecompany({{ $company->id }})" class="text-error text-sm">
+                                        Eliminar
+                                    </button>
 
-                            <button
-                                onclick="deletecompany({{ $company->id }})"
-                                class="text-error text-sm">
-                                Eliminar
-                            </button>
+                                </div>
+                            @endrole('admin')
 
                         </div>
-
-                    </div>
 
                     @empty
-                    <p class="text-center text-sm text-gray-400">
-                        No hay empresas registradas
-                    </p>
+                        <p class="text-center text-sm text-gray-400">
+                            No hay empresas registradas
+                        </p>
                     @endforelse
 
                 </div>

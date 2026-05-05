@@ -28,15 +28,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Horarios de empresa
-    Route::resource('/opening-hours', OpeningHourController::class)->middleware('role:admin');
+    Route::resource('/opening-hours', OpeningHourController::class)->except('index')->middleware('role:admin');
     Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore'])->middleware('role:admin');
     Route::get('/opening-hours', [OpeningHourController::class, 'index'])->middleware('permission:ver horarios')->name('opening-hours.index');
 
     // Servicios
-    // Servicios
-    Route::resource('/services', ServiceController::class)->middleware('role:admin');
+    Route::resource('/services', ServiceController::class)->except('index')->middleware('role:admin');
     Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore')->middleware('role:admin');
     Route::get('/services', [ServiceController::class, 'index'])->middleware('permission:ver servicios')->name('services.index');
+
+    // Empresas
+    Route::resource('/companies', CompanyController::class)->except('index')->middleware('role:admin');
+    Route::get('/companies', [CompanyController::class, 'index'])->middleware('permission:ver empresas')->name('companies.index');
 });
 
 // Rutas para clientes
@@ -62,9 +65,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Usuarios
     Route::resource('/users', UserController::class);
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
-
-    // Empresas
-    Route::resource('/companies', CompanyController::class);
 
     // Tipos de empresas
     Route::resource('/type-companies', TypeCompanyController::class);
