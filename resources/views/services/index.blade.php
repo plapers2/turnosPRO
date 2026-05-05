@@ -3,7 +3,8 @@
 
         <!-- HEADER-->
         <x-header-admin icono="service_toolbox" titulo="Gestion de Servicios"
-            mensaje="Administra, edita y organiza los servicios de tú negocio" textoBoton="Nuevo Servicio"
+            mensaje="Administra, edita y organiza los servicios de tú negocio"
+            mensajeEmpleado="Visualiza los servicios que brindas en esta empresa" textoBoton="Nuevo Servicio"
             ruta="services" />
 
         <!-- Canvas -->

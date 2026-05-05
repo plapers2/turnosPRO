@@ -1,4 +1,4 @@
-@props(['icono', 'titulo', 'mensaje', 'textoBoton' => null, 'ruta' => null])
+@props(['icono', 'titulo', 'mensaje', 'mensajeEmpleado' => null, 'textoBoton' => null, 'ruta' => null])
 <!-- HEADER (igual que servicios) -->
 <header
     class="relative bg-[#fcf9f3]/80 backdrop-blur-md border border-outline-variant/20
@@ -17,7 +17,7 @@
         </div>
 
         <p class="text-sm text-on-surface-variant ml-13">
-            {{ $mensaje }}
+            {{ auth()->user()->hasRole('admin') ? $mensaje : $mensajeEmpleado }}
         </p>
     </div>
     @role('admin')

@@ -3,7 +3,8 @@
 
         <!-- HEADER -->
         <x-header-admin icono="schedule" titulo="Horarios de Atención"
-            mensaje="Visualiza y administra los horarios por día" textoBoton="Nuevo horario" ruta="opening-hours" />
+            mensaje="Visualiza y administra los horarios por día" textoBoton="Nuevo horario"
+            mensajeEmpleado="Visualiza los horarios de la empresa a la que perteneces" ruta="opening-hours" />
 
         <div class="px-8 pb-20">
 

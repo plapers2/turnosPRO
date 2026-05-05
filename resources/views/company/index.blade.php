@@ -3,6 +3,7 @@
 
         <!-- HEADER -->
         <x-header-admin icono="business" titulo="Gestión de Empresas"
+            mensajeEmpleado="Visualiza las empresas a a las que perteneces"
             mensaje="Administra las empresas registradas en el sistema" textoBoton="Nueva Empresa" ruta="companies" />
 
         <!-- TABLA -->
