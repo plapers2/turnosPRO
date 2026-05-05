@@ -40,9 +40,10 @@ class DatabaseSeeder extends Seeder
             OpeningHourSeeder::class,
             AppointmentSeeder::class,
             AppointmentServiceSeeder::class,
-            SpecialAppointmentSeeder::class
             // Demostracion en feria del software:
             // php artisan migrate:fresh --seed --seeder=DemoOnlySeeder
+            // citas en dashboard
+            //  php artisan db:seed --class=SpecialAppointmentSeeder
         ]);
     }
 }
