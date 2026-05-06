@@ -23,7 +23,17 @@ class TypeCompanyRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
-            'logo' => 'required|image|mimes:png,jpg,jpeg,gif|max:10240'
+            'logo' => ($this->isMethod('POST') ? 'required' : 'nullable') . '|image|mimes:png,jpg,jpeg|max:10240',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'logo.required' => 'El logo es obligatorio al crear un tipo de empresa.',
+            'logo.image'    => 'El archivo debe ser una imagen.',
+            'logo.mimes'    => 'El logo debe ser PNG, JPG, JPEG.',
+            'logo.max'      => 'El logo no puede superar los 10MB.',
         ];
     }
 }

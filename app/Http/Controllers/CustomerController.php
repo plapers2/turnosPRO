@@ -20,7 +20,8 @@ class CustomerController extends Controller
 
         $customers = Customer::where('company_id', $companyId)
             ->whereHas('appointments', fn($q) => $q->where('company_id', $companyId))
-            ->when($search, fn($q) => $q->where(
+            ->when($search, fn($q) => $q->whereHas(
+                'user',
                 fn($inner) =>
                 $inner->where('name',  'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%")
@@ -32,6 +33,7 @@ class CustomerController extends Controller
                     ->where('company_id', $companyId),
             ])
             ->with([
+                'user',
                 'appointments' => fn($q) => $q
                     ->where('company_id', $companyId)
                     ->where('status', 'completed')
@@ -67,27 +69,5 @@ class CustomerController extends Controller
         $customer = Customer::findOrFail($id);
 
         return view('customer.show', compact('customer'));
-    }
-
-    public function editProfile()
-    {
-        $cliente = auth()->user();
-        return view('customer.edit-profile', compact('cliente'));
-    }
-
-    public function updateProfile(UpdateCustomerProfileRequest $request)
-    {
-        $cliente = auth()->user();
-
-        $cliente->name  = $request->name;
-        $cliente->phone = $request->phone;
-
-        if ($request->filled('new_password')) {
-            $cliente->password = Hash::make($request->new_password);
-        }
-
-        $cliente->save();
-
-        return redirect()->route('dashboard')->with('success', 'Perfil actualizado correctamente.');
     }
 }

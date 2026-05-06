@@ -27,43 +27,43 @@
     <div class="flex items-center gap-3">
 
         @php
-            $nameParts = explode(' ', trim(auth()->user()->name));
-            $initials = strtoupper(substr($nameParts[0], 0, 1));
-            if (count($nameParts) > 1) {
-                $initials .= strtoupper(substr(end($nameParts), 0, 1));
-            }
-            $userRole = auth()->user()->getRoleNames()->first() ?? 'Usuario';
-            $companyId = session('active_company_id');
-            $activeCompany = $companyId ? \App\Models\Company::find($companyId) : null;
+        $nameParts = explode(' ', trim(auth()->user()->name));
+        $initials = strtoupper(substr($nameParts[0], 0, 1));
+        if (count($nameParts) > 1) {
+        $initials .= strtoupper(substr(end($nameParts), 0, 1));
+        }
+        $userRole = auth()->user()->getRoleNames()->first() ?? 'Usuario';
+        $companyId = session('active_company_id');
+        $activeCompany = $companyId ? \App\Models\Company::find($companyId) : null;
         @endphp
 
         <!-- Empresa activa -->
         @if ($activeCompany)
-            <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
-                style="background: #ffffff; border: 1px solid #d6c3b3;">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
+            style="background: #ffffff; border: 1px solid #d6c3b3;">
 
-                <!-- Logo o ícono de empresa -->
-                @if ($activeCompany->logo)
-                    <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
-                        class="w-5 h-5 rounded object-cover" />
-                @else
-                    <div class="w-5 h-5 rounded flex items-center justify-center"
-                        style="background: linear-gradient(135deg, #854f0b, #663a00);">
-                        <span class="material-symbols-outlined text-[13px]" style="color: #ffdcbe;">business</span>
-                    </div>
-                @endif
-
-                <div class="flex flex-col leading-tight">
-                    <span class="text-[10px] font-medium uppercase tracking-widest" style="color: #847467;">
-                        Empresa activa
-                    </span>
-                    <span class="text-xs font-semibold truncate max-w-[120px]" style="color: #1c1c19;">
-                        {{ $activeCompany->name }}
-                    </span>
-                </div>
+            <!-- Logo o ícono de empresa -->
+            @if ($activeCompany->logo)
+            <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
+                class="w-5 h-5 rounded object-cover" />
+            @else
+            <div class="w-5 h-5 rounded flex items-center justify-center"
+                style="background: linear-gradient(135deg, #854f0b, #663a00);">
+                <span class="material-symbols-outlined text-[13px]" style="color: #ffdcbe;">business</span>
             </div>
-            <!-- Divisor -->
-            <div class="hidden sm:block w-px h-6" style="background: #d6c3b3;"></div>
+            @endif
+
+            <div class="flex flex-col leading-tight">
+                <span class="text-[10px] font-medium uppercase tracking-widest" style="color: #847467;">
+                    Empresa activa
+                </span>
+                <span class="text-xs font-semibold truncate max-w-[120px]" style="color: #1c1c19;">
+                    {{ $activeCompany->name }}
+                </span>
+            </div>
+        </div>
+        <!-- Divisor -->
+        <div class="hidden sm:block w-px h-6" style="background: #d6c3b3;"></div>
         @endif
 
 
@@ -87,18 +87,18 @@
 
             <!-- Avatar principal -->
             @if (auth()->user()->image)
-                <img alt="Avatar" class="w-9 h-9 rounded-full object-cover transition-transform group-hover:scale-105"
-                    style="box-shadow: 0 0 0 2px #d6c3b3;" src="{{ asset('storage/' . auth()->user()->image) }}"
-                    @click="open = !open" />
+            <img alt="Avatar" class="w-9 h-9 rounded-full object-cover transition-transform group-hover:scale-105"
+                style="box-shadow: 0 0 0 2px #d6c3b3;" src="{{ asset('storage/' . auth()->user()->image) }}"
+                @click="open = !open" />
             @else
-                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold tracking-wide select-none transition-transform group-hover:scale-105"
-                    style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold tracking-wide select-none transition-transform group-hover:scale-105"
+                style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
                             color: #ffdcbe;
                             box-shadow: 0 0 0 2px #d6c3b3, 0 2px 8px rgba(102,58,0,0.25);
                             flex-shrink: 0;"
-                    @click="open = !open">
-                    {{ $initials }}
-                </div>
+                @click="open = !open">
+                {{ $initials }}
+            </div>
             @endif
 
             <!-- Nombre + Rol -->
@@ -131,17 +131,17 @@
                 <div class="px-4 py-3" style="border-bottom: 1px solid #ebe8e2;">
                     <div class="flex items-center gap-3">
                         @if (auth()->user()->image)
-                            <img alt="Avatar" class="w-10 h-10 rounded-full object-cover"
-                                style="box-shadow: 0 0 0 2px #d6c3b3;"
-                                src="{{ asset('storage/' . auth()->user()->image) }}" />
+                        <img alt="Avatar" class="w-10 h-10 rounded-full object-cover"
+                            style="box-shadow: 0 0 0 2px #d6c3b3;"
+                            src="{{ asset('storage/' . auth()->user()->image) }}" />
                         @else
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold select-none"
-                                style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold select-none"
+                            style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
                                         color: #ffdcbe;
                                         box-shadow: 0 0 0 2px #d6c3b3, 0 2px 8px rgba(102,58,0,0.20);
                                         flex-shrink: 0;">
-                                {{ $initials }}
-                            </div>
+                            {{ $initials }}
+                        </div>
                         @endif
                         <div class="flex flex-col min-w-0 gap-0.5">
                             <p class="text-sm font-semibold truncate" style="color: #1c1c19;">
@@ -162,47 +162,45 @@
 
                 <!-- Empresa activa en dropdown -->
                 @if ($activeCompany)
-                    <div class="px-4 py-2.5 flex items-center gap-3"
-                        style="background: #faf7f2; border-bottom: 1px solid #ebe8e2;">
-                        @if ($activeCompany->logo)
-                            <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
-                                class="w-8 h-8 rounded-lg object-cover"
-                                style="box-shadow: 0 1px 4px rgba(102,58,0,0.15);" />
-                        @else
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                                style="background: linear-gradient(135deg, #854f0b, #663a00);
+                <div class="px-4 py-2.5 flex items-center gap-3"
+                    style="background: #faf7f2; border-bottom: 1px solid #ebe8e2;">
+                    @if ($activeCompany->logo)
+                    <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
+                        class="w-8 h-8 rounded-lg object-cover"
+                        style="box-shadow: 0 1px 4px rgba(102,58,0,0.15);" />
+                    @else
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                        style="background: linear-gradient(135deg, #854f0b, #663a00);
                                         box-shadow: 0 1px 4px rgba(102,58,0,0.20);">
-                                <span class="material-symbols-outlined text-[16px]"
-                                    style="color: #ffdcbe;">business</span>
-                            </div>
-                        @endif
-                        <div class="flex flex-col min-w-0">
-                            <span class="text-[10px] font-semibold uppercase tracking-widest" style="color: #847467;">
-                                Empresa activa
-                            </span>
-                            <span class="text-sm font-semibold truncate" style="color: #1c1c19;">
-                                {{ $activeCompany->name }}
-                            </span>
-                            @if ($activeCompany->typeCompany)
-                                <span class="text-[10px]" style="color: #847467;">
-                                    {{ $activeCompany->typeCompany->name }}
-                                </span>
-                            @endif
-                        </div>
+                        <span class="material-symbols-outlined text-[16px]"
+                            style="color: #ffdcbe;">business</span>
                     </div>
+                    @endif
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-[10px] font-semibold uppercase tracking-widest" style="color: #847467;">
+                            Empresa activa
+                        </span>
+                        <span class="text-sm font-semibold truncate" style="color: #1c1c19;">
+                            {{ $activeCompany->name }}
+                        </span>
+                        @if ($activeCompany->typeCompany)
+                        <span class="text-[10px]" style="color: #847467;">
+                            {{ $activeCompany->typeCompany->name }}
+                        </span>
+                        @endif
+                    </div>
+                </div>
                 @endif
 
                 <!-- Editar perfil -->
-                @role('cliente')
-                    <a href="{{ route('customer.profile.edit') }}"
-                        class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors" style="color: #1c1c19;"
-                        onmouseenter="this.style.background='#f6f3ee'" onmouseleave="this.style.background='transparent'">
-                        <span class="material-symbols-outlined text-[17px]" style="color: #847467;">manage_accounts</span>
-                        Editar perfil
-                    </a>
-                @endrole
+                <a href="{{ route('profile.settings') }}"
+                    class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors" style="color: #1c1c19;"
+                    onmouseenter="this.style.background='#f6f3ee'" onmouseleave="this.style.background='transparent'">
+                    <span class="material-symbols-outlined text-[17px]" style="color: #847467;">manage_accounts</span>
+                    Editar perfil
+                </a>
 
-              
+
                 <!-- Cerrar sesión -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

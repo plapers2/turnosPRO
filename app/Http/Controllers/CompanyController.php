@@ -17,10 +17,7 @@ class CompanyController extends Controller
      */
     public function index(Request $request): View
     {
-        $userId = auth()->id();
-        $companies = Company::query()->with('typeCompany')->whereHas('users', function ($q) use ($userId) {
-            $q->where('users.id', $userId);
-        })->paginate(10);
+        $companies = Company::query()->with('typeCompany')->paginate(10);
 
         return view('company.index', compact('companies'))
             ->with('i', ($request->input('page', 1) - 1) * $companies->perPage());
@@ -83,12 +80,14 @@ class CompanyController extends Controller
 
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('logos', 'public');
+        } else {
+            unset($data['logo']);
         }
 
         $company->update($data);
 
         return Redirect::route('companies.index')
-            ->with('success', 'Company updated successfully');
+            ->with('success', 'Empresa actualizada correctamente.');
     }
 
     public function destroy($id): RedirectResponse
