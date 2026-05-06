@@ -262,12 +262,12 @@ if (calendarEl) {
                 label.innerHTML = `<span style="
                     font-size:10px;
                     font-weight:600;
-                    color:${esCritico ? "rgba(161,98,7,0.9)" : "rgba(21,128,61,0.8)"};
-                    background:${esCritico ? "rgba(234,179,8,0.15)" : "rgba(34,197,94,0.15)"};
+                    color:${esCritico ? "rgba(194,65,12,0.95)" : "rgba(21,128,61,0.8)"};
+                    background:${esCritico ? "rgba(249,115,22,0.12)" : "rgba(34,197,94,0.15)"};
                     padding:2px 8px;
                     border-radius:99px;
-                    border: 1px solid ${esCritico ? "rgba(234,179,8,0.4)" : "rgba(34,197,94,0.3)"};
-                ">${esCritico ? "‼️ Último slot" : "✅ Disponible"}</span>`;
+                    border: 1px solid ${esCritico ? "rgba(249,115,22,0.4)" : "rgba(34,197,94,0.3)"};
+                ">${esCritico ? "🔥 Último slot" : "✅ Disponible"}</span>`;
 
                 if (slotSeleccionado) {
                     const fechaSel = formatDate(slotSeleccionado);
@@ -491,7 +491,7 @@ if (calendarEl) {
             start: startDate,
             end: finDate,
             classNames: ["cita-preview"],
-            backgroundColor: "#6366f1",
+            backgroundColor: "#6b3a1f",
             borderColor: "transparent",
         });
         actualizarBadgesSeleccion(startDate);
