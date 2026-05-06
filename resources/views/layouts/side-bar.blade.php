@@ -20,16 +20,6 @@
                 <img src="{{ asset('turnos-pro.png') }}" alt="{{ config('app.name') }}" class="h-14 w-auto object-contain"
                     style="filter: drop-shadow(0 2px 8px rgba(102,58,0,0.18));" />
             </div>
-
-            <!-- Texto -->
-            <div class="flex flex-col items-center leading-tight">
-                <span class="font-bold tracking-tight text-sm">
-                    Turnos<span style="color: #a0714f;">PRO</span>
-                </span>
-                <span class="text-[10px] font-medium uppercase" style="color: #b8a89a; letter-spacing: 0.10em;">
-                    Gestión de Turnos
-                </span>
-            </div>
         </div>
 
     </div>
