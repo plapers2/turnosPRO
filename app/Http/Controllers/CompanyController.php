@@ -80,12 +80,14 @@ class CompanyController extends Controller
 
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('logos', 'public');
+        } else {
+            unset($data['logo']);
         }
 
         $company->update($data);
 
         return Redirect::route('companies.index')
-            ->with('success', 'Company updated successfully');
+            ->with('success', 'Empresa actualizada correctamente.');
     }
 
     public function destroy($id): RedirectResponse

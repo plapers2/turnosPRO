@@ -28,7 +28,7 @@
                 </x-form.field>
 
                 <x-form.field label="Teléfono" for="phone">
-                    <x-form.input id="phone" name="phone" type="text"
+                    <x-form.input id="phone" name="phone" type="number"
                         :value="old('phone', $company?->phone)"
                         placeholder="Ej. 3001234567"
                         class="focus:ring-primary/10 focus:border-primary/40" />
