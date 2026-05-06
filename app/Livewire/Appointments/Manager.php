@@ -103,8 +103,12 @@ class Manager extends Component
                 $this->search,
                 fn($q) => $q->where(
                     fn($q) => $q
-                        ->whereHas('customer', fn($c) => $c->where('name', 'like', "%{$this->search}%"))
-                        ->orWhereHas('user',   fn($u) => $u->where('name', 'like', "%{$this->search}%"))
+                        // Nombre del cliente → customers.user_id → users.name
+                        ->whereHas('customer.user', fn($u) => $u->where('users.name', 'like', "%{$this->search}%"))
+                        // Nombre del profesional → appointments.user_id → users.name
+                        ->orWhereHas('user', fn($u) => $u->where('users.name', 'like', "%{$this->search}%"))
+                        // Nombre del servicio → services.name
+                        ->orWhereHas('services', fn($s) => $s->where('services.name', 'like', "%{$this->search}%"))
                 )
             )
             // El filtro por profesional solo aplica si el usuario es admin
@@ -436,20 +440,30 @@ class Manager extends Component
     #[Computed]
     public function appointments()
     {
+        $now = now();
+
         return $this->baseQuery()
-            ->orderByDesc('start_time')
+            ->orderByRaw("
+            CASE
+                WHEN start_time >= ? THEN 0
+                ELSE 1
+            END,
+            CASE
+                WHEN start_time >= ? THEN start_time
+                ELSE NULL
+            END ASC,
+            CASE
+                WHEN start_time < ? THEN start_time
+                ELSE NULL
+            END DESC
+        ", [$now, $now, $now])
             ->paginate(15);
     }
 
     #[Computed]
     public function stats(): array
     {
-        $counts = $this->scopeCompany(Appointment::query())
-            // Empleado → solo sus stats como profesional
-            ->when(
-                ! $this->isAdmin,
-                fn($q) => $q->where('user_id', auth()->id())
-            )
+        $counts = $this->baseQuery()
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
