@@ -56,7 +56,7 @@ class UserController extends Controller
             'email'    => 'required|string|max:255|unique:users,email',
             'telefono' => 'required|string|min:8|max:20',
             'password' => ['required', Password::min(8), 'confirmed'],
-            'archivo'  => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'archivo'  => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
             'role'     => 'required|exists:roles,name',
             'services'     => 'required|array',
             'services.*'   => 'exists:services,id',
