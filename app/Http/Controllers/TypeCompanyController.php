@@ -78,12 +78,14 @@ class TypeCompanyController extends Controller
 
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('type-companies', 'public');
+        } else {
+            unset($data['logo']);
         }
 
         $typeCompany->update($data);
 
         return Redirect::route('type-companies.index')
-            ->with('success', 'TypeCompany updated successfully');
+            ->with('success', 'Tipo de empresa actualizado correctamente.');
     }
 
     public function destroy($id): RedirectResponse
