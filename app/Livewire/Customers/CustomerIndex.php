@@ -12,8 +12,20 @@ class CustomerIndex extends Component
     use WithPagination;
 
     public string $search = '';
+    public string $servicio = '';
+    public string $frecuente = '';
+
+
 
     public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingServicio(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFrecuente(): void
     {
         $this->resetPage();
     }
@@ -31,6 +43,19 @@ class CustomerIndex extends Component
                     ->orWhere('email', 'like', "%{$this->search}%")
                     ->orWhere('phone', 'like', "%{$this->search}%")
             ))
+            ->when($this->servicio, function ($q) use ($companyId) {
+                $q->whereHas('appointments', function ($inner) use ($companyId) {
+                    $inner->where('company_id', $companyId)
+                        ->where('status', 'completed')
+                        ->whereHas(
+                            'services',
+                            fn($s) =>
+                            $s->where('name', 'like', "%{$this->servicio}%")
+                        );
+                });
+            })
+            ->when($this->frecuente === 'si', fn($q) => $q->having('total_visitas', '>=', 5))
+            ->when($this->frecuente === 'no', fn($q) => $q->having('total_visitas', '<', 5))
             ->withCount([
                 'appointments as total_visitas' => fn($q) => $q
                     ->where('status', 'completed')
@@ -59,7 +84,10 @@ class CustomerIndex extends Component
                 ->orderByDesc('total')
                 ->first();
         });
+        $servicios = \App\Models\Service::where('company_id', $companyId)
+            ->orderBy('name')
+            ->pluck('name', 'id');
 
-        return view('livewire.customers.customer-index', compact('customers'));
+        return view('livewire.customers.customer-index', compact('customers', 'servicios'));
     }
 }

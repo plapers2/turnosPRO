@@ -7,12 +7,32 @@
     {{-- BÚSQUEDA --}}
     <div class="px-8 py-4">
         <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5 shadow-sm">
-            <div class="relative">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant/50">search</span>
-                <input wire:model.live.debounce.300ms="search" type="text"
-                    placeholder="Nombre, correo o teléfono..."
-                    class="w-full pl-9 pr-4 py-2 rounded-lg border border-outline-variant/30 bg-surface text-sm text-on-surface
+            <div class="flex flex-col sm:flex-row gap-3">
+
+                <div class="relative flex-1">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant/50">search</span>
+                    <input wire:model.live.debounce.300ms="search" type="text"
+                        placeholder="Nombre, correo o teléfono..."
+                        class="w-full pl-9 pr-4 py-2 rounded-lg border border-outline-variant/30 bg-surface text-sm text-on-surface
                         focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition" />
+                </div>
+
+                <select wire:model.live="servicio"
+                    class="px-4 py-2 rounded-lg border border-outline-variant/30 bg-surface text-sm text-on-surface
+                    focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                    <option value="">Todos los servicios</option>
+                    @foreach ($servicios as $id => $nombre)
+                    <option value="{{ $nombre }}">{{ $nombre }}</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="frecuente"
+                    class="px-4 py-2 rounded-lg border border-outline-variant/30 bg-surface text-sm text-on-surface
+        focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                    <option value="">Todos los clientes</option>
+                    <option value="si">Frecuentes</option>
+                    <option value="no">Sin frecuencia</option>
+                </select>
+
             </div>
         </div>
     </div>
@@ -31,7 +51,7 @@
 
             {{-- DESKTOP --}}
             <div wire:loading.class="opacity-50 pointer-events-none transition-opacity duration-200"
-                wire:target="search" class="hidden md:block overflow-x-auto">
+                wire:target="search, servicio, frecuente" class="hidden md:block overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead class="bg-surface/50 text-on-surface-variant">
                         <tr>
