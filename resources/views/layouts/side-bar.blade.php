@@ -17,7 +17,7 @@
 
             <!-- Logo -->
             <div class="relative flex items-center justify-center transition-all duration-300 group-hover:scale-105">
-                <img src="{{ asset('turnos-pro.png') }}" alt="{{ config('app.name') }}" class="h-14 w-auto object-contain"
+                <img src="{{ asset('turnos-pro.png') }}" alt="{{ config('app.name') }}" class="h-32 w-auto object-contain"
                     style="filter: drop-shadow(0 2px 8px rgba(102,58,0,0.18));" />
             </div>
         </div>
