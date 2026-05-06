@@ -2,12 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
-use Faker\Factory as Faker;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -17,71 +15,91 @@ class UserSeeder extends Seeder
 
     public function run(): void
     {
-        // User 1
-        DB::table('users')->insert([
-            'name' => "Administrador",
-            'email' => "admin@gmail.com",
-            'password' => Hash::make("12345"),
-            'phone' => "123456789",
-        ]);
-        // User 2
-        DB::table('users')->insert([
-            'name' => "Empleado",
-            'email' => "empleado@gmail.com",
-            'password' => Hash::make("12345"),
-            'phone' => "987654321",
-        ]);
-        // User 3
-        DB::table('users')->insert([
-            'name' => "Cliente",
-            'email' => "cliente@gmail.com",
-            'password' => Hash::make("12345"),
-            'phone' => "0192837465",
-        ]);
-        $users = [
-            "Gaelan",
-            "Orelle",
-            "Veronika",
-            "Gelya",
-            "Xymenes",
-            "Sande",
-            "Clarey",
-            "Ami",
-            "Caitlin",
-            "Barbi",
-            "Stuart",
-            "Renata",
-            "Karine",
-            "Lynde",
-            "Cherice",
-            "Gerda",
-            "Leann",
-        ];
-        // Users 3 - cantidad de arreglo (en este caso 17 + 3 usuarios base, por ende 20 usuarios en total)
-        $faker = Faker::create();
-        foreach ($users as $user) {
-            DB::table('users')->insert([
-                'name' => $user,
-                'email' => $faker->email(),
-                'password' => Hash::make('password123'),
-                'phone' => $faker->phoneNumber(),
-            ]);
-        }
+        // Limpiar imágenes anteriores
+        Storage::disk('public')->deleteDirectory('users');
+        Storage::disk('public')->makeDirectory('users');
 
-        // Asignacion de roles
-        $admin = User::find(1);
+        // Usuarios base con firstOrCreate para evitar duplicados
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name'     => 'Administrador',
+                'password' => Hash::make('12345'),
+                'phone'    => '123456789',
+                'image'    => $this->downloadImage(),
+            ]
+        );
+
+        $empleado = User::firstOrCreate(
+            ['email' => 'empleado@gmail.com'],
+            [
+                'name'     => 'Empleado',
+                'password' => Hash::make('12345'),
+                'phone'    => '987654321',
+                'image'    => $this->downloadImage(),
+            ]
+        );
+
+        $cliente = User::firstOrCreate(
+            ['email' => 'cliente@gmail.com'],
+            [
+                'name'     => 'Cliente',
+                'password' => Hash::make('12345'),
+                'phone'    => '0192837465',
+                'image'    => $this->downloadImage(),
+            ]
+        );
+
+        // Asignar roles a usuarios base
         $admin->assignRole('admin');
+        $empleado->assignRole('empleado');
+        $cliente->assignRole('cliente');
 
-        $admin = User::find(2);
-        $admin->assignRole('empleado');
+        // Usuarios adicionales con factory
+        $names = [
+            'Gaelan',
+            'Orelle',
+            'Veronika',
+            'Gelya',
+            'Xymenes',
+            'Sande',
+            'Clarey',
+            'Ami',
+            'Caitlin',
+            'Barbi',
+            'Stuart',
+            'Renata',
+            'Karine',
+            'Lynde',
+            'Cherice',
+            'Gerda',
+            'Leann',
+        ];
 
-        $admin = User::find(3);
-        $admin->assignRole('cliente');
-
-        // Si se cambia la cantidad de usuarios en total se cambia el limite del ciclo, OJO!
-        for ($i = 4; $i < 20; $i++) {
-            $empleado = User::find($i);
-            $empleado->assignRole('empleado');
+        $faker = \Faker\Factory::create();
+        foreach ($names as $name) {
+            $user = User::firstOrCreate(
+                ['email' => $faker->unique()->safeEmail()],
+                [
+                    'name'     => $name,
+                    'password' => Hash::make('password123'),
+                    'phone'    => $faker->phoneNumber(),
+                    'image'    => $this->downloadImage(),
+                ]
+            );
+            $user->assignRole('empleado');
         }
+    }
+
+    private function downloadImage(): ?string
+    {
+        $localImages = glob(database_path('seeders/images/users/*.jpg'));
+        if (!empty($localImages)) {
+            $source = $localImages[array_rand($localImages)];
+            $filename = 'users/' . uniqid() . '.jpg';
+            Storage::disk('public')->put($filename, file_get_contents($source));
+            return $filename;
+        }
+        return null;
     }
 }
