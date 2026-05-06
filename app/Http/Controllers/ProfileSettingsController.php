@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileSettingsController extends Controller
 {
@@ -15,21 +15,9 @@ class ProfileSettingsController extends Controller
         return view('profile.settings', compact('cliente'));
     }
 
-    public function update(Request $request)
+    public function update(UpdateProfileRequest $request)
     {
         $cliente = auth()->user();
-
-        $rules = [
-            'name'  => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
-        ];
-
-        if ($request->filled('new_password')) {
-            $rules['current_password']      = ['required'];
-            $rules['new_password']          = ['required', Password::min(8), 'confirmed'];
-        }
-
-        $request->validate($rules);
 
         if ($request->filled('new_password')) {
             if (!Hash::check($request->current_password, $cliente->password)) {
@@ -38,10 +26,18 @@ class ProfileSettingsController extends Controller
             $cliente->password = Hash::make($request->new_password);
         }
 
+        if ($request->hasFile('image')) {
+            if ($cliente->image) {
+                Storage::disk('public')->delete($cliente->image);
+            }
+            $cliente->image = $request->file('image')->store('users', 'public');
+        }
+
         $cliente->name  = $request->name;
         $cliente->phone = $request->phone;
         $cliente->save();
 
-        return redirect(session('profile_return_url', route('dashboard')))->with('success', 'Perfil actualizado correctamente.');
+        return redirect(session('profile_return_url', route('dashboard')))
+            ->with('success', 'Perfil actualizado correctamente.');
     }
 }
