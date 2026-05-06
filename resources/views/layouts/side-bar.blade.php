@@ -7,11 +7,32 @@
     style="background: linear-gradient(180deg, #f6f3ee 0%, #f1ede8 100%); border-right: 1px solid #d6c3b3;">
 
     <!-- Brand Header -->
-    <div class="flex items-center justify-center px-4 pt-2 pb-1 shrink-0" style="border-bottom: 1px solid #e8e0d8;">
-        <img src="{{ asset('turnos-pro.png') }}" alt="{{ config('app.name') }}" class="h-24 w-auto object-contain"
-            style="filter: drop-shadow(0 2px 8px rgba(102,58,0,0.15));" />
-    </div>
+    <div class="flex flex-col items-center justify-center px-4 pt-3 pb-2 shrink-0">
 
+        <div class="relative group flex flex-col items-center gap-1">
+            <!-- Halo -->
+            <div class="absolute -inset-1 rounded-xl opacity-0 blur-md transition-all duration-500 group-hover:opacity-20"
+                style="background: radial-gradient(ellipse, #a0714f 0%, transparent 70%);">
+            </div>
+
+            <!-- Logo -->
+            <div class="relative flex items-center justify-center transition-all duration-300 group-hover:scale-105">
+                <img src="{{ asset('turnos-pro.png') }}" alt="{{ config('app.name') }}" class="h-14 w-auto object-contain"
+                    style="filter: drop-shadow(0 2px 8px rgba(102,58,0,0.18));" />
+            </div>
+
+            <!-- Texto -->
+            <div class="flex flex-col items-center leading-tight">
+                <span class="font-bold tracking-tight text-sm">
+                    Turnos<span style="color: #a0714f;">PRO</span>
+                </span>
+                <span class="text-[10px] font-medium uppercase" style="color: #b8a89a; letter-spacing: 0.10em;">
+                    Gestión de Turnos
+                </span>
+            </div>
+        </div>
+
+    </div>
     <!-- Navigation Links -->
     <nav
         class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5

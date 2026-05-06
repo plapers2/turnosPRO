@@ -1,118 +1,139 @@
 <!-- TopNavBar Component -->
-<div class="sticky top-0 z-40 w-full px-6 py-[1.86rem] flex items-center justify-between"
+<div class="sticky top-0 z-40 w-full px-6 py-3 flex items-center justify-between"
     style="background: linear-gradient(90deg, #f6f3ee 0%, #f1ede8 100%);
             border-bottom: 1px solid #d6c3b3;">
 
     <!-- Botón menú móvil -->
-    <button id="menuBtn" class="md:hidden mr-3 p-2 rounded-xl transition-colors" style="color: #524438;"
+    <button id="menuBtn" class="md:hidden p-2 rounded-xl transition-colors" style="color: #524438;"
         onmouseenter="this.style.background='#ebe8e2'" onmouseleave="this.style.background='transparent'">
         <span class="material-symbols-outlined">menu</span>
     </button>
 
-    <!-- Buscador -->
-    <div class="flex-1 flex items-center">
-        <div class="relative w-full max-w-sm">
-            <span
-                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] pointer-events-none"
-                style="color: #847467;">search</span>
-            <input class="w-full pl-10 pr-4 py-2 text-sm rounded-full outline-none transition-all"
-                style="background: #ffffff; border: 1px solid #d6c3b3; color: #1c1c19;" placeholder="Buscar..."
-                type="text"
-                onfocus="this.style.borderColor='#663a00'; this.style.boxShadow='0 0 0 3px rgba(102,58,0,0.10)'"
-                onblur="this.style.borderColor='#d6c3b3'; this.style.boxShadow='none'" />
-        </div>
-    </div>
+    <!-- Breadcrumb -->
+    <nav class="hidden md:flex items-center gap-1.5 text-sm">
+        @php
+            $translations = [
+                'dashboard' => 'Dashboard',
+                'appointment-manager' => 'Citas',
+                'appointment' => 'Citas',
+                'appointments' => 'Citas',
+                'users' => 'Profesionales',
+                'services' => 'Servicios',
+                'customers' => 'Clientes',
+                'companies' => 'Empresa',
+                'type-companies' => 'Tipos de Empresa',
+                'opening-hours' => 'Horarios de atención',
+                'notification-logs' => 'Notificaciones',
+                'profile' => 'Perfil',
+            ];
+
+            $combinedTranslations = [
+                'appointment/index' => 'Reservar Cita',
+                'appointment/history' => 'Historial de Citas',
+                'appointments/export' => 'Exportar Citas',
+                'profile/settings' => 'Configuración de Perfil',
+                // Agrega aquí tus rutas de dos segmentos
+            ];
+
+            $rawSegments = collect(request()->segments())->filter(fn($s) => !is_numeric($s));
+            $combined = $rawSegments->values()->take(2)->implode('/');
+
+            $segments = isset($combinedTranslations[$combined])
+                ? collect([$combinedTranslations[$combined]])
+                : $rawSegments->map(fn($s) => $translations[$s] ?? ucfirst(str_replace('-', ' ', $s)));
+        @endphp
+
+        <a href="{{ route('dashboard') }}" style="color: #a0714f;">
+            <span class="material-symbols-outlined text-[16px]">home</span>
+        </a>
+
+        @foreach ($segments as $segment)
+            <span style="color: #d6c3b3;">/</span>
+            @if ($loop->last)
+                <span class="font-semibold" style="color: #1c1c19;">{{ $segment }}</span>
+            @else
+                <span style="color: #847467;">{{ $segment }}</span>
+            @endif
+        @endforeach
+    </nav>
 
     <!-- Acciones derecha -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2">
 
         @php
-        $nameParts = explode(' ', trim(auth()->user()->name));
-        $initials = strtoupper(substr($nameParts[0], 0, 1));
-        if (count($nameParts) > 1) {
-        $initials .= strtoupper(substr(end($nameParts), 0, 1));
-        }
-        $userRole = auth()->user()->getRoleNames()->first() ?? 'Usuario';
-        $companyId = session('active_company_id');
-        $activeCompany = $companyId ? \App\Models\Company::find($companyId) : null;
+            $nameParts = explode(' ', trim(auth()->user()->name));
+            $initials = strtoupper(substr($nameParts[0], 0, 1));
+            if (count($nameParts) > 1) {
+                $initials .= strtoupper(substr(end($nameParts), 0, 1));
+            }
+            $userRole = auth()->user()->getRoleNames()->first() ?? 'Usuario';
+            $companyId = session('active_company_id');
+            $activeCompany = $companyId ? \App\Models\Company::find($companyId) : null;
         @endphp
 
         <!-- Empresa activa -->
         @if ($activeCompany)
-        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
-            style="background: #ffffff; border: 1px solid #d6c3b3;">
+            <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
+                style="background: #ffffff; border: 1px solid #d6c3b3;">
 
-            <!-- Logo o ícono de empresa -->
-            @if ($activeCompany->logo)
-            <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
-                class="w-5 h-5 rounded object-cover" />
-            @else
-            <div class="w-5 h-5 rounded flex items-center justify-center"
-                style="background: linear-gradient(135deg, #854f0b, #663a00);">
-                <span class="material-symbols-outlined text-[13px]" style="color: #ffdcbe;">business</span>
-            </div>
-            @endif
+                @if ($activeCompany->logo)
+                    <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
+                        class="w-5 h-5 rounded object-cover" />
+                @else
+                    <div class="w-5 h-5 rounded flex items-center justify-center"
+                        style="background: linear-gradient(135deg, #854f0b, #663a00);">
+                        <span class="material-symbols-outlined text-[13px]" style="color: #ffdcbe;">business</span>
+                    </div>
+                @endif
 
-            <div class="flex flex-col leading-tight">
-                <span class="text-[10px] font-medium uppercase tracking-widest" style="color: #847467;">
-                    Empresa activa
-                </span>
-                <span class="text-xs font-semibold truncate max-w-[120px]" style="color: #1c1c19;">
-                    {{ $activeCompany->name }}
-                </span>
+                <div class="flex flex-col leading-tight">
+                    <span class="text-[10px] font-medium uppercase tracking-widest" style="color: #847467;">
+                        Empresa activa
+                    </span>
+                    <span class="text-xs font-semibold truncate max-w-[120px]" style="color: #1c1c19;">
+                        {{ $activeCompany->name }}
+                    </span>
+                </div>
             </div>
-        </div>
-        <!-- Divisor -->
-        <div class="hidden sm:block w-px h-6" style="background: #d6c3b3;"></div>
+
+            <!-- Divisor -->
+            <div class="hidden sm:block w-px h-6 mx-1" style="background: #d6c3b3;"></div>
         @endif
 
-
-
-        <!-- Notificaciones -->
-        <button class="relative p-2 rounded-full transition-colors" style="color: #524438;"
-            onmouseenter="this.style.background='#ebe8e2'; this.style.color='#663a00'"
-            onmouseleave="this.style.background='transparent'; this.style.color='#524438'">
-            <span class="material-symbols-outlined">notifications</span>
-            <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full border-2"
-                style="background: #ba1a1a; border-color: #f6f3ee;"></span>
-        </button>
-
-        <!-- Divisor -->
-        <div class="w-px h-6" style="background: #d6c3b3;"></div>
-
         <!-- Avatar + Dropdown -->
-        <div class="flex items-center gap-2.5 px-2 py-1.5 rounded-xl cursor-pointer group relative transition-colors"
-            x-data="{ open: false }" onmouseenter="this.style.background='#ebe8e2'"
-            onmouseleave="this.style.background='transparent'">
+        <div class="relative" x-data="{ open: false }">
+            <div class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl cursor-pointer transition-all duration-200"
+                @click="open = !open" onmouseenter="this.style.background='#ebe8e2'"
+                onmouseleave="this.style.background='transparent'">
 
-            <!-- Avatar principal -->
-            @if (auth()->user()->image)
-            <img alt="Avatar" class="w-9 h-9 rounded-full object-cover transition-transform group-hover:scale-105"
-                style="box-shadow: 0 0 0 2px #d6c3b3;" src="{{ asset('storage/' . auth()->user()->image) }}"
-                @click="open = !open" />
-            @else
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold tracking-wide select-none transition-transform group-hover:scale-105"
-                style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
-                            color: #ffdcbe;
-                            box-shadow: 0 0 0 2px #d6c3b3, 0 2px 8px rgba(102,58,0,0.25);
-                            flex-shrink: 0;"
-                @click="open = !open">
-                {{ $initials }}
-            </div>
-            @endif
+                <!-- Avatar -->
+                @if (auth()->user()->image)
+                    <img alt="Avatar" class="w-8 h-8 rounded-full object-cover" style="box-shadow: 0 0 0 2px #d6c3b3;"
+                        src="{{ asset('storage/' . auth()->user()->image) }}" />
+                @else
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold tracking-wide select-none"
+                        style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
+                               color: #ffdcbe;
+                               box-shadow: 0 0 0 2px #d6c3b3, 0 2px 8px rgba(102,58,0,0.25);
+                               flex-shrink: 0;">
+                        {{ $initials }}
+                    </div>
+                @endif
 
-            <!-- Nombre + Rol -->
-            <div class="flex flex-col leading-tight" @click="open = !open">
-                <span class="text-sm font-semibold" style="color: #1c1c19;">
-                    {{ auth()->user()->name }}
-                </span>
-                <span class="text-xs flex items-center gap-1">
-                    <span class="inline-flex items-center px-1.5 rounded-full text-[10px] font-semibold tracking-wide"
-                        style="background: #ffdcbe; color: #663a00; line-height: 1.6;">
-                        {{ ucfirst($userRole) }}
+                <!-- Nombre + Rol -->
+                <div class="hidden sm:flex flex-col leading-tight">
+                    <span class="text-sm font-semibold" style="color: #1c1c19;">
+                        {{ auth()->user()->name }}
                     </span>
-                    <span class="material-symbols-outlined text-[13px]" style="color: #847467;">expand_more</span>
-                </span>
+                    <div class="flex items-center gap-1">
+                        <span
+                            class="inline-flex items-center px-1.5 rounded-full text-[10px] font-semibold tracking-wide"
+                            style="background: #ffdcbe; color: #663a00; line-height: 1.6;">
+                            {{ ucfirst($userRole) }}
+                        </span>
+                        <span class="material-symbols-outlined text-[13px]" style="color: #847467;">expand_more</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Dropdown -->
@@ -122,26 +143,26 @@
                 x-transition:leave="transition ease-in duration-100"
                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                 x-transition:leave-end="opacity-0 translate-y-1 scale-95"
-                class="absolute right-0 top-14 w-64 rounded-2xl overflow-hidden z-50"
+                class="absolute right-0 top-12 w-64 rounded-2xl overflow-hidden z-50"
                 style="background: #ffffff;
-                        border: 1px solid #d6c3b3;
-                        box-shadow: 0 8px 24px rgba(102,58,0,0.10), 0 2px 6px rgba(102,58,0,0.06);">
+                       border: 1px solid #d6c3b3;
+                       box-shadow: 0 8px 24px rgba(102,58,0,0.10), 0 2px 6px rgba(102,58,0,0.06);">
 
-                <!-- Header dropdown: usuario -->
+                <!-- Header dropdown -->
                 <div class="px-4 py-3" style="border-bottom: 1px solid #ebe8e2;">
                     <div class="flex items-center gap-3">
                         @if (auth()->user()->image)
-                        <img alt="Avatar" class="w-10 h-10 rounded-full object-cover"
-                            style="box-shadow: 0 0 0 2px #d6c3b3;"
-                            src="{{ asset('storage/' . auth()->user()->image) }}" />
+                            <img alt="Avatar" class="w-10 h-10 rounded-full object-cover"
+                                style="box-shadow: 0 0 0 2px #d6c3b3;"
+                                src="{{ asset('storage/' . auth()->user()->image) }}" />
                         @else
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold select-none"
-                            style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
-                                        color: #ffdcbe;
-                                        box-shadow: 0 0 0 2px #d6c3b3, 0 2px 8px rgba(102,58,0,0.20);
-                                        flex-shrink: 0;">
-                            {{ $initials }}
-                        </div>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold select-none"
+                                style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
+                                       color: #ffdcbe;
+                                       box-shadow: 0 0 0 2px #d6c3b3, 0 2px 8px rgba(102,58,0,0.20);
+                                       flex-shrink: 0;">
+                                {{ $initials }}
+                            </div>
                         @endif
                         <div class="flex flex-col min-w-0 gap-0.5">
                             <p class="text-sm font-semibold truncate" style="color: #1c1c19;">
@@ -162,34 +183,34 @@
 
                 <!-- Empresa activa en dropdown -->
                 @if ($activeCompany)
-                <div class="px-4 py-2.5 flex items-center gap-3"
-                    style="background: #faf7f2; border-bottom: 1px solid #ebe8e2;">
-                    @if ($activeCompany->logo)
-                    <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
-                        class="w-8 h-8 rounded-lg object-cover"
-                        style="box-shadow: 0 1px 4px rgba(102,58,0,0.15);" />
-                    @else
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                        style="background: linear-gradient(135deg, #854f0b, #663a00);
-                                        box-shadow: 0 1px 4px rgba(102,58,0,0.20);">
-                        <span class="material-symbols-outlined text-[16px]"
-                            style="color: #ffdcbe;">business</span>
-                    </div>
-                    @endif
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-[10px] font-semibold uppercase tracking-widest" style="color: #847467;">
-                            Empresa activa
-                        </span>
-                        <span class="text-sm font-semibold truncate" style="color: #1c1c19;">
-                            {{ $activeCompany->name }}
-                        </span>
-                        @if ($activeCompany->typeCompany)
-                        <span class="text-[10px]" style="color: #847467;">
-                            {{ $activeCompany->typeCompany->name }}
-                        </span>
+                    <div class="px-4 py-2.5 flex items-center gap-3"
+                        style="background: #faf7f2; border-bottom: 1px solid #ebe8e2;">
+                        @if ($activeCompany->logo)
+                            <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
+                                class="w-8 h-8 rounded-lg object-cover"
+                                style="box-shadow: 0 1px 4px rgba(102,58,0,0.15);" />
+                        @else
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                                style="background: linear-gradient(135deg, #854f0b, #663a00);
+                                   box-shadow: 0 1px 4px rgba(102,58,0,0.20);">
+                                <span class="material-symbols-outlined text-[16px]"
+                                    style="color: #ffdcbe;">business</span>
+                            </div>
                         @endif
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-[10px] font-semibold uppercase tracking-widest" style="color: #847467;">
+                                Empresa activa
+                            </span>
+                            <span class="text-sm font-semibold truncate" style="color: #1c1c19;">
+                                {{ $activeCompany->name }}
+                            </span>
+                            @if ($activeCompany->typeCompany)
+                                <span class="text-[10px]" style="color: #847467;">
+                                    {{ $activeCompany->typeCompany->name }}
+                                </span>
+                            @endif
+                        </div>
                     </div>
-                </div>
                 @endif
 
                 <!-- Editar perfil -->
@@ -199,7 +220,6 @@
                     <span class="material-symbols-outlined text-[17px]" style="color: #847467;">manage_accounts</span>
                     Editar perfil
                 </a>
-
 
                 <!-- Cerrar sesión -->
                 <form method="POST" action="{{ route('logout') }}">
