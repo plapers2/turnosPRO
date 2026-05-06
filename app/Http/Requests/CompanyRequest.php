@@ -23,7 +23,7 @@ class CompanyRequest extends FormRequest
     {
         return [
             'name'            => 'required|string',
-            'logo'            => ($this->isMethod('POST') ? 'required' : 'nullable') . '|image|mimes:png,jpg,jpeg,gif|max:10240',
+            'logo'            => ($this->isMethod('POST') ? 'required' : 'nullable') . '|image|mimes:png,jpg,jpeg|max:10240',
             'email'           => 'required|string',
             'address'         => 'required|string',
             'phone'           => 'required|string|min:7|max:20|regex:/^\+?[\d\s\-\(\)]+$/',
@@ -36,6 +36,10 @@ class CompanyRequest extends FormRequest
             'phone.regex' => 'El teléfono solo puede contener números, espacios, +, -, ( y ).',
             'phone.min'   => 'El teléfono debe tener al menos 7 dígitos.',
             'phone.max'   => 'El teléfono no puede tener más de 15 dígitos.',
+            'logo.required' => 'El logo es obligatorio al crear un tipo de empresa.',
+            'logo.image'    => 'El archivo debe ser una imagen.',
+            'logo.mimes'    => 'El logo debe ser PNG, JPG, JPEG.',
+            'logo.max'      => 'El logo no puede superar los 10MB.',
         ];
     }
 }
