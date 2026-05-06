@@ -142,7 +142,7 @@
                         <div class="flex items-center gap-3 pb-4 border-b border-outline-variant/20">
                             <div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-primary/10 flex items-center justify-center">
                                 @if ($company->logo)
-                                <img src="{{ $company->logo }}" alt="{{ $company->name }}" class="w-full h-full object-cover" />
+                                <img src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($company->name) }}" alt="{{ $company->name }}" class="w-full h-full object-cover" />
                                 @else
                                 <span class="text-sm font-bold text-primary/50">{{ strtoupper(substr($company->name, 0, 2)) }}</span>
                                 @endif

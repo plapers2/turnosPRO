@@ -647,7 +647,7 @@ if (calendarEl) {
                 <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-primary/10 flex items-center justify-center border border-outline-variant/20">
                     ${
                         prof.image
-                            ? `<img src="${prof.image}" alt="${prof.name}" class="w-full h-full object-cover" />`
+                            ? `<img src="/storage/${prof.image}" alt="${prof.name}" class="w-full h-full object-cover" />`
                             : `<span class="text-sm font-bold text-primary/50">${prof.name.substring(0, 2).toUpperCase()}</span>`
                     }
                 </div>
