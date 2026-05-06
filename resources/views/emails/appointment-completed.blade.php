@@ -16,7 +16,7 @@
 
                     <!-- HEADER -->
                     <tr>
-                        <td style="background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+                        <td style="background:linear-gradient(135deg,#92400e,#b45309);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
                             <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;margin:0 auto 16px;text-align:center;line-height:56px;">
                                 <span style="font-size:28px;">✅</span>
                             </div>
@@ -31,7 +31,7 @@
 
                             <!-- Badge -->
                             <div style="text-align:center;margin-bottom:24px;">
-                                <span style="display:inline-block;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #93c5fd;">
+                                <span style="display:inline-block;background:#dcfce7;color:#166534;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #86efac;">
                                     ✔ CITA COMPLETADA
                                 </span>
                             </div>
@@ -48,7 +48,7 @@
 
                             <!-- Card detalles -->
                             <table width="100%" cellpadding="0" cellspacing="0"
-                                style="background:#eff6ff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:28px;">
+                                style="background:#fdf8f0;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:28px;">
 
                                 <tr>
                                     <td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;">
@@ -68,7 +68,7 @@
                                     <td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;">
                                         <table width="100%">
                                             <tr>
-                                                <td style="width:32px;">✂️</td>
+                                                <td style="width:32px;">🛎️</td>
                                                 <td>
                                                     <p style="margin:0;font-size:11px;color:#9ca3af;">SERVICIO(S)</p>
                                                     <p style="margin:2px 0 0;font-size:14px;font-weight:600;">{{ $appointment->services->pluck('name')->join(', ') }}</p>
@@ -119,9 +119,9 @@
 
                     <!-- FOOTER -->
                     <tr>
-                        <td style="background:#eff6ff;border-radius:0 0 16px 16px;padding:20px;text-align:center;">
-                            <p style="margin:0;font-size:13px;font-weight:600;color:#1e40af;">TurnosPRO</p>
-                            <p style="margin:0;font-size:12px;color:#9ca3af;">© {{ date('Y') }} TurnosPRO</p>
+                        <td style="background:#fdf8f0;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">TurnosPRO</p>
+                            <p style="margin:0;font-size:12px;color:#9ca3af;">© {{ date('Y') }} TurnosPRO · Todos los derechos reservados</p>
                         </td>
                     </tr>
 

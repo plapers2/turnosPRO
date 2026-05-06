@@ -75,7 +75,7 @@
                                         <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <td style="width:32px;vertical-align:middle;">
-                                                    <span style="font-size:18px;">✂️</span>
+                                                    <span style="font-size:18px;">🛎️</span>
                                                 </td>
                                                 <td style="vertical-align:middle;padding-left:12px;">
                                                     <p style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Servicio(s)</p>
