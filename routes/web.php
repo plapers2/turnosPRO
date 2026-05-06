@@ -73,7 +73,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Clientes
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
-    Route::get('/customers/historial', [CustomerController::class, 'history'])->name('customers.history');
+    Route::get('/customers/index', [CustomerController::class, 'history'])->name('customers.history');
 
     // Exportar citas PDF
     Route::get('/appointments/export', [BookingController::class, 'exportView'])->name('appointments.export');

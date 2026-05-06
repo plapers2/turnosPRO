@@ -20,7 +20,8 @@ class CustomerController extends Controller
 
         $customers = Customer::where('company_id', $companyId)
             ->whereHas('appointments', fn($q) => $q->where('company_id', $companyId))
-            ->when($search, fn($q) => $q->where(
+            ->when($search, fn($q) => $q->whereHas(
+                'user',
                 fn($inner) =>
                 $inner->where('name',  'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%")
@@ -32,6 +33,7 @@ class CustomerController extends Controller
                     ->where('company_id', $companyId),
             ])
             ->with([
+                'user',
                 'appointments' => fn($q) => $q
                     ->where('company_id', $companyId)
                     ->where('status', 'completed')

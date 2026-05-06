@@ -7,33 +7,33 @@
         <div class="px-8 pb-20">
 
             <!-- BÚSQUEDA -->
-            <form method="GET" action="{{ route('customers.history') }}"
-                class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5 mb-6 shadow-sm">
-                <div class="flex gap-3 items-end">
-                    <div class="flex-1 flex flex-col gap-1.5">
-                        <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
-                            Buscar cliente
-                        </label>
-                        <div class="relative">
-                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant/50">search</span>
-                            <input type="text" name="search" value="{{ $search }}"
-                                placeholder="Nombre, correo o teléfono..."
-                                class="w-full pl-9 pr-4 py-2 rounded-lg border border-outline-variant/30 bg-surface text-sm text-on-surface
-                                    focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+            <div x-data="{ search: '{{ $search }}', timer: null, submit() {clearTimeout(this.timer);this.timer = setTimeout(() => this.$refs.form.submit(), 400);}}" class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-5 mb-6 shadow-sm">
+                <form x-ref="form" method="GET" action="{{ route('customers.index') }}">
+                    <div class="flex gap-3 items-end">
+                        <div class="flex-1 flex flex-col gap-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+                                Buscar cliente
+                            </label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant/50">search</span>
+                                <input type="text" name="search"
+                                    x-model="search"
+                                    x-on:input="submit()"
+                                    value="{{ $search }}"
+                                    placeholder="Nombre, correo o teléfono..."
+                                    class="w-full pl-9 pr-4 py-2 rounded-lg border border-outline-variant/30 bg-surface text-sm text-on-surface
+                            focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                            </div>
                         </div>
+                        @if ($search)
+                        <a href="{{ route('customers.index') }}"
+                            class="px-4 py-2 rounded-lg text-sm font-semibold bg-surface-container hover:bg-surface-container-high transition">
+                            Limpiar
+                        </a>
+                        @endif
                     </div>
-                    <button type="submit"
-                        class="px-5 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition shadow-sm">
-                        Buscar
-                    </button>
-                    @if ($search)
-                    <a href="{{ route('customers.historial') }}"
-                        class="px-4 py-2 rounded-lg text-sm font-semibold bg-surface-container hover:bg-surface-container-high transition">
-                        Limpiar
-                    </a>
-                    @endif
-                </div>
-            </form>
+                </form>
+            </div>
 
             <!-- TABLA -->
             <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20
