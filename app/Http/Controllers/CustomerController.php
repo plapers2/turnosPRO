@@ -68,26 +68,4 @@ class CustomerController extends Controller
 
         return view('customer.show', compact('customer'));
     }
-
-    public function editProfile()
-    {
-        $cliente = auth()->user();
-        return view('customer.edit-profile', compact('cliente'));
-    }
-
-    public function updateProfile(UpdateCustomerProfileRequest $request)
-    {
-        $cliente = auth()->user();
-
-        $cliente->name  = $request->name;
-        $cliente->phone = $request->phone;
-
-        if ($request->filled('new_password')) {
-            $cliente->password = Hash::make($request->new_password);
-        }
-
-        $cliente->save();
-
-        return redirect()->route('dashboard')->with('success', 'Perfil actualizado correctamente.');
-    }
 }

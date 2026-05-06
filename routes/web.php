@@ -10,7 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\NotificationLogController;
-
+use App\Http\Controllers\ProfileSettingsController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +40,10 @@ Route::middleware('auth')->group(function () {
     // Empresas
     Route::resource('/companies', CompanyController::class)->except('index')->middleware('role:admin');
     Route::get('/companies', [CompanyController::class, 'index'])->middleware('permission:ver empresas')->name('companies.index');
+
+    // Perfil
+    Route::get('/settings', [ProfileSettingsController::class, 'edit'])->name('profile.settings');
+    Route::put('/settings', [ProfileSettingsController::class, 'update'])->name('profile.settings.update');
 });
 
 // Rutas para clientes
@@ -54,9 +58,6 @@ Route::middleware(['auth', 'role:cliente'])->group(function () {
     Route::get('/booking/profesionales-disponibles', [BookingController::class, 'profesionalesDisponibles'])->name('booking.profesionales');
     Route::get('/mis-citas', [BookingController::class, 'misCitas'])->name('appointment.history');
     Route::get('/booking/validar-combinacion', [BookingController::class, 'validarCombinacion']);
-    // Perfil
-    Route::get('/customer/profile/edit', [CustomerController::class, 'editProfile'])->name('customer.profile.edit');
-    Route::put('/customer/profile/update', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
 });
 
 // Rutas exclusivas de admin

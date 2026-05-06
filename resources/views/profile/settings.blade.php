@@ -28,7 +28,7 @@
 
         <!-- CANVAS -->
         <div class="px-8 pb-12">
-            <form method="POST" action="{{ route('customer.profile.update') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('profile.settings.update') }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
