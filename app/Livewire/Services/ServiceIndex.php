@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Services;
 
+use App\Models\Appointment;
 use App\Models\Service;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -34,7 +35,33 @@ class ServiceIndex extends Component
 
     public function deleteService(int $id): void
     {
-        Service::findOrFail($id)->delete();
+        $companyId = session('active_company_id');
+
+        // Verificar si el servicio tiene citas activas (pending o confirmed)
+        $hasActiveAppointments = Appointment::where('company_id', $companyId)
+            ->whereHas('services', function ($q) use ($id) {
+                $q->where('service_id', $id);
+            })
+            ->where(function ($q) {
+                $q->where('status', Appointment::STATUS_PENDING)
+                    ->orWhere('status', Appointment::STATUS_CONFIRMED);
+            })
+            ->exists();
+
+        if ($hasActiveAppointments) {
+            // Lanzar error o notificar al usuario
+            $this->dispatch(
+                'delete-error',
+                message: 'El servicio actual tiene citas activas.'
+            );
+            return;
+        }
+
+        Service::where('id', $id)
+            ->where('company_id', $companyId) // seguridad: validar que pertenece a la empresa
+            ->firstOrFail()
+            ->delete(); // SoftDelete por el trait
+
         $this->dispatch('service-deleted');
     }
 
