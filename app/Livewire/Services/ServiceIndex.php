@@ -4,6 +4,7 @@ namespace App\Livewire\Services;
 
 use App\Models\Appointment;
 use App\Models\Service;
+use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -56,6 +57,22 @@ class ServiceIndex extends Component
             );
             return;
         }
+
+        // Verificar si el servicio tiene profesionales asociados
+        $hasActiveProfessionals = User::whereHas('companies', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })
+            ->whereHas('services', function ($q) use ($id) {
+                $q->where('service_id', $id);
+            })
+            ->exists();
+
+        if ($hasActiveProfessionals) {
+            // Lanzar error o notificar al usario
+            $this->dispatch('delete-error', message: "El servicio actual tiene profesionales asociados a el");
+            return;
+        }
+
 
         Service::where('id', $id)
             ->where('company_id', $companyId) // seguridad: validar que pertenece a la empresa
