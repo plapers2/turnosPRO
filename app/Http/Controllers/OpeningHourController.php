@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OpeningHour;
-use Illuminate\Http\RedirectResponse;
+use App\Models\OpeningHour;;
+
 use Illuminate\Http\Request;
-use App\Http\Requests\OpeningHourRequest;
 use App\Models\ProfessionalAvailability;
-use Illuminate\Support\Facades\Redirect;
+use Carbon\Carbon;
 use Illuminate\View\View;
 
 class OpeningHourController extends Controller
@@ -130,39 +129,44 @@ class OpeningHourController extends Controller
 
     public function destroy($id)
     {
-        $hour = OpeningHour::findOrFail($id);
         $companyId = session('active_company_id');
 
-        // Seguridad
-        if ($hour->company_id != $companyId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No autorizado'
-            ], 403);
-        }
+        $hour = OpeningHour::where('id', $id)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
 
-        // 1. Buscar disponibilidades afectadas
-        $availabilities = ProfessionalAvailability::where('day_of_week', $hour->day_of_week)
-            ->where(function ($query) use ($hour) {
-                $query->where('start_time', '<', $hour->end_time)
-                    ->where('end_time', '>', $hour->start_time);
-            })
+        \Log::info('Intentando eliminar horario', [
+            'hour_id' => $hour->id,
+            'day_of_week' => $hour->day_of_week,
+            'start_time' => $hour->start_time,
+            'end_time' => $hour->end_time,
+            'company_id' => $companyId,
+        ]);
+
+        $conflictingAvailabilities = ProfessionalAvailability::with('user')
+            ->where('day_of_week', $hour->day_of_week)
+            ->where('start_time', '<', $hour->end_time)
+            ->where('end_time', '>', $hour->start_time)
             ->whereHas('user.companies', function ($q) use ($companyId) {
                 $q->where('companies.id', $companyId);
             })
             ->get();
 
-        foreach ($availabilities as $availability) {
+        \Log::info('Disponibilidades encontradas', [
+            'count' => $conflictingAvailabilities->count(),
+            'data' => $conflictingAvailabilities->toArray(),
+        ]);
 
-            // 2. Verificar si existe OTRO horario que cubra esta disponibilidad
-            $covered = OpeningHour::where('company_id', $companyId)
-                ->where('id', '!=', $hour->id)
-                ->where('day_of_week', $availability->day_of_week)
-                ->where('start_time', '<=', $availability->start_time)
-                ->where('end_time', '>=', $availability->end_time)
-                ->exists();
+        foreach ($conflictingAvailabilities as $availability) {
+            $covered = $this->isFullyCovered($availability, $hour->id, $companyId);
 
-            // 3. Si NO está cubierto → bloquear
+            \Log::info('Verificando cobertura', [
+                'availability_id' => $availability->id,
+                'avail_start' => $availability->start_time,
+                'avail_end' => $availability->end_time,
+                'is_covered' => $covered,
+            ]);
+
             if (!$covered) {
                 return response()->json([
                     'success' => false,
@@ -171,14 +175,74 @@ class OpeningHourController extends Controller
             }
         }
 
-        // Eliminar
         $hour->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Horario eliminado correctamente'
-        ]);
+        return response()->json(['success' => true, 'message' => 'Horario eliminado correctamente']);
     }
+
+    private function isFullyCovered(
+        ProfessionalAvailability $availability,
+        int $excludeHourId,
+        int $companyId
+    ): bool {
+        $availStart = Carbon::createFromTimeString($availability->start_time);
+        $availEnd   = Carbon::createFromTimeString($availability->end_time);
+
+        // Obtener los horarios restantes (excluyendo el que se va a eliminar)
+        // que se solapen con la disponibilidad del profesional
+        $hours = OpeningHour::where('company_id', $companyId)
+            ->where('id', '!=', $excludeHourId)
+            ->where('day_of_week', $availability->day_of_week)
+            ->where('start_time', '<', $availability->end_time)
+            ->where('end_time', '>', $availability->start_time)
+            ->orderBy('start_time')
+            ->get();
+
+        if ($hours->isEmpty()) {
+            return false;
+        }
+
+        // Algoritmo de unión de intervalos para verificar cobertura completa
+        $covered = clone $availStart;
+
+        foreach ($hours as $h) {
+            $hStart = Carbon::createFromTimeString($h->start_time);
+            $hEnd   = Carbon::createFromTimeString($h->end_time);
+
+            // Si hay un hueco entre lo cubierto y el inicio del siguiente horario
+            if ($hStart->gt($covered)) {
+                return false;
+            }
+
+            // Extender la cobertura si este horario llega más lejos
+            if ($hEnd->gt($covered)) {
+                $covered = clone $hEnd;
+            }
+
+            // Optimización: si ya cubrimos todo, salir temprano
+            if ($covered->gte($availEnd)) {
+                return true;
+            }
+        }
+
+        return $covered->gte($availEnd);
+    }
+
+    private function getDayName(int $dayOfWeek): string
+    {
+        $days = [
+            0 => 'Domingo',
+            1 => 'Lunes',
+            2 => 'Martes',
+            3 => 'Miércoles',
+            4 => 'Jueves',
+            5 => 'Viernes',
+            6 => 'Sábado',
+        ];
+
+        return $days[$dayOfWeek] ?? "día $dayOfWeek";
+    }
+
 
     public function restore($id)
     {

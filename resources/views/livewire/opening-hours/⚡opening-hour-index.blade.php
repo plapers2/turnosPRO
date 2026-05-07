@@ -125,19 +125,34 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $wire.deleteHour(id);
-
-                        $wire.on('hour-deleted', () => {
-                            Swal.fire({
-                                title: 'Eliminado',
-                                text: 'El horario fue eliminado correctamente',
-                                icon: 'success',
-                                timer: 1200,
-                                showConfirmButton: false,
-                                background: '#fcf9f3',
-                                color: '#1c1c19'
-                            });
-                        });
                     }
+                });
+            });
+
+            // Listener para éxito
+            $wire.on('hour-deleted', () => {
+                Swal.fire({
+                    title: 'Eliminado',
+                    text: 'El horario fue eliminado correctamente',
+                    icon: 'success',
+                    timer: 1200,
+                    showConfirmButton: false,
+                    background: '#fcf9f3',
+                    color: '#1c1c19'
+                });
+            });
+
+            // Listener para error de validación
+            $wire.on('delete-error', ({
+                message
+            }) => {
+                Swal.fire({
+                    title: 'No se puede eliminar',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonColor: '#ba1a1a',
+                    background: '#fcf9f3',
+                    color: '#1c1c19'
                 });
             });
         </script>
