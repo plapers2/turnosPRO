@@ -128,7 +128,7 @@
         }) => {
             Swal.fire({
                 title: '¿Eliminar servicio?',
-                text: 'Esta acción no se puede deshacer',
+                text: 'Podras restaurarlo despues',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ba1a1a',

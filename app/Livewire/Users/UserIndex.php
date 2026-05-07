@@ -30,7 +30,9 @@ class UserIndex extends Component
 
     public function restoreUser(int $id): void
     {
-        User::withTrashed()->findOrFail($id)->restore();
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore();
+        $user->professionalAvailabilities()->onlyTrashed()->restore();
     }
 
     public function confirmDelete(int $id): void
@@ -40,7 +42,11 @@ class UserIndex extends Component
 
     public function deleteUser(int $id): void
     {
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id);
+        // Solo hace soft delete (NO borra imagen)
+        $user->professionalAvailabilities()->delete();
+        $user->delete();
+
         $this->dispatch('user-deleted');
     }
 
