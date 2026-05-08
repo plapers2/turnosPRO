@@ -251,7 +251,7 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $user)
     {
-        
+
         // Solo hace soft delete (NO borra imagen)
         $user->professionalAvailabilities()->delete();
         $user->delete();

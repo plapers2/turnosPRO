@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Models\Appointment;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -42,6 +43,15 @@ class UserIndex extends Component
 
     public function deleteUser(int $id): void
     {
+        $companyId = session('active_company_id');
+        $hasActiveAppointments = Appointment::where('company_id', $companyId)
+            ->where('user_id', $id)
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->exists();
+        if ($hasActiveAppointments) {
+            $this->dispatch('delete-error', message: "El usuario actual tiene citas activas o pendientes");
+            return;
+        }
         $user = User::findOrFail($id);
         // Solo hace soft delete (NO borra imagen)
         $user->professionalAvailabilities()->delete();

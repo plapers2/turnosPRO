@@ -168,6 +168,7 @@
                         Swal.fire({
                             title: 'No se puede eliminar',
                             text: message,
+                            confirmButtonText: "Entendido",
                             icon: 'error',
                             confirmButtonColor: '#ba1a1a',
                             background: '#fcf9f3',

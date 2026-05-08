@@ -265,6 +265,21 @@
                                 color: '#1c1c19'
                             });
                         });
+
+                        // Listener para error de validación
+                        $wire.on('delete-error', ({
+                            message
+                        }) => {
+                            Swal.fire({
+                                title: 'No se puede eliminar',
+                                text: message,
+                                icon: 'error',
+                                confirmButtonText: "Entendido",
+                                confirmButtonColor: '#ba1a1a',
+                                background: '#fcf9f3',
+                                color: '#1c1c19'
+                            });
+                        });
                     }
                 });
             });
