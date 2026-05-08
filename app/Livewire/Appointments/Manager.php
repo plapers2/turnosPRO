@@ -18,41 +18,41 @@ class Manager extends Component
 {
     use WithPagination;
 
-    // ── Vista ────────────────────────────────────────────────
+    // -- Vista
     public string $view = 'list';
 
-    // ── Roles ────────────────────────────────────────────────
+    // -- Roles
     public bool $isAdmin    = false;
     public bool $isEmployee = false;
 
-    // ── Empresa activa ───────────────────────────────────────
+    // -- Empresa activa
     public ?int $companyId = null;
 
-    // ── Filtros ──────────────────────────────────────────────
+    // -- Filtros
     public string $search             = '';
     public ?int   $filterProfessional = null;
     public string $filterStatus       = '';
     public string $filterDateFrom     = '';
     public string $filterDateTo       = '';
 
-    // ── Modal detalle ────────────────────────────────────────
+    // -- Modal detalle
     public bool         $showModal    = false;
     public ?Appointment $selectedAppt = null;
 
-    // ── Modal cancelación ────────────────────────────────────
+    // -- Modal cancelacion
     public bool    $showCancelConfirm  = false;
     public ?int    $cancelTargetId     = null;
     public string  $cancellationReason = '';
 
-    // ── Modal confirmar ──────────────────────────────────────
+    // -- Modal confirmar
     public bool $showConfirmConfirm = false;
     public ?int $confirmTargetId   = null;
 
-    // ── Modal completar (RF-26) ──────────────────────────────
+    // -- Modal completar
     public bool $showCompleteConfirm = false;
     public ?int $completeTargetId   = null;
 
-    // ── Calendario ───────────────────────────────────────────
+    // -- Calendario
     public string $calendarMonth;
 
     public function mount(): void
@@ -65,7 +65,6 @@ class Manager extends Component
         $this->isEmployee = $user->hasRole('empleado');
     }
 
-    // ── Escucha cambio de empresa activa ─────────────────────
     #[On('active-company-changed')]
     public function onCompanyChanged(): void
     {
@@ -74,7 +73,6 @@ class Manager extends Component
         $this->refreshCalendarEvents();
     }
 
-    // ── Scope de empresa (reutilizable) ──────────────────────
     private function scopeCompany($query)
     {
         return $query->when(
@@ -86,13 +84,11 @@ class Manager extends Component
         );
     }
 
-    // ── Query base ───────────────────────────────────────────
     private function baseQuery()
     {
         return $this->scopeCompany(
-            //  withTrashed() en user y services
             Appointment::with([
-                'customer',
+                'customer' => fn($q) => $q->withTrashed(),
                 'user'     => fn($q) => $q->withTrashed(),
                 'services' => fn($q) => $q->withTrashed(),
             ])
@@ -104,24 +100,34 @@ class Manager extends Component
             ->when(
                 $this->search,
                 fn($q) => $q->where(
-                    fn($q) => $q
-                        ->whereHas('customer.user', fn($u) => $u->where('users.name', 'like', "%{$this->search}%"))
-                        // withTrashed() en búsqueda por profesional
-                        ->orWhereHas('user', fn($u) => $u->withTrashed()->where('users.name', 'like', "%{$this->search}%"))
-                        // withTrashed() en búsqueda por servicio
-                        ->orWhereHas('services', fn($s) => $s->withTrashed()->where('services.name', 'like', "%{$this->search}%"))
+                    fn($inner) => $inner
+                        ->whereHas(
+                            'customer',
+                            fn($c) => $c->withTrashed()->whereHas(
+                                'user',
+                                fn($u) => $u->withTrashed()->where('users.name', 'like', "%{$this->search}%")
+                            )
+                        )
+                        ->orWhereHas(
+                            'user',
+                            fn($u) => $u->withTrashed()->where('users.name', 'like', "%{$this->search}%")
+                        )
+                        ->orWhereHas(
+                            'services',
+                            fn($s) => $s->withTrashed()->where('services.name', 'like', "%{$this->search}%")
+                        )
                 )
             )
             ->when(
                 $this->isAdmin && $this->filterProfessional,
                 fn($q) => $q->where('user_id', $this->filterProfessional)
             )
-            ->when($this->filterStatus,   fn($q) => $q->where('status',  $this->filterStatus))
+            ->when($this->filterStatus,   fn($q) => $q->where('status', $this->filterStatus))
             ->when($this->filterDateFrom, fn($q) => $q->whereDate('start_time', '>=', $this->filterDateFrom))
             ->when($this->filterDateTo,   fn($q) => $q->whereDate('start_time', '<=', $this->filterDateTo));
     }
 
-    // ── Watchers filtros ─────────────────────────────────────
+    // -- Watchers filtros
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -161,13 +167,12 @@ class Manager extends Component
         $this->dispatch('viewChanged', view: $value);
     }
 
-    // ── Detalle ──────────────────────────────────────────────
+    // -- Detalle
     public function viewAppointment(int $id): void
     {
-        // withTrashed() en user y services
         $query = $this->scopeCompany(
             Appointment::with([
-                'customer',
+                'customer' => fn($q) => $q->withTrashed(),
                 'user'     => fn($q) => $q->withTrashed(),
                 'services' => fn($q) => $q->withTrashed(),
             ])
@@ -193,7 +198,7 @@ class Manager extends Component
         $this->selectedAppt = null;
     }
 
-    // ── Confirmación ─────────────────────────────────────────
+    // -- Confirmacion
     public function openConfirmModal(int $id): void
     {
         $this->authorizeAppointmentAction($id);
@@ -222,9 +227,8 @@ class Manager extends Component
 
         $appointment->update(['status' => 'confirmed', 'confirmed_by' => auth()->id()]);
 
-        // withTrashed() en user y services
         $appointment->load([
-            'customer',
+            'customer' => fn($q) => $q->withTrashed(),
             'user'     => fn($q) => $q->withTrashed(),
             'company',
             'services' => fn($q) => $q->withTrashed(),
@@ -232,7 +236,7 @@ class Manager extends Component
 
         $this->enviarEmail(
             new AppointmentConfirmedByEmployeeMail($appointment),
-            $appointment->customer->email,
+            $appointment->customer?->email ?? '',
             $appointment->id,
             'confirmed_by_employee'
         );
@@ -241,9 +245,8 @@ class Manager extends Component
         $this->confirmTargetId   = null;
 
         if ($this->showModal && $this->selectedAppt?->id === $appointment->id) {
-            // withTrashed() en user y services
             $this->selectedAppt = $appointment->fresh([
-                'customer',
+                'customer' => fn($q) => $q->withTrashed(),
                 'user'     => fn($q) => $q->withTrashed(),
                 'services' => fn($q) => $q->withTrashed(),
             ]);
@@ -259,7 +262,7 @@ class Manager extends Component
         $this->closeModal();
     }
 
-    // ── Cancelación ──────────────────────────────────────────
+    // -- Cancelacion
     public function closeCancelModal(): void
     {
         $this->showCancelConfirm  = false;
@@ -275,7 +278,7 @@ class Manager extends Component
         $appointment = Appointment::findOrFail($id);
 
         if ($appointment->start_time->diffInMinutes(now(), false) > -120) {
-            $this->dispatch('notify', type: 'error', message: 'No es posible cancelar una cita con menos de 2 horas de antelación.');
+            $this->dispatch('notify', type: 'error', message: 'No es posible cancelar una cita con menos de 2 horas de antelacion.');
             return;
         }
 
@@ -290,7 +293,7 @@ class Manager extends Component
         $this->validate([
             'cancellationReason' => 'required|min:5',
         ], [
-            'cancellationReason.required' => 'El motivo de cancelación es obligatorio.',
+            'cancellationReason.required' => 'El motivo de cancelacion es obligatorio.',
             'cancellationReason.min'      => 'El motivo debe tener al menos 5 caracteres.',
         ]);
 
@@ -298,9 +301,8 @@ class Manager extends Component
 
         $this->authorizeAppointmentAction($this->cancelTargetId);
 
-        // withTrashed() en user y services
         $appointment = Appointment::with([
-            'customer',
+            'customer' => fn($q) => $q->withTrashed(),
             'user'     => fn($q) => $q->withTrashed(),
             'services' => fn($q) => $q->withTrashed(),
         ])->findOrFail($this->cancelTargetId);
@@ -313,7 +315,7 @@ class Manager extends Component
 
         $this->enviarEmail(
             new AppointmentCancelledByEmployeeMail($appointment),
-            $appointment->customer->email,
+            $appointment->customer?->email ?? '',
             $appointment->id,
             'cancelled_by_employee'
         );
@@ -332,7 +334,7 @@ class Manager extends Component
         $this->closeModal();
     }
 
-    // ── Completar ─────────────────────────────────────────────
+    // -- Completar
     public function openCompleteModal(int $id): void
     {
         $this->authorizeAppointmentAction($id);
@@ -340,7 +342,7 @@ class Manager extends Component
         $appointment = Appointment::findOrFail($id);
 
         abort_if($appointment->status !== 'confirmed', 422, 'Solo se pueden completar citas confirmadas.');
-        abort_if(now()->lt($appointment->end_time), 422, 'La cita aún no ha finalizado.');
+        abort_if(now()->lt($appointment->end_time), 422, 'La cita aun no ha finalizado.');
 
         $this->completeTargetId    = $id;
         $this->showCompleteConfirm = true;
@@ -361,7 +363,7 @@ class Manager extends Component
         $appointment = Appointment::findOrFail($this->completeTargetId);
 
         abort_if($appointment->status !== 'confirmed', 422, 'Solo se pueden completar citas confirmadas.');
-        abort_if(now()->lt($appointment->end_time), 422, 'La cita aún no ha finalizado.');
+        abort_if(now()->lt($appointment->end_time), 422, 'La cita aun no ha finalizado.');
 
         $appointment->update([
             'status'       => 'completed',
@@ -369,9 +371,8 @@ class Manager extends Component
             'completed_at' => now(),
         ]);
 
-        // withTrashed() en user y services
         $appointment->load([
-            'customer',
+            'customer' => fn($q) => $q->withTrashed(),
             'user'     => fn($q) => $q->withTrashed(),
             'company',
             'services' => fn($q) => $q->withTrashed(),
@@ -379,7 +380,7 @@ class Manager extends Component
 
         $this->enviarEmail(
             new AppointmentCompletedMail($appointment),
-            $appointment->customer->email,
+            $appointment->customer?->email ?? '',
             $appointment->id,
             'completed'
         );
@@ -388,9 +389,8 @@ class Manager extends Component
         $this->completeTargetId   = null;
 
         if ($this->showModal && $this->selectedAppt?->id === $appointment->id) {
-            // withTrashed() en user y services
             $this->selectedAppt = $appointment->fresh([
-                'customer',
+                'customer' => fn($q) => $q->withTrashed(),
                 'user'     => fn($q) => $q->withTrashed(),
                 'services' => fn($q) => $q->withTrashed(),
             ]);
@@ -406,7 +406,7 @@ class Manager extends Component
         $this->closeModal();
     }
 
-    // ── Helpers ──────────────────────────────────────────────
+    // -- Helpers
     public function resetFilters(): void
     {
         $this->search         = '';
@@ -440,7 +440,7 @@ class Manager extends Component
         $this->dispatch('calendarEventsUpdated', events: $this->calendarEvents);
     }
 
-    // ── Autorización ─────────────────────────────────────────
+    // -- Autorizacion
     protected function authorizeAppointmentAction(int $id): void
     {
         $appt = Appointment::findOrFail($id);
@@ -462,7 +462,7 @@ class Manager extends Component
         );
     }
 
-    // ── Computed ─────────────────────────────────────────────
+    // -- Computed
     #[Computed]
     public function appointments()
     {
@@ -470,19 +470,19 @@ class Manager extends Component
 
         return $this->baseQuery()
             ->orderByRaw("
-            CASE
-                WHEN start_time >= ? THEN 0
-                ELSE 1
-            END,
-            CASE
-                WHEN start_time >= ? THEN start_time
-                ELSE NULL
-            END ASC,
-            CASE
-                WHEN start_time < ? THEN start_time
-                ELSE NULL
-            END DESC
-        ", [$now, $now, $now])
+                CASE
+                    WHEN start_time >= ? THEN 0
+                    ELSE 1
+                END,
+                CASE
+                    WHEN start_time >= ? THEN start_time
+                    ELSE NULL
+                END ASC,
+                CASE
+                    WHEN start_time < ? THEN start_time
+                    ELSE NULL
+                END DESC
+            ", [$now, $now, $now])
             ->paginate(15);
     }
 
@@ -508,7 +508,6 @@ class Manager extends Component
     {
         if (! $this->isAdmin) return collect();
 
-        // withTrashed() para mostrar empleados eliminados en el filtro del admin
         return User::withTrashed()
             ->role('empleado')
             ->when(
@@ -529,7 +528,6 @@ class Manager extends Component
             ->get()
             ->map(fn($a) => [
                 'id'    => $a->id,
-                // null-safe en customer
                 'title' => ($a->customer?->name ?? 'Cliente eliminado') . ' · ' . $a->start_time->format('H:i'),
                 'start' => $a->start_time->toIso8601String(),
                 'end'   => $a->end_time->toIso8601String(),
@@ -547,8 +545,7 @@ class Manager extends Component
                 },
                 'textColor'     => '#ffffff',
                 'extendedProps' => [
-                    // null-safe en user y services
-                    'professional' => $a->user?->name     ?? 'Empleado eliminado',
+                    'professional' => $a->user?->name ?? 'Empleado eliminado',
                     'services'     => $a->services->pluck('name')->join(', ') ?: 'Servicio eliminado',
                     'status'       => $a->status,
                 ],
