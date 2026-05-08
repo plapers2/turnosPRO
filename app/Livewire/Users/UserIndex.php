@@ -52,7 +52,9 @@ class UserIndex extends Component
             $this->dispatch('delete-error', message: "El usuario actual tiene citas activas o pendientes");
             return;
         }
+
         $user = User::findOrFail($id);
+        
         // Solo hace soft delete (NO borra imagen)
         $user->professionalAvailabilities()->delete();
         $user->delete();
