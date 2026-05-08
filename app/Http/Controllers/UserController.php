@@ -160,7 +160,6 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // ! FALTA CORREGIR LA VALIDACION DEL EMAIL CON ESTADO
         $data = $request->validate([
             'nombre'   => 'required|string|max:255',
             'email'    => [
