@@ -24,6 +24,33 @@ class ServiceIndex extends Component
         $this->resetPage();
     }
 
+    // ── Estadísticas (conteos globales, sin filtros) ──────────────────────────
+
+    public function getTotalCountProperty(): int
+    {
+        $companyId = session('active_company_id');
+        return Service::withTrashed()->where('company_id', $companyId)->count();
+    }
+
+    public function getActiveCountProperty(): int
+    {
+        $companyId = session('active_company_id');
+        return Service::where('company_id', $companyId)->count(); // sin trashed
+    }
+
+    public function getInactiveCountProperty(): int
+    {
+        $companyId = session('active_company_id');
+        return Service::onlyTrashed()->where('company_id', $companyId)->count();
+    }
+
+    public function getAvgDurationProperty(): int
+    {
+        $companyId = session('active_company_id');
+        return (int) round(Service::where('company_id', $companyId)->avg('duration') ?? 0);
+    }
+
+
     public function restoreService(int $id): void
     {
         Service::withTrashed()->findOrFail($id)->restore();
@@ -99,6 +126,12 @@ class ServiceIndex extends Component
             ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
             ->paginate(9);
 
-        return view('livewire.services.⚡service-index  ', compact('services'));
+        return view('livewire.services.⚡service-index', [
+            'services'      => $services,
+            'totalCount'    => $this->totalCount,
+            'activeCount'   => $this->activeCount,
+            'inactiveCount' => $this->inactiveCount,
+            'avgDuration'   => $this->avgDuration,
+        ]);
     }
 }
