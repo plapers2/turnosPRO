@@ -20,6 +20,10 @@
         <link
             href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
             rel="stylesheet" />
+
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+            rel="stylesheet" />
         <link
             href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
             rel="stylesheet" />
@@ -48,22 +52,22 @@
         <x-toast />
 
         @if (session('success') || $errors->any())
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(() => {
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    setTimeout(() => {
 
-                    @if(session('success'))
-                    window.dispatchEvent(new CustomEvent('notify', {
-                        detail: {
-                            type: 'success',
-                            message: "{{ session('success') }}"
-                        }
-                    }))
-                    @endif
+                        @if (session('success'))
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: {
+                                    type: 'success',
+                                    message: "{{ session('success') }}"
+                                }
+                            }))
+                        @endif
 
-                }, 100)
-            })
-        </script>
+                    }, 100)
+                })
+            </script>
         @endif
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
