@@ -19,7 +19,7 @@
             <div
                 class="flex h-9 w-9 shrink-0 items-center justify-center
                         rounded-[10px] bg-primary-container text-on-primary-container">
-                <span class="material-symbols-outlined text-[17px]">grid_view</span>
+                <span class="material-symbols-outlined text-[17px]">service_toolbox</span>
             </div>
             <div class="flex flex-col gap-0.5">
                 <span class="text-[17px] font-semibold leading-none text-on-surface">{{ $totalCount }}</span>

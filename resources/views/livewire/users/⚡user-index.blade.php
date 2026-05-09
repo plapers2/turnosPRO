@@ -15,7 +15,7 @@
             class="flex items-center gap-3 rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-4 py-3">
             <div
                 class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-primary-container text-on-primary-container">
-                <span class="material-symbols-outlined text-[17px]">group</span>
+                <span class="material-symbols-outlined text-[17px]">workspace_premium</span>
             </div>
             <div class="flex flex-col gap-0.5">
                 <span class="text-[17px] font-semibold leading-none text-on-surface">{{ $users->total() }}</span>
