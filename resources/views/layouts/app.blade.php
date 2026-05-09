@@ -43,7 +43,7 @@
         class="bg-surface text-on-surface h-screen flex overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
 
         @include('layouts.side-bar')
-        <main class="md:ml-64 flex-1 h-screen overflow-y-auto bg-surface relative">
+        <main class="md:ml-60 flex-1 h-screen overflow-y-auto bg-surface relative">
             @include('layouts.header')
             {{ $slot }}
         </main>

@@ -1,25 +1,21 @@
 <!-- SideNavBar -->
 <aside id="sidebar"
-    class="fixed top-0 left-0 h-screen w-60 z-[60]
+    class="fixed top-0 left-0 h-screen w-60 z-[70]
            transform -translate-x-full md:translate-x-0
            transition-transform duration-300 ease-in-out
            flex flex-col overflow-hidden"
-    style="background: linear-gradient(170deg, #f8f4ef 0%, #f0ebe4 100%); border-right: 1px solid #d6c3b3;">
-
-    {{-- Halo decorativo --}}
-    <div class="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full"
-        style="background: radial-gradient(ellipse, rgba(255,184,112,0.18) 0%, transparent 70%);"></div>
+    style="background-color: #faf7f4; border-right: 1px solid #d6c3b3;">
 
     {{-- Brand Header con Logo --}}
     <div class="flex flex-col items-center px-4 pt-5 pb-4 shrink-0" style="border-bottom: 1px solid #d6c3b3;">
 
         {{-- Logo --}}
         <div class="relative group flex items-center justify-center w-full">
-            <div class="absolute inset-0 rounded-xl opacity-0 blur-md transition-all duration-500 group-hover:opacity-30 pointer-events-none"
-                style="background: radial-gradient(ellipse, #a0714f 0%, transparent 70%);"></div>
+            <div
+                class="absolute inset-0 rounded-xl opacity-0 blur-md transition-all duration-500 group-hover:opacity-30 pointer-events-none">
+            </div>
             <img src="{{ asset('turnos-pro.png') }}" alt="{{ config('app.name') }}"
-                class="relative h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-                style="filter: drop-shadow(0 2px 10px rgba(102,58,0,0.20));" />
+                class="relative h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
         </div>
 
         {{-- Subtítulo opcional debajo del logo --}}

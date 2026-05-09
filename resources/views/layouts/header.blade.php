@@ -1,16 +1,15 @@
-<!-- TopNavBar Component -->
-<div class="sticky top-0 z-40 w-full px-6 py-3 flex items-center justify-between"
-    style="background: linear-gradient(90deg, #f6f3ee 0%, #f1ede8 100%);
-            border-bottom: 1px solid #d6c3b3;">
+<div class="sticky top-0 z-40 w-full flex items-center h-[60px] px-5 gap-3"
+     style="background: rgba(250,247,244,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid #e8ddd5;">
 
-    <!-- Botón menú móvil -->
-    <button id="menuBtn" class="md:hidden p-2 rounded-xl transition-colors" style="color: #524438;"
-        onmouseenter="this.style.background='#ebe8e2'" onmouseleave="this.style.background='transparent'">
-        <span class="material-symbols-outlined">menu</span>
+    {{-- Botón menú móvil --}}
+    <button id="menuBtn"
+        class="md:hidden w-[34px] h-[34px] rounded-[10px] flex items-center justify-center transition-colors"
+        style="background: #f0e8e1; border: 1px solid #e4d5c9; color: #9c7e6b;">
+        <span class="material-symbols-outlined text-[20px]">menu</span>
     </button>
 
-    <!-- Breadcrumb -->
-    <nav class="hidden md:flex items-center gap-1.5 text-sm">
+    {{-- Breadcrumb --}}
+    <nav class="hidden md:flex items-center gap-2 flex-1">
         @php
             $translations = [
                 'dashboard' => 'Dashboard',
@@ -26,39 +25,40 @@
                 'notification-logs' => 'Notificaciones',
                 'profile' => 'Perfil',
             ];
-
             $combinedTranslations = [
                 'appointment/index' => 'Reservar Cita',
                 'appointment/history' => 'Historial de Citas',
                 'appointments/export' => 'Exportar Citas',
                 'profile/settings' => 'Configuración de Perfil',
-                // Agrega aquí tus rutas de dos segmentos
             ];
-
             $rawSegments = collect(request()->segments())->filter(fn($s) => !is_numeric($s));
             $combined = $rawSegments->values()->take(2)->implode('/');
-
             $segments = isset($combinedTranslations[$combined])
                 ? collect([$combinedTranslations[$combined]])
                 : $rawSegments->map(fn($s) => $translations[$s] ?? ucfirst(str_replace('-', ' ', $s)));
         @endphp
 
-        <a href="{{ route('dashboard') }}" style="color: #a0714f;">
+        <a href="{{ route('dashboard') }}"
+            class="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center transition-all"
+            style="background: #f0e8e1; color: #9c7e6b;"
+            onmouseover="this.style.background='#e4d5c9'; this.style.color='#6b4e3d'"
+            onmouseout="this.style.background='#f0e8e1'; this.style.color='#9c7e6b'">
             <span class="material-symbols-outlined text-[16px]">home</span>
         </a>
 
         @foreach ($segments as $segment)
-            <span style="color: #d6c3b3;">/</span>
+            <span style="color: #c9b8ac; font-size: 13px; font-weight: 300;">/</span>
             @if ($loop->last)
-                <span class="font-semibold" style="color: #1c1c19;">{{ $segment }}</span>
+                <span class="text-[12.5px] font-semibold px-[10px] py-[3px] rounded-full"
+                      style="background: #f0e8e1; color: #3d2b1f;">{{ $segment }}</span>
             @else
-                <span style="color: #847467;">{{ $segment }}</span>
+                <span class="text-[12.5px]" style="color: #a08070;">{{ $segment }}</span>
             @endif
         @endforeach
     </nav>
 
-    <!-- Acciones derecha -->
-    <div class="flex items-center gap-2">
+    {{-- Lado derecho --}}
+    <div class="flex items-center gap-2 ml-auto">
 
         @php
             $nameParts = explode(' ', trim(auth()->user()->name));
@@ -71,167 +71,164 @@
             $activeCompany = $companyId ? \App\Models\Company::find($companyId) : null;
         @endphp
 
-        <!-- Empresa activa -->
+        {{-- Empresa activa --}}
         @if ($activeCompany)
-            <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
-                style="background: #ffffff; border: 1px solid #d6c3b3;">
-
+            <div class="hidden sm:flex items-center gap-2 px-[6px] pr-3 py-[5px] rounded-[12px] transition-all"
+                 style="background: #fff; border: 1px solid #e8ddd5; cursor: default;"
+                 onmouseover="this.style.background='#faf0ea'; this.style.borderColor='#d6c3b3'"
+                 onmouseout="this.style.background='#fff'; this.style.borderColor='#e8ddd5'">
                 @if ($activeCompany->logo)
-                    <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
-                        class="w-5 h-5 rounded object-cover" />
+                    <img src="{{ asset('storage/' . $activeCompany->logo) }}"
+                         class="w-[26px] h-[26px] rounded-[7px] object-cover" />
                 @else
-                    <div class="w-5 h-5 rounded flex items-center justify-center"
-                        style="background: linear-gradient(135deg, #854f0b, #663a00);">
-                        <span class="material-symbols-outlined text-[13px]" style="color: #ffdcbe;">business</span>
+                    <div class="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center"
+                         style="background: linear-gradient(135deg, #c8a98a, #a07050);">
+                        <span class="material-symbols-outlined text-[12px] text-white">business</span>
                     </div>
                 @endif
-
                 <div class="flex flex-col leading-tight">
-                    <span class="text-[10px] font-medium uppercase tracking-widest" style="color: #847467;">
-                        Empresa activa
-                    </span>
-                    <span class="text-xs font-semibold truncate max-w-[120px]" style="color: #1c1c19;">
+                    <span class="text-[9px] font-semibold uppercase tracking-widest" style="color: #a08070;">Empresa activa</span>
+                    <span class="text-[12px] font-semibold max-w-[110px] truncate" style="color: #3d2b1f;">
                         {{ $activeCompany->name }}
                     </span>
                 </div>
             </div>
-
-            <!-- Divisor -->
-            <div class="hidden sm:block w-px h-6 mx-1" style="background: #d6c3b3;"></div>
+            <div class="hidden sm:block w-px h-6" style="background: #e4d5c9;"></div>
         @endif
 
-        <!-- Avatar + Dropdown -->
-        <div class="relative" x-data="{ open: false }">
-            <div class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl cursor-pointer transition-all duration-200"
-                @click="open = !open" onmouseenter="this.style.background='#ebe8e2'"
-                onmouseleave="this.style.background='transparent'">
+        {{-- Notificaciones --}}
+        @can('ver historial de notificaciones')
+            <a href="{{ route('notification-logs.index') }}"
+                class="relative w-[34px] h-[34px] rounded-[10px] flex items-center justify-center transition-all"
+                style="color: #9c7e6b; border: 1px solid transparent;"
+                onmouseover="this.style.background='#f0e8e1'; this.style.borderColor='#e4d5c9'; this.style.color='#6b4e3d'"
+                onmouseout="this.style.background='transparent'; this.style.borderColor='transparent'; this.style.color='#9c7e6b'">
+                <span class="material-symbols-outlined text-[19px]">notifications</span>
+                {{-- Punto rojo si hay notificaciones sin leer --}}
+                <span class="absolute top-[7px] right-[7px] w-[7px] h-[7px] rounded-full"
+                      style="background: #c0513a; border: 2px solid #faf7f4;"></span>
+            </a>
+        @endcan
 
-                <!-- Avatar -->
+        {{-- Avatar + Dropdown --}}
+        <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open" :class="open ? 'nb-open' : ''"
+                class="flex items-center gap-[9px] pl-1 pr-[10px] py-1 rounded-[12px] transition-all"
+                style="border: 1px solid transparent;"
+                :style="open ? 'background:#f0e8e1; border-color:#e4d5c9;' : ''"
+                onmouseover="this.style.background='#f0e8e1'; this.style.borderColor='#e4d5c9'"
+                onmouseout="if(!this.classList.contains('nb-open')){ this.style.background='transparent'; this.style.borderColor='transparent'; }">
+
                 @if (auth()->user()->image)
-                    <img alt="Avatar" class="w-8 h-8 rounded-full object-cover" style="box-shadow: 0 0 0 2px #d6c3b3;"
-                        src="{{ asset('storage/' . auth()->user()->image) }}" />
+                    <img src="{{ asset('storage/' . auth()->user()->image) }}"
+                        class="w-[32px] h-[32px] rounded-[10px] object-cover flex-shrink-0" />
                 @else
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold tracking-wide select-none"
-                        style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
-                               color: #ffdcbe;
-                               box-shadow: 0 0 0 2px #d6c3b3, 0 2px 8px rgba(102,58,0,0.25);
-                               flex-shrink: 0;">
+                    <div class="w-[32px] h-[32px] rounded-[10px] flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
+                         style="background: linear-gradient(135deg, #b08060, #7a5040); letter-spacing: 0.5px;">
                         {{ $initials }}
                     </div>
                 @endif
 
-                <!-- Nombre + Rol -->
-                <div class="hidden sm:flex flex-col leading-tight">
-                    <span class="text-sm font-semibold" style="color: #1c1c19;">
-                        {{ auth()->user()->name }}
-                    </span>
-                    <div class="flex items-center gap-1">
-                        <span
-                            class="inline-flex items-center px-1.5 rounded-full text-[10px] font-semibold tracking-wide"
-                            style="background: #ffdcbe; color: #663a00; line-height: 1.6;">
+                <div class="hidden sm:flex flex-col leading-tight text-left">
+                    <span class="text-[13px] font-semibold" style="color: #3d2b1f;">{{ auth()->user()->name }}</span>
+                    <span class="text-[9.5px] font-bold uppercase tracking-[0.04em] px-[7px] py-px rounded-full self-start mt-[1px]"
+                          style="color: #9c5a30; background: #fce8d8;">{{ ucfirst($userRole) }}</span>
+                </div>
+
+                <span class="material-symbols-outlined text-[14px] transition-transform duration-200"
+                      style="color: #b09080;"
+                      :style="open ? 'transform:rotate(180deg)' : ''">expand_more</span>
+            </button>
+
+            {{-- Dropdown --}}
+            <div x-show="open" @click.outside="open = false"
+                x-transition:enter="transition ease-out duration-150"
+                x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                x-transition:leave-end="opacity-0 scale-95 translate-y-1"
+                class="absolute right-0 top-[calc(100%+8px)] w-64 overflow-hidden z-50"
+                style="background: #fff; border: 1px solid #e4d5c9; border-radius: 16px;
+                       box-shadow: 0 12px 40px rgba(80,40,10,0.12);">
+
+                {{-- Header --}}
+                <div class="px-4 py-[14px] flex items-center gap-3"
+                     style="border-bottom: 1px solid #f0e8e1; background: #faf7f4;">
+                    @if (auth()->user()->image)
+                        <img src="{{ asset('storage/' . auth()->user()->image) }}"
+                            class="w-[42px] h-[42px] rounded-[12px] object-cover flex-shrink-0" />
+                    @else
+                        <div class="w-[42px] h-[42px] rounded-[12px] flex items-center justify-center text-[15px] font-bold text-white flex-shrink-0"
+                             style="background: linear-gradient(135deg, #b08060, #7a5040); letter-spacing: 0.5px;">
+                            {{ $initials }}
+                        </div>
+                    @endif
+                    <div class="flex flex-col min-w-0 gap-[2px]">
+                        <p class="text-sm font-semibold truncate m-0" style="color: #2d1f15;">{{ auth()->user()->name }}</p>
+                        <p class="text-[11.5px] truncate m-0" style="color: #9c7e6b;">{{ auth()->user()->email }}</p>
+                        <span class="inline-flex items-center gap-1 self-start px-2 py-px rounded-full text-[9px] font-bold uppercase tracking-[0.05em] mt-1"
+                              style="color: #9c5a30; background: #fce8d8;">
+                            <span class="material-symbols-outlined text-[10px]">verified</span>
                             {{ ucfirst($userRole) }}
                         </span>
-                        <span class="material-symbols-outlined text-[13px]" style="color: #847467;">expand_more</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dropdown -->
-            <div x-show="open" @click.outside="open = false" x-transition:enter="transition ease-out duration-150"
-                x-transition:enter-start="opacity-0 translate-y-1 scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                x-transition:leave="transition ease-in duration-100"
-                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                x-transition:leave-end="opacity-0 translate-y-1 scale-95"
-                class="absolute right-0 top-12 w-64 rounded-2xl overflow-hidden z-50"
-                style="background: #ffffff;
-                       border: 1px solid #d6c3b3;
-                       box-shadow: 0 8px 24px rgba(102,58,0,0.10), 0 2px 6px rgba(102,58,0,0.06);">
-
-                <!-- Header dropdown -->
-                <div class="px-4 py-3" style="border-bottom: 1px solid #ebe8e2;">
-                    <div class="flex items-center gap-3">
-                        @if (auth()->user()->image)
-                            <img alt="Avatar" class="w-10 h-10 rounded-full object-cover"
-                                style="box-shadow: 0 0 0 2px #d6c3b3;"
-                                src="{{ asset('storage/' . auth()->user()->image) }}" />
-                        @else
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold select-none"
-                                style="background: linear-gradient(135deg, #854f0b 0%, #663a00 60%, #4a2a00 100%);
-                                       color: #ffdcbe;
-                                       box-shadow: 0 0 0 2px #d6c3b3, 0 2px 8px rgba(102,58,0,0.20);
-                                       flex-shrink: 0;">
-                                {{ $initials }}
-                            </div>
-                        @endif
-                        <div class="flex flex-col min-w-0 gap-0.5">
-                            <p class="text-sm font-semibold truncate" style="color: #1c1c19;">
-                                {{ auth()->user()->name }}
-                            </p>
-                            <p class="text-xs truncate" style="color: #847467;">
-                                {{ auth()->user()->email }}
-                            </p>
-                            <span
-                                class="inline-flex items-center self-start px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide mt-0.5"
-                                style="background: linear-gradient(90deg, #ffdcbe, #ffb870); color: #663a00;">
-                                <span class="material-symbols-outlined text-[10px] mr-1">verified</span>
-                                {{ ucfirst($userRole) }}
-                            </span>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Empresa activa en dropdown -->
+                {{-- Empresa activa --}}
                 @if ($activeCompany)
-                    <div class="px-4 py-2.5 flex items-center gap-3"
-                        style="background: #faf7f2; border-bottom: 1px solid #ebe8e2;">
+                    <div class="px-4 py-[10px] flex items-center gap-[10px]"
+                         style="border-bottom: 1px solid #f0e8e1;">
                         @if ($activeCompany->logo)
-                            <img src="{{ asset('storage/' . $activeCompany->logo) }}" alt="{{ $activeCompany->name }}"
-                                class="w-8 h-8 rounded-lg object-cover"
-                                style="box-shadow: 0 1px 4px rgba(102,58,0,0.15);" />
+                            <img src="{{ asset('storage/' . $activeCompany->logo) }}"
+                                class="w-[34px] h-[34px] rounded-[9px] object-cover flex-shrink-0" />
                         @else
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                                style="background: linear-gradient(135deg, #854f0b, #663a00);
-                                   box-shadow: 0 1px 4px rgba(102,58,0,0.20);">
-                                <span class="material-symbols-outlined text-[16px]"
-                                    style="color: #ffdcbe;">business</span>
+                            <div class="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center flex-shrink-0"
+                                 style="background: linear-gradient(135deg, #c8a98a, #a07050);">
+                                <span class="material-symbols-outlined text-[14px] text-white">business</span>
                             </div>
                         @endif
                         <div class="flex flex-col min-w-0">
-                            <span class="text-[10px] font-semibold uppercase tracking-widest" style="color: #847467;">
-                                Empresa activa
-                            </span>
-                            <span class="text-sm font-semibold truncate" style="color: #1c1c19;">
-                                {{ $activeCompany->name }}
-                            </span>
+                            <span class="text-[9px] font-bold uppercase tracking-widest" style="color: #a08070;">Empresa activa</span>
+                            <span class="text-[12.5px] font-semibold truncate" style="color: #3d2b1f;">{{ $activeCompany->name }}</span>
                             @if ($activeCompany->typeCompany)
-                                <span class="text-[10px]" style="color: #847467;">
-                                    {{ $activeCompany->typeCompany->name }}
-                                </span>
+                                <span class="text-[10.5px]" style="color: #a08070;">{{ $activeCompany->typeCompany->name }}</span>
                             @endif
                         </div>
                     </div>
                 @endif
 
-                <!-- Editar perfil -->
-                <a href="{{ route('profile.settings') }}"
-                    class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors" style="color: #1c1c19;"
-                    onmouseenter="this.style.background='#f6f3ee'" onmouseleave="this.style.background='transparent'">
-                    <span class="material-symbols-outlined text-[17px]" style="color: #847467;">manage_accounts</span>
-                    Editar perfil
-                </a>
+                {{-- Links --}}
+                <div class="py-[6px]">
+                    <a href="{{ route('profile.settings') }}"
+                        class="flex items-center gap-[10px] px-4 py-[10px] text-[13px] font-medium transition-colors"
+                        style="color: #5a3e30; text-decoration: none;"
+                        onmouseover="this.style.background='#faf0ea'"
+                        onmouseout="this.style.background='transparent'">
+                        <div class="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center flex-shrink-0 transition-all"
+                             style="background: #f0e8e1;">
+                            <span class="material-symbols-outlined text-[15px]" style="color: #9c7e6b;">manage_accounts</span>
+                        </div>
+                        Editar perfil
+                    </a>
 
-                <!-- Cerrar sesión -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
-                        class="w-full flex items-center gap-3 px-4 py-2.5 mb-1 text-sm transition-colors"
-                        style="color: #ba1a1a;" onmouseenter="this.style.background='#fff0f0'"
-                        onmouseleave="this.style.background='transparent'">
-                        <span class="material-symbols-outlined text-[17px]">logout</span>
-                        Cerrar sesión
-                    </button>
-                </form>
+                    <div style="height: 1px; background: #f0e8e1; margin: 2px 0;"></div>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                            class="w-full flex items-center gap-[10px] px-4 py-[10px] text-[13px] font-medium transition-colors"
+                            style="color: #b04030; background: none; border: none; cursor: pointer; text-align: left;"
+                            onmouseover="this.style.background='#fff5f4'"
+                            onmouseout="this.style.background='transparent'">
+                            <div class="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center flex-shrink-0"
+                                 style="background: #fdecea;">
+                                <span class="material-symbols-outlined text-[15px]" style="color: #b04030;">logout</span>
+                            </div>
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
