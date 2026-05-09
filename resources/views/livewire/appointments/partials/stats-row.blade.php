@@ -1,72 +1,77 @@
 {{-- resources/views/livewire/appointments/partials/stats-row.blade.php --}}
-<div class="grid grid-cols-2 xl:grid-cols-5 gap-3 mb-6">
+<div class="grid grid-cols-2 xl:grid-cols-5 gap-3 mb-5">
 
-    {{-- Total --}}
-    <div
-        class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm p-4 flex flex-col gap-1.5">
-        <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center mb-1">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-blue-600">
-                <rect x="1" y="3" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5" />
-                <path d="M5 3V2M11 3V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                <path d="M1 7h14" stroke="currentColor" stroke-width="1.5" />
-            </svg>
-        </div>
-        <span class="text-xs text-on-surface-variant">Total</span>
-        <span class="text-2xl font-semibold text-blue-700 leading-none">{{ $stats['total'] }}</span>
-    </div>
+    @php
+        $stats_cards = [
+            [
+                'label' => 'Total',
+                'value' => $stats['total'],
+                'icon' =>
+                    '<rect x="1" y="3" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 3V2M11 3V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.5"/>',
+                'bg' => 'bg-primary-fixed/20',
+                'text' => 'text-primary',
+                'num' => 'text-primary',
+            ],
+            [
+                'label' => 'Pendientes',
+                'value' => $stats['pending'],
+                'icon' =>
+                    '<circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+                'bg' => 'bg-[#FAEEDA]',
+                'text' => 'text-[#854F0B]',
+                'num' => 'text-[#854F0B]',
+            ],
+            [
+                'label' => 'Confirmadas',
+                'value' => $stats['confirmed'],
+                'icon' =>
+                    '<path d="M2.5 8.5l3.5 3.5 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+                'bg' => 'bg-[#E1F5EE]',
+                'text' => 'text-[#0F6E56]',
+                'num' => 'text-[#0F6E56]',
+            ],
+            [
+                'label' => 'Completadas',
+                'value' => $stats['completed'],
+                'icon' =>
+                    '<circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 2"/><path d="M4.5 8.2l2.8 2.8 4.2-5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+                'bg' => 'bg-[#E6F1FB]',
+                'text' => 'text-[#185FA5]',
+                'num' => 'text-[#185FA5]',
+            ],
+            [
+                'label' => 'Canceladas',
+                'value' => $stats['cancelled'],
+                'icon' =>
+                    '<path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+                'bg' => 'bg-[#FCEBEB]',
+                'text' => 'text-[#A32D2D]',
+                'num' => 'text-[#A32D2D]',
+            ],
+        ];
+    @endphp
 
-    {{-- Pendientes --}}
-    <div
-        class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm p-4 flex flex-col gap-1.5">
-        <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center mb-1">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-amber-700">
-                <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" />
-                <path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
+    @foreach ($stats_cards as $card)
+        <div
+            class="flex items-center gap-3 rounded-xl border border-outline-variant/40
+                    bg-surface-container-lowest px-4 py-3
+                    shadow-[0_1px_4px_rgba(95,94,90,0.05)]">
+            <div
+                class="flex h-9 w-9 shrink-0 items-center justify-center
+                        rounded-[10px] {{ $card['bg'] }} {{ $card['text'] }}">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    {!! $card['icon'] !!}
+                </svg>
+            </div>
+            <div class="flex flex-col gap-0.5">
+                <span class="text-[17px] font-semibold leading-none {{ $card['num'] }}">
+                    {{ $card['value'] }}
+                </span>
+                <span class="text-[11px] font-normal text-on-surface-variant">
+                    {{ $card['label'] }}
+                </span>
+            </div>
         </div>
-        <span class="text-xs text-on-surface-variant">Pendientes</span>
-        <span class="text-2xl font-semibold text-amber-800 leading-none">{{ $stats['pending'] }}</span>
-    </div>
-
-    {{-- Confirmadas --}}
-    <div
-        class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm p-4 flex flex-col gap-1.5">
-        <div class="w-8 h-8 rounded-lg bg-[#E1F5EE] flex items-center justify-center mb-1">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-[#0F6E56]">
-                <path d="M2.5 8.5l3.5 3.5 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
-        </div>
-        <span class="text-xs text-on-surface-variant">Confirmadas</span>
-        <span class="text-2xl font-semibold text-[#0F6E56] leading-none">{{ $stats['confirmed'] }}</span>
-    </div>
-
-    {{-- Completadas --}}
-    <div
-        class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm p-4 flex flex-col gap-1.5">
-        <div class="w-8 h-8 rounded-lg bg-[#E6F1FB] flex items-center justify-center mb-1">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-[#185FA5]">
-                <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"
-                    stroke-dasharray="3 2" />
-                <path d="M4.5 8.2l2.8 2.8 4.2-5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
-        </div>
-        <span class="text-xs text-on-surface-variant">Completadas</span>
-        <span class="text-2xl font-semibold text-[#185FA5] leading-none">{{ $stats['completed'] }}</span>
-    </div>
-
-    {{-- Canceladas --}}
-    <div
-        class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm p-4 flex flex-col gap-1.5">
-        <div class="w-8 h-8 rounded-lg bg-[#FCEBEB] flex items-center justify-center mb-1">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-[#A32D2D]">
-                <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
-        </div>
-        <span class="text-xs text-on-surface-variant">Canceladas</span>
-        <span class="text-2xl font-semibold text-[#A32D2D] leading-none">{{ $stats['cancelled'] }}</span>
-    </div>
+    @endforeach
 
 </div>
