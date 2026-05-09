@@ -29,6 +29,22 @@ class UserIndex extends Component
         $this->resetPage();
     }
 
+    public function getActiveCountProperty(): int
+    {
+        $companyId = session('active_company_id');
+        return User::whereHas('companies', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })->count(); // sin trashed
+    }
+
+    public function getInactiveCountProperty(): int
+    {
+        $companyId = session('active_company_id');
+        return User::onlyTrashed()->whereHas('companies', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })->count();
+    }
+
     public function restoreUser(int $id): void
     {
         $user = User::withTrashed()->findOrFail($id);
@@ -54,7 +70,7 @@ class UserIndex extends Component
         }
 
         $user = User::findOrFail($id);
-        
+
         // Solo hace soft delete (NO borra imagen)
         $user->professionalAvailabilities()->delete();
         $user->delete();
@@ -78,6 +94,11 @@ class UserIndex extends Component
             ->where('id', '!=', $userId)
             ->paginate(10);
 
-        return view('livewire.users.⚡user-index', compact(['users', 'roles']));
+        return view('livewire.users.⚡user-index', [
+            'users' => $users,
+            'roles' => $roles,
+            'activeCount' => $this->activeCount,
+            'inactiveCount' => $this->inactiveCount
+        ]);
     }
 }
