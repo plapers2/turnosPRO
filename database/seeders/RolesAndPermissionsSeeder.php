@@ -46,13 +46,23 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // ! Dashboard
         Permission::create(['name' => 'gestionar dashboard']);
+        
+        //! Master
+        Permission::create(['name' => 'gestionar plataforma']);
 
         //* Roles
-        $admin = Role::create(['name' => 'admin']);
+        $master   = Role::create(['name' => 'master']);
+        $admin    = Role::create(['name' => 'admin']);
         $employee = Role::create(['name' => 'empleado']);
         $customer = Role::create(['name' => 'cliente']);
 
         //* Asignar
+
+        //! Master — solo gestiona la plataforma
+        $master->givePermissionTo([
+            'gestionar plataforma',
+            'gestionar dashboard',
+        ]);
 
         //! Administradores
         $admin->syncPermissions(
@@ -61,6 +71,7 @@ class RolesAndPermissionsSeeder extends Seeder
         //? Remover permisos del admin
         $admin->revokePermissionTo('ver historial de citas');
         $admin->revokePermissionTo('reservar citas');
+        $admin->revokePermissionTo('gestionar plataforma');
 
         //! Empleados
         $employee->givePermissionTo([
