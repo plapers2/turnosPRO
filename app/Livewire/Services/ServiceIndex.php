@@ -111,6 +111,7 @@ class ServiceIndex extends Component
 
     public function render()
     {
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
         $companyId = session('active_company_id');
 
         $services = Service::withTrashed()
@@ -124,7 +125,7 @@ class ServiceIndex extends Component
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->when($this->status === 'active', fn($q) => $q->whereNull('deleted_at'))
             ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
-            ->paginate(9);
+            ->paginate(2);
 
         return view('livewire.services.⚡service-index', [
             'services'      => $services,

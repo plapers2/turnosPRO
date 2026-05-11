@@ -32,6 +32,7 @@ class CustomerIndex extends Component
 
     public function render()
     {
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
         $companyId = session('active_company_id');
 
         $customers = Customer::where('company_id', $companyId)
@@ -70,7 +71,7 @@ class CustomerIndex extends Component
                     ->limit(1)
             ])
             ->orderByDesc('total_visitas')
-            ->paginate(15);
+            ->paginate(10);
 
         $customers->each(function ($customer) use ($companyId) {
             $customer->servicio_favorito = DB::table('appointment_service')

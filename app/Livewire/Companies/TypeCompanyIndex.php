@@ -41,12 +41,13 @@ class TypeCompanyIndex extends Component
 
     public function render()
     {
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
         $typeCompanies = TypeCompany::withTrashed()
             ->withCount('companies')
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->when($this->status === 'active', fn($q) => $q->whereNull('deleted_at'))
             ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
-            ->paginate(10);
+            ->paginate(2);
 
         return view('livewire.companies.type-company-index', compact('typeCompanies'));
     }
