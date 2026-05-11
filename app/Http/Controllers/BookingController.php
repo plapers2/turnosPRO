@@ -26,14 +26,22 @@ class BookingController extends Controller
     public function selectCompany(): View
     {
         $tiposNegocio = TypeCompany::with(['companies' => function ($q) {
-            $q->whereHas('services')
-                ->whereHas(
+            // Solo empresas que tienen al menos un servicio con un profesional (empleado)
+            // asignado a ESE servicio Y con disponibilidad semanal configurada
+            $q->whereHas(
+                'services',
+                fn($s) =>
+                $s->whereHas(
                     'users',
                     fn($u) =>
-                    $u->whereHas('roles', fn($r) =>
-                    $r->where('name', 'empleado'))
-                        ->whereHas('services') // que tenga al menos un servicio asignado
-                );
+                    $u->whereHas(
+                        'roles',
+                        fn($r) =>
+                        $r->where('name', 'empleado')
+                    )
+                        ->whereHas('professionalAvailabilities')
+                )
+            );
         }])->get();
 
         return view('appointment.index', compact('tiposNegocio'));
@@ -42,9 +50,23 @@ class BookingController extends Controller
     // ─── PASO 2: Seleccionar servicios ──────────────────────────────────
     public function selectServices(Company $company): View
     {
-        $services = $company->services()->get();
+        // Solo mostrar servicios que tengan al menos un profesional (empleado) asignado
+        $services = $company->services()
+            ->whereHas(
+                "users",
+                fn($q) =>
+                $q->whereHas(
+                    "roles",
+                    fn($r) =>
+                    $r->where("name", "empleado")
+                )
+            )
+            ->get();
 
-        return view('appointment.select-services', compact('company', 'services'));
+        // Si hay servicios pero ninguno tiene profesional asignado
+        $sinProfesionales = $company->services()->exists() && $services->isEmpty();
+
+        return view("appointment.select-services", compact("company", "services", "sinProfesionales"));
     }
 
     // ─── PASO 3: Confirmar cita ─────────────────────────────────────────
