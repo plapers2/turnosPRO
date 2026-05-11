@@ -22,7 +22,7 @@
                 <span class="material-symbols-outlined text-[17px]">service_toolbox</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-[17px] font-semibold leading-none text-on-surface">{{ $totalCount }}</span>
+                <span class="text-[17px] font-semibold leading-none text-on-surface">{{ $services->total() }}</span>
                 <span class="text-[11px] font-normal text-on-surface-variant">Total</span>
             </div>
         </div>
@@ -109,7 +109,7 @@
                     class="inline-flex h-[18px] min-w-[18px] items-center justify-center
                              rounded-full px-1 text-[10px] font-bold
                              {{ $status === '' ? 'bg-white/20 text-white' : 'bg-surface-container text-on-surface-variant' }}">
-                    {{ $totalCount }}
+                    {{ $services->total() }}
                 </span>
             </button>
 

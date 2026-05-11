@@ -25,13 +25,6 @@ class ServiceIndex extends Component
     }
 
     // ── Estadísticas (conteos globales, sin filtros) ──────────────────────────
-
-    public function getTotalCountProperty(): int
-    {
-        $companyId = session('active_company_id');
-        return Service::withTrashed()->where('company_id', $companyId)->count();
-    }
-
     public function getActiveCountProperty(): int
     {
         $companyId = session('active_company_id');
@@ -125,11 +118,10 @@ class ServiceIndex extends Component
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->when($this->status === 'active', fn($q) => $q->whereNull('deleted_at'))
             ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
-            ->paginate(2);
+            ->paginate(8);
 
         return view('livewire.services.⚡service-index', [
             'services'      => $services,
-            'totalCount'    => $this->totalCount,
             'activeCount'   => $this->activeCount,
             'inactiveCount' => $this->inactiveCount,
             'avgDuration'   => $this->avgDuration,

@@ -47,7 +47,7 @@ class TypeCompanyIndex extends Component
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->when($this->status === 'active', fn($q) => $q->whereNull('deleted_at'))
             ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
-            ->paginate(2);
+            ->paginate(10);
 
         return view('livewire.companies.type-company-index', compact('typeCompanies'));
     }
