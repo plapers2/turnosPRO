@@ -308,11 +308,11 @@
     }
 
     /* Botón activo Semana/Día */
-    .fc .fc-timeGridWeek-button.fc-button-active,
-    .fc .fc-timeGridDay-button.fc-button-active {
-        background-color: #6b3a1f !important;
-        color: #ffffff !important;
-        border-color: #6b3a1f !important;
+    .fc .fc-timeGridWeek-button:hover,
+    .fc .fc-timeGridDay-button:hover {
+        background-color: rgba(107, 58, 31, 0.08) !important;
+        border-color: rgba(107, 58, 31, 0.6) !important;
+        color: #6b3a1f !important;
     }
 
     .fc .fc-timeGridWeek-button:hover,
@@ -373,6 +373,12 @@
     .fc td,
     .fc th {
         border-color: rgba(107, 58, 31, 0.08) !important;
+    }
+
+    .fc .fc-button:focus,
+    .fc .fc-button:focus-visible {
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba(107, 58, 31, 0.3) !important;
     }
 </style>
 <script>
