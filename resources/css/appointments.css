@@ -31,7 +31,6 @@
     display: none !important;
 }
 
-
 /* ── Status Badge ───────────────────────────────────────── */
 .status-badge {
     display: inline-flex;
@@ -61,7 +60,6 @@
     background: var(--c-danger-bg);
     color: var(--c-danger);
 }
-
 
 /* ── Pagination ─────────────────────────────────────────── */
 .pagination-wrapper {
@@ -148,7 +146,6 @@
     font-size: 0.9rem;
 }
 
-
 /* ── Toast ──────────────────────────────────────────────── */
 .toast {
     position: fixed;
@@ -204,7 +201,6 @@
     display: none;
 }
 
-
 /* Animación de entrada del modal */
 @keyframes modal-in {
     from {
@@ -231,4 +227,80 @@
     color: var(--c-danger);
     margin: 0.3rem 0 0;
     font-weight: 500;
+}
+
+/* ─────────────────────────────────────────────────
+   FullCalendar — estilos de contenido de eventos
+   ───────────────────────────────────────────────── */
+
+/* Evita que el contenedor del evento desborde su celda */
+.fc-event {
+    overflow: hidden !important;
+}
+
+/* ── Citas cortas (≤ 20 min) ── */
+.fc-event-compact {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 1px 4px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+}
+
+.fc-event-compact__dot {
+    font-size: 0.5rem;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.fc-event-compact__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Citas normales (> 20 min) ── */
+.fc-event-inner {
+    overflow: hidden;
+    padding: 2px 5px;
+    line-height: 1.3;
+}
+
+.fc-event-inner__title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fc-event-inner__sub {
+    font-size: 0.7rem;
+    opacity: 0.88;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Variante media: un poco más de espaciado */
+.fc-event-inner--md {
+    padding: 2px 5px;
+}
+
+/* Variante larga */
+.fc-event-inner--lg {
+    padding: 3px 5px;
+}
+
+/* ── Quitar estilos por defecto de FC que interfieren ── */
+.fc-event .fc-event-main {
+    overflow: hidden;
+}
+
+.fc-timegrid-event .fc-event-main {
+    overflow: hidden;
+    padding: 0;
 }

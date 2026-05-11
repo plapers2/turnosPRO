@@ -50,13 +50,13 @@
                         <div
                             class="w-9 h-9 rounded-full bg-primary-fixed/30 text-primary
                                     flex items-center justify-center text-xs font-bold flex-shrink-0">
-                            {{ strtoupper(substr($appt->customer->name, 0, 2)) }}
+                            {{ strtoupper(substr($appt->customer?->name, 0, 2)) }}
                         </div>
                         <div>
                             <p class="text-[13px] font-semibold text-on-surface leading-tight">
-                                {{ $appt->customer->name }}</p>
-                            <p class="text-[11px] text-on-surface-variant mt-0.5">{{ $appt->customer->email }}</p>
-                            <p class="text-[11px] text-on-surface-variant">{{ $appt->customer->phone }}</p>
+                                {{ $appt->customer?->name }}</p>
+                            <p class="text-[11px] text-on-surface-variant mt-0.5">{{ $appt->customer?->email }}</p>
+                            <p class="text-[11px] text-on-surface-variant">{{ $appt->customer?->phone }}</p>
                         </div>
                     </div>
                 </div>
@@ -69,12 +69,12 @@
                         <div
                             class="w-9 h-9 rounded-full bg-[#E1F5EE] text-[#0F6E56]
                                     flex items-center justify-center text-xs font-bold flex-shrink-0">
-                            {{ strtoupper(substr($appt->user->name, 0, 2)) }}
+                            {{ strtoupper(substr($appt->user?->name, 0, 2)) }}
                         </div>
                         <div>
-                            <p class="text-[13px] font-semibold text-on-surface leading-tight">{{ $appt->user->name }}
+                            <p class="text-[13px] font-semibold text-on-surface leading-tight">{{ $appt->user?->name }}
                             </p>
-                            <p class="text-[11px] text-on-surface-variant mt-0.5">{{ $appt->user->email }}</p>
+                            <p class="text-[11px] text-on-surface-variant mt-0.5">{{ $appt->user?->email }}</p>
                         </div>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
                         <span
                             class="bg-[#E6F1FB] text-[#185FA5] inline-flex items-center self-start
                                      px-2.5 py-1 rounded-full text-[10.5px] font-semibold">
-                            {{ $appt->completedBy->name }}
+                            {{ $appt->completedBy?->name }}
                         </span>
                     </div>
                 @endif
