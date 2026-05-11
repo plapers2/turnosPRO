@@ -92,6 +92,59 @@ if (calendarEl) {
             events: [],
             eventColor: "#6366f1",
             height: "auto",
+            eventContent: (arg) => {
+                if (!arg.event.classNames.includes("cita-preview")) return true;
+
+                const start = arg.event.start;
+                const end = arg.event.end;
+                const durMin = end
+                    ? Math.round((end - start) / 60000)
+                    : totalDuration;
+
+                // Altura aproximada: cada 30min = ~48px
+                const alturaAprox = (durMin / 30) * 48;
+
+                let html = "";
+                if (alturaAprox >= 48) {
+                    // Slot grande: muestra hora inicio - hora fin + label
+                    const hIni = start.toLocaleTimeString("es-CO", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                    });
+                    const hFin = end
+                        ? end.toLocaleTimeString("es-CO", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                          })
+                        : "";
+                    html = `<div class="fc-event-main-frame" style="padding:3px 5px;overflow:hidden;height:100%;">
+                        <div style="font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            ${hIni}${hFin ? " - " + hFin : ""}
+                        </div>
+                        ${alturaAprox >= 48 ? `<div style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Tu cita (${durMin} min)</div>` : ""}
+                    </div>`;
+                } else {
+                    const hIni = start.toLocaleTimeString("es-CO", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                    });
+                    const hFin = end
+                        ? end.toLocaleTimeString("es-CO", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                          })
+                        : "";
+                    html = `<div class="fc-event-main-frame" style="padding:1px 4px;overflow:hidden;height:100%;">
+        <div style="font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${hIni}${hFin ? " - " + hFin : ""}</div>
+    </div>`;
+                }
+
+                return { html };
+            },
         });
 
         calendar.render();
