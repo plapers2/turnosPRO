@@ -2,6 +2,7 @@ import "./bootstrap";
 import "./booking-calendar";
 import Chart from "chart.js/auto";
 import TomSelect from "tom-select";
+import "./appointements";
 
 window.Chart = Chart;
 
