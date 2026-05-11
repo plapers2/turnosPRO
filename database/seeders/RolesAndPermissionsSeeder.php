@@ -16,39 +16,42 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
+        //* Limpiar caché de permisos de Spatie antes de crear
+        app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
         //* Permisos
 
         //! Servicios
-        Permission::create(['name' => 'gestionar servicios']);
-        Permission::create(['name' => 'ver servicios']);
+        $gestionarServicios         = Permission::create(['name' => 'gestionar servicios']);
+        $verServicios               = Permission::create(['name' => 'ver servicios']);
 
         //! Usuarios
-        Permission::create(['name' => 'gestionar usuarios']);
+        $gestionarUsuarios          = Permission::create(['name' => 'gestionar usuarios']);
 
         //! Citas
-        Permission::create(['name' => 'gestionar citas']);
-        Permission::create(['name' => 'ver historial de citas']);
-        Permission::create(['name' => 'reservar citas']);
+        $gestionarCitas             = Permission::create(['name' => 'gestionar citas']);
+        $verHistorialCitas          = Permission::create(['name' => 'ver historial de citas']);
+        $reservarCitas              = Permission::create(['name' => 'reservar citas']);
 
         //! Empresas
-        Permission::create(['name' => 'gestionar empresas']);
-        Permission::create(['name' => 'ver empresas']);
-        Permission::create(['name' => 'ver horarios']);
+        $gestionarEmpresas          = Permission::create(['name' => 'gestionar empresas']);
+        $verEmpresas                = Permission::create(['name' => 'ver empresas']);
+        $verHorarios                = Permission::create(['name' => 'ver horarios']);
 
         //! Clientes
-        Permission::create(['name' => 'gestionar clientes']);
+        $gestionarClientes          = Permission::create(['name' => 'gestionar clientes']);
 
         //! Notificaciones
-        Permission::create(['name' => 'ver historial de notificaciones']);
+        $verHistorialNotificaciones = Permission::create(['name' => 'ver historial de notificaciones']);
 
         //! Reportes
-        Permission::create(['name' => 'imprimir reportes']);
+        $imprimirReportes           = Permission::create(['name' => 'imprimir reportes']);
 
         // ! Dashboard
-        Permission::create(['name' => 'gestionar dashboard']);
-        
+        $gestionarDashboard         = Permission::create(['name' => 'gestionar dashboard']);
+
         //! Master
-        Permission::create(['name' => 'gestionar plataforma']);
+        $gestionarPlataforma        = Permission::create(['name' => 'gestionar plataforma']);
 
         //* Roles
         $master   = Role::create(['name' => 'master']);
@@ -60,33 +63,38 @@ class RolesAndPermissionsSeeder extends Seeder
 
         //! Master — solo gestiona la plataforma
         $master->givePermissionTo([
-            'gestionar plataforma',
-            'gestionar dashboard',
+            $gestionarPlataforma,
         ]);
 
         //! Administradores
-        $admin->syncPermissions(
-            Permission::all()
-        );
-        //? Remover permisos del admin
-        $admin->revokePermissionTo('ver historial de citas');
-        $admin->revokePermissionTo('reservar citas');
-        $admin->revokePermissionTo('gestionar plataforma');
+        $admin->givePermissionTo([
+            $gestionarServicios,
+            $verServicios,
+            $gestionarDashboard,
+            $gestionarUsuarios,
+            $gestionarCitas,
+            $gestionarEmpresas,
+            $verEmpresas,
+            $verHorarios,
+            $gestionarClientes,
+            $verHistorialNotificaciones,
+            $imprimirReportes,
+        ]);
 
         //! Empleados
         $employee->givePermissionTo([
-            'gestionar citas',
-            'gestionar dashboard',
-            'ver horarios',
-            'ver servicios',
-            'ver empresas'
+            $gestionarCitas,
+            $gestionarDashboard,
+            $verHorarios,
+            $verServicios,
+            $verEmpresas
         ]);
 
         //! Clientes
         $customer->givePermissionTo([
-            'ver historial de citas',
-            'reservar citas',
-            'gestionar dashboard'
+            $verHistorialCitas,
+            $reservarCitas,
+            $gestionarDashboard
         ]);
     }
 }

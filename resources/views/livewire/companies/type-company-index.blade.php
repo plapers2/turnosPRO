@@ -32,10 +32,14 @@
         <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20
                     shadow-[0_10px_30px_rgba(95,94,90,0.05)] overflow-hidden">
 
-            <div class="px-6 py-4 border-b border-outline-variant/20">
+            <div class="px-6 py-4 border-b border-outline-variant/20 flex items-center justify-between">
                 <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide">
                     Lista de tipos de empresa
                 </h3>
+                <a href="{{ route('master.type-companies.create') }}"
+                    class="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium">
+                    Nuevo tipo
+                </a>
             </div>
 
             {{-- DESKTOP --}}
@@ -91,7 +95,7 @@
                                 </button>
                                 @else
                                 <div class="flex justify-end gap-3">
-                                    <a href="{{ route('type-companies.edit', $typeCompany->id) }}"
+                                    <a href="{{ route('master.type-companies.edit', $typeCompany->id) }}"
                                         class="text-primary hover:text-primary-container transition">Editar</a>
                                     <button wire:click="confirmDelete({{ $typeCompany->id }})"
                                         class="text-error hover:text-on-error-container transition">Eliminar</button>
@@ -106,7 +110,7 @@
                                 <div class="flex flex-col items-center gap-4">
                                     <span class="material-symbols-outlined text-4xl text-primary">category</span>
                                     <p class="text-on-surface-variant">No se encontraron tipos de empresa</p>
-                                    <a href="{{ route('type-companies.create') }}"
+                                    <a href="{{ route('master.type-companies.create') }}"
                                         class="px-4 py-2 rounded-lg bg-primary text-white text-sm">
                                         Crear tipo de empresa
                                     </a>
@@ -149,7 +153,7 @@
                             Restaurar
                         </button>
                         @else
-                        <a href="{{ route('type-companies.edit', $typeCompany->id) }}"
+                        <a href="{{ route('master.type-companies.edit', $typeCompany->id) }}"
                             class="text-primary hover:text-primary-container transition text-sm">Editar</a>
                         <button wire:click="confirmDelete({{ $typeCompany->id }})"
                             class="text-error hover:text-on-error-container transition text-sm">Eliminar</button>

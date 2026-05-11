@@ -1,10 +1,10 @@
 <x-app-layout>
     <main class="flex-1 flex flex-col h-full overflow-y-auto bg-surface">
 
-        <x-form.header icono="category" titulo="Editar Tipo de Empresa" subtitulo="Panel de gestión" ruta="type-companies" />
+        <x-form.header icono="category" titulo="Editar Tipo de Empresa" subtitulo="Panel de gestión" ruta="master.type-companies" />
 
         <div class="px-8 pb-20">
-            <form method="POST" action="{{ route('type-companies.update', $typeCompany->id) }}" enctype="multipart/form-data" class="space-y-8">
+            <form method="POST" action="{{ route('master.type-companies.update', $typeCompany->id) }}" enctype="multipart/form-data" class="space-y-8">
                 @csrf
                 @method('PATCH')
                 @include('type-company.form')

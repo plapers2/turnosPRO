@@ -12,14 +12,19 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\NotificationLogController;
 use App\Http\Controllers\ProfileSettingsController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MasterController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    return redirect()->route("dashboard");
+    if (auth()->check() && auth()->user()->hasRole('master')) {
+        return redirect()->route('master.index');
+    }
+    return redirect()->route('dashboard');
 });
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard')
+    ->middleware('role:admin|empleado|cliente');
 
 
 // ─────────────────────────────────────────────
@@ -39,7 +44,6 @@ Route::middleware(['auth', 'password.changed'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Horarios de empresa
     Route::resource('/opening-hours', OpeningHourController::class)->except('index')->middleware('role:admin');
@@ -51,10 +55,6 @@ Route::middleware(['auth', 'password.changed'])->group(function () {
     Route::post('/services/{id}/restore', [ServiceController::class, 'restore'])->name('service.restore')->middleware('role:admin');
     Route::get('/services', [ServiceController::class, 'index'])->middleware('permission:ver servicios')->name('services.index');
 
-    // Empresas
-    Route::resource('/companies', CompanyController::class)->except('index')->middleware('role:admin');
-    Route::get('/companies', [CompanyController::class, 'index'])->middleware('permission:ver empresas')->name('companies.index');
-
     // Perfil
     Route::get('/settings', [ProfileSettingsController::class, 'edit'])->name('profile.settings');
     Route::put('/settings', [ProfileSettingsController::class, 'update'])->name('profile.settings.update');
@@ -65,14 +65,16 @@ Route::middleware(['auth', 'password.changed'])->group(function () {
 // Panel Master
 // ─────────────────────────────────────────────
 Route::middleware(['auth', 'password.changed', 'role:master'])->prefix('master')->name('master.')->group(function () {
-    Route::get('/', [MasterController::class, 'index'])->name('index');
-    Route::get('/create', [MasterController::class, 'create'])->name('create');
-    Route::post('/', [MasterController::class, 'store'])->name('store');
-    Route::get('/{company}/edit', [MasterController::class, 'edit'])->name('edit');
-    Route::put('/{company}', [MasterController::class, 'update'])->name('update');
-    Route::delete('/{company}', [MasterController::class, 'destroy'])->name('destroy');
-    Route::post('/{id}/restore', [MasterController::class, 'restore'])->name('restore');
-    Route::post('/{company}/assign-admin', [MasterController::class, 'assignAdmin'])->name('assign-admin');
+    Route::get('/', [CompanyController::class, 'index'])->name('index');
+    Route::get('/create', [CompanyController::class, 'create'])->name('create');
+    Route::post('/', [CompanyController::class, 'store'])->name('store');
+    Route::get('/{company}/edit', [CompanyController::class, 'edit'])->name('edit');
+    Route::put('/{company}', [CompanyController::class, 'update'])->name('update');
+    Route::delete('/{company}', [CompanyController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/restore', [CompanyController::class, 'restore'])->name('restore');
+    Route::post('/{company}/assign-admin', [CompanyController::class, 'assignAdmin'])->name('assign-admin');
+    Route::resource('/type-companies', TypeCompanyController::class);
+    Route::post('/type-companies/{id}/restore', [TypeCompanyController::class, 'restore'])->name('type-companies.restore');
 });
 
 
@@ -98,7 +100,6 @@ Route::middleware(['auth', 'password.changed', 'role:cliente'])->group(function 
 Route::middleware(['auth', 'password.changed', 'role:admin'])->group(function () {
     Route::resource('/users', UserController::class);
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
-    Route::resource('/type-companies', TypeCompanyController::class);
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/appointments/export', [BookingController::class, 'exportView'])->name('appointments.export');
     Route::get('/appointments/export-pdf', [BookingController::class, 'exportPdf'])->name('appointments.export-pdf');

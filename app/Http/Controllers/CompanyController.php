@@ -4,81 +4,92 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\TypeCompany;
+use App\Models\User;
+use App\Mail\AdminCredentialsMail;
+use App\Mail\AdminCompanyAssignedMail;
+use App\Http\Requests\CompanyRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\CompanyRequest;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class CompanyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): View
-    {
-        $companies = Company::query()->with('typeCompany')->paginate(10);
+    // ─────────────────────────────────────────────
+    // EMPRESAS
+    // ─────────────────────────────────────────────
 
-        return view('company.index', compact('companies'))
-            ->with('i', ($request->input('page', 1) - 1) * $companies->perPage());
+    public function index(): View
+    {
+        return view('master.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
-        $company = new Company();
         $typeCompanies = TypeCompany::all();
+        $admins        = User::role('admin')->get();
 
-        return view('company.create', compact('company', 'typeCompanies'));
+        return view('master.create', compact('typeCompanies', 'admins'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(CompanyRequest $request): RedirectResponse
     {
         $data = $request->validated();
+
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('logos', 'public');
         }
 
-        Company::create($data);
+        $company = Company::create([
+            'name'            => $data['name'],
+            'email'           => $data['email'],
+            'address'         => $data['address'],
+            'phone'           => $data['phone'],
+            'type_company_id' => $data['type_company_id'],
+            'logo'            => $data['logo'] ?? null,
+        ]);
 
-        return Redirect::route('companies.index')
-            ->with('success', 'Company created successfully.');
+        if ($data['admin_type'] === 'existing') {
+            $admin = User::findOrFail($data['admin_id']);
+            $company->users()->syncWithoutDetaching([$admin->id]);
+            Mail::to($admin->email)->send(new AdminCompanyAssignedMail($admin, $company));
+        } else {
+            $tempPassword = \Illuminate\Support\Str::random(10);
+            $admin = User::create([
+                'name'                 => $data['admin_name'],
+                'email'                => $data['admin_email'],
+                'password'             => Hash::make($tempPassword),
+                'phone'                => '',
+                'must_change_password' => true,
+            ]);
+            $admin->assignRole('admin');
+            $company->users()->attach($admin->id);
+            Mail::to($admin->email)->send(new AdminCredentialsMail($admin, $company, $tempPassword));
+        }
+
+        return redirect()->route('master.index')
+            ->with('success', 'Empresa creada y administrador asignado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id): View
+    public function edit(Company $company): View
     {
-        $company = Company::find($id);
-
-        return view('company.show', compact('company'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id): View
-    {
-        $company = Company::find($id);
+        $company->load(['typeCompany', 'users' => fn($q) => $q->role('admin')]);
         $typeCompanies = TypeCompany::all();
+        $admins        = User::role('admin')->get();
 
-        return view('company.edit', compact('company', 'typeCompanies'));
+        return view('master.edit', compact('company', 'typeCompanies', 'admins'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(CompanyRequest $request, Company $company): RedirectResponse
     {
         $data = $request->validated();
 
         if ($request->hasFile('logo')) {
+            if ($company->logo) {
+                Storage::disk('public')->delete($company->logo);
+            }
             $data['logo'] = $request->file('logo')->store('logos', 'public');
         } else {
             unset($data['logo']);
@@ -86,15 +97,48 @@ class CompanyController extends Controller
 
         $company->update($data);
 
-        return Redirect::route('companies.index')
+        return redirect()->route('master.index')
             ->with('success', 'Empresa actualizada correctamente.');
     }
 
-    public function destroy($id): RedirectResponse
-    {
-        Company::find($id)->delete();
+    // ─────────────────────────────────────────────
+    // ACTIVAR / DESACTIVAR (soft delete / restore)
+    // ─────────────────────────────────────────────
 
-        return Redirect::route('companies.index')
-            ->with('success', 'Company deleted successfully');
+    public function destroy(Company $company): RedirectResponse
+    {
+        $company->delete();
+
+        return redirect()->route('master.index')
+            ->with('success', 'Empresa desactivada. Sus datos se conservan.');
+    }
+
+    public function restore(int $id): RedirectResponse
+    {
+        $company = Company::withTrashed()->findOrFail($id);
+        $company->restore();
+
+        return redirect()->route('master.index')
+            ->with('success', 'Empresa reactivada correctamente.');
+    }
+
+    // ─────────────────────────────────────────────
+    // ASIGNAR ADMIN EXISTENTE A EMPRESA
+    // ─────────────────────────────────────────────
+
+    public function assignAdmin(Request $request, Company $company): RedirectResponse
+    {
+        $data = $request->validate([
+            'admin_id' => 'required|exists:users,id',
+        ]);
+
+        $admin = User::findOrFail($data['admin_id']);
+        abort_if(!$admin->hasRole('admin'), 403, 'El usuario seleccionado no tiene rol de administrador.');
+
+        $company->users()->syncWithoutDetaching([$admin->id]);
+        Mail::to($admin->email)->send(new AdminCompanyAssignedMail($admin, $company));
+
+        return redirect()->route('master.index')
+            ->with('success', 'Administrador asignado a la empresa correctamente.');
     }
 }

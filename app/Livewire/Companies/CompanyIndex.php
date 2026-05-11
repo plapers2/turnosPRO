@@ -46,6 +46,7 @@ class CompanyIndex extends Component
 
     public function render()
     {
+        abort_unless(auth()->user()->hasRole('master'), 403);
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
         $tipos = \App\Models\TypeCompany::orderBy('name')->pluck('name', 'id');
 

@@ -22,7 +22,7 @@
 
         <!-- BOTONES -->
         <div class="flex justify-end gap-4 pt-4">
-            <a href="{{ route('companies.index') }}"
+            <a href="{{ route('master.type-companies.index') }}"
                 class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-surface-container hover:bg-surface-container-high transition">
                 Cancelar
             </a>
