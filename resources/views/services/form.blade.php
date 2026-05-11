@@ -74,16 +74,27 @@
              <!-- SIDEBAR -->
              <div class="space-y-8">
 
-                 <div class="bg-surface-container rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+                 <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+                     <h3 class="text-sm font-semibold text-primary">Imagen del servicio</h3>
 
-                     <h3 class="text-md font-semibold text-primary">
-                         Imagen del servicio
-                     </h3>
+                     <div class="flex justify-center">
+                         <div class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
+                             @if(isset($service) && $service->image)
+                             <img id="preview" src="{{ asset('storage/' . $service->image) }}" class="w-full h-full object-cover" />
+                             @else
+                             <img id="preview" src="" class="w-full h-full object-cover hidden" />
+                             <span id="initials" class="material-symbols-outlined text-3xl text-primary/30">spa</span>
+                             @endif
+                         </div>
+                     </div>
 
-                     <x-form.input-file name="imagen" id="image" />
-
-                     <img id="preview" src="{{ $service->image ? asset('storage/' . $service->image) : '' }}"
-                         class="{{ isset($service) ? '' : 'hidden' }} w-full h-40 object-cover rounded-lg border border-outline-variant/20">
+                     <div class="flex flex-col gap-1.5">
+                         <label for="image" class="text-xs font-medium text-on-surface-variant">PNG o JPG hasta 10MB</label>
+                         <input type="file" id="image" name="imagen" accept="image/png,image/jpg,image/jpeg"
+                             class="w-full text-sm text-on-surface-variant file:mr-3 file:py-1.5 file:px-3
+            file:rounded-lg file:border-0 file:text-xs file:font-semibold
+            file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition" />
+                     </div>
                  </div>
 
                  <div class="bg-primary-container/10 rounded-xl p-6 border border-primary/10 space-y-3">
@@ -103,26 +114,21 @@
                          Este servicio será visible inmediatamente después de guardarlo
                      </p>
                  </div>
-
-                 <input type="hidden" value="1" id="company_id" name="company_id">
              </div>
 
          </div>
 
          <script>
-             const input = document.getElementById('image');
-             const preview = document.getElementById('preview');
-             const placeholder = document.getElementById('placeholder');
-
-             input.addEventListener('change', e => {
+             document.getElementById('image').addEventListener('change', function(e) {
                  const file = e.target.files[0];
                  if (!file) return;
-
                  const reader = new FileReader();
                  reader.onload = () => {
+                     const preview = document.getElementById('preview');
+                     const initials = document.getElementById('initials');
                      preview.src = reader.result;
                      preview.classList.remove('hidden');
-                     placeholder.classList.add('hidden');
+                     if (initials) initials.classList.add('hidden');
                  };
                  reader.readAsDataURL(file);
              });

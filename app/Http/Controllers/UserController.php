@@ -170,7 +170,7 @@ class UserController extends Controller
             ],
             'telefono' => 'required|string|min:8|max:20',
             'password' => ['nullable', Password::min(8), 'confirmed'],
-            'archivo'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'archivo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
             'role'     => 'required|exists:roles,name',
             'services'     => 'required|array',
             'services.*'   => 'exists:services,id',

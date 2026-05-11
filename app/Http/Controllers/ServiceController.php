@@ -37,13 +37,14 @@ class ServiceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $companyId = session('active_company_id');
+        abort_if(!$companyId, 403, 'No hay empresa activa en sesión.');
 
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'duracion' => 'required|integer',
             'precio' => 'required|numeric',
-            'imagen' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048'
+            'imagen' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240'
         ]);
 
         // guardar imagen
@@ -91,13 +92,14 @@ class ServiceController extends Controller
      */
     public function update(Request $request, Service $service): RedirectResponse
     {
-        $companyId = session("active_company_id");
+        $companyId = session('active_company_id');
+        abort_if(!$companyId, 403, 'No hay empresa activa en sesión.');
         $data = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'duracion' => 'required|integer',
             'precio' => 'required|numeric',
-            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240'
         ]);
 
         // Manejo de imagen

@@ -21,7 +21,7 @@
             </x-form.field>
 
             <x-form.field label="Teléfono" for="phone">
-                <x-form.input name="telefono" id="telefono" type="text" :value="old('telefono', $user->phone)"
+                <x-form.input name="telefono" id="telefono" type="number" :value="old('telefono', $user->phone)"
                     placeholder="Ej. 3001234567" class="focus:ring-primary/10 focus:border-primary/40" />
             </x-form.field>
         </div>
@@ -34,14 +34,14 @@
         <x-form.field label="Rol del Usuario" for="roles_id">
             <x-form.select name="role" id="role">
                 @forelse ($roles as $role)
-                    @if ($role->name != 'cliente')
-                        <option {{ old('role', $user->roles->first()?->name) === $role->name ? 'selected' : '' }}
-                            value="{{ $role->name }}">
-                            {{ ucfirst($role->name) }}
-                        </option>
-                    @endif
+                @if ($role->name != 'cliente')
+                <option {{ old('role', $user->roles->first()?->name) === $role->name ? 'selected' : '' }}
+                    value="{{ $role->name }}">
+                    {{ ucfirst($role->name) }}
+                </option>
+                @endif
                 @empty
-                    <option value="">No hay ningún rol en el sistema</option>
+                <option value="">No hay ningún rol en el sistema</option>
                 @endforelse
             </x-form.select>
 
@@ -51,31 +51,30 @@
 
     <!-- CARD SEGURIDAD -->
     @if (!$user->password)
-        <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
 
-            <h2 class="text-lg font-semibold text-primary">
-                Seguridad
-            </h2>
+        <h2 class="text-lg font-semibold text-primary">
+            Seguridad
+        </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <x-form.field label="Contraseña" for="password">
-                    <x-form.input name="password" id="password" type="password" placeholder="•••••••••"
-                        class="focus:ring-secondary/10 focus:border-secondary/40" />
-                </x-form.field>
+            <x-form.field label="Contraseña" for="password">
+                <x-form.input name="password" id="password" type="password" placeholder="•••••••••"
+                    class="focus:ring-secondary/10 focus:border-secondary/40" />
+            </x-form.field>
 
-                <x-form.field label="Confirmar contraseña" for="password_confirmation">
-                    <x-form.input name="password_confirmation" id="password_confirmation" type="password"
-                        placeholder="•••••••••" class="focus:ring-secondary/10 focus:border-secondary/40" />
-                </x-form.field>
-
-            </div>
+            <x-form.field label="Confirmar contraseña" for="password_confirmation">
+                <x-form.input name="password_confirmation" id="password_confirmation" type="password"
+                    placeholder="•••••••••" class="focus:ring-secondary/10 focus:border-secondary/40" />
+            </x-form.field>
 
         </div>
+
+    </div>
     @endif
 
     {{-- CARD DISPONIBILIDAD --}}
-    {{-- CARD DISPONIBILIDAD — error general si no se seleccionó ningún día --}}
     <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6" x-data
         x-cloak>
 
@@ -86,8 +85,8 @@
             </p>
         </div>
         @include('components.form.disponibilidad', [
-            'disponibilidades' => $user->professionalAvailabilities ?? collect(),
-            'horariosEmpresa' => $horariosEmpresa,
+        'disponibilidades' => $user->professionalAvailabilities ?? collect(),
+        'horariosEmpresa' => $horariosEmpresa,
         ])
     </div>
 
@@ -108,34 +107,50 @@
 
         <select name="services[]" id="services" multiple placeholder="Buscar servicio..." autocomplete="off">
             @forelse ($services as $service)
-                @php
-                    $selected = in_array($service->id, old('services', $user->services->pluck('id')->toArray() ?? []));
-                @endphp
-                <option value="{{ $service->id }}" {{ $selected ? 'selected' : '' }}>
-                    {{ $service->name }}
-                </option>
+            @php
+            $selected = in_array($service->id, old('services', $user->services->pluck('id')->toArray() ?? []));
+            @endphp
+            <option value="{{ $service->id }}" {{ $selected ? 'selected' : '' }}>
+                {{ $service->name }}
+            </option>
             @empty
-                <option disabled>No hay servicios registrados.</option>
+            <option disabled>No hay servicios registrados.</option>
             @endforelse
         </select>
 
         @error('services')
-            <p class="text-xs text-error mt-1">{{ $message }}</p>
+        <p class="text-xs text-error mt-1">{{ $message }}</p>
         @enderror
 
     </div>
 
     <!-- IMAGEN -->
-    <div class="bg-surface-container rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+    <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+        <h3 class="text-sm font-semibold text-primary">Foto de perfil</h3>
 
-        <h3 class="text-md font-semibold text-primary">
-            Foto de perfil
-        </h3>
+        <div class="flex justify-center">
+            <div class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
+                @if(isset($user) && $user->image)
+                <img id="preview" src="{{ asset('storage/' . $user->image) }}" class="w-full h-full object-cover" />
+                @else
+                <img id="preview" src="" class="w-full h-full object-cover hidden" />
+                <span id="initials" class="material-symbols-outlined text-3xl text-primary/30">
+                    person
+                </span>
+                @endif
+            </div>
+        </div>
 
-        <x-form.input-file name="archivo" id="archivo" />
-
-        <img id="preview" src="{{ $user->image ? asset('storage/' . $user->image) : '' }}"
-            class="{{ isset($user) ? '' : 'hidden' }} w-full h-40 object-cover rounded-lg border border-outline-variant/20">
+        <div class="flex flex-col gap-1.5">
+            <label for="archivo" class="text-xs font-medium text-on-surface-variant">PNG o JPG hasta 10MB</label>
+            <input type="file" id="archivo" name="archivo" accept="image/png,image/jpg,image/jpeg"
+                class="w-full text-sm text-on-surface-variant file:mr-3 file:py-1.5 file:px-3
+            file:rounded-lg file:border-0 file:text-xs file:font-semibold
+            file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition" />
+            @error('archivo')
+            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
     </div>
 
     <!-- INFO -->
@@ -171,19 +186,16 @@
 
 </div>
 <script>
-    const input = document.getElementById('archivo');
-    const preview = document.getElementById('preview');
-    const placeholder = document.getElementById('placeholder');
-
-    input.addEventListener('change', e => {
+    document.getElementById('archivo').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = () => {
+            const preview = document.getElementById('preview');
+            const initials = document.getElementById('initials');
             preview.src = reader.result;
             preview.classList.remove('hidden');
-            placeholder.classList.add('hidden');
+            if (initials) initials.classList.add('hidden');
         };
         reader.readAsDataURL(file);
     });
