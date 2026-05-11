@@ -152,7 +152,7 @@
                     <!-- Imagen -->
                     <div class="w-full h-40 overflow-hidden bg-surface-container">
                         @if ($service->image)
-                        <img src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($company->name) }}" alt="{{ $service->name }}"
+                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}"
                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         @else
                         <div
