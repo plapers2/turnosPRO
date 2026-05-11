@@ -108,6 +108,7 @@ class ServiceIndex extends Component
         $companyId = session('active_company_id');
 
         $services = Service::withTrashed()
+            ->orderBy("deleted_at", 'asc')
             ->when($companyId, fn($q) => $q->where('company_id', $companyId))
             ->when(
                 auth()->user()->hasRole('empleado'),

@@ -87,6 +87,7 @@ class UserIndex extends Component
 
 
         $users = User::withTrashed()
+            ->orderBy("deleted_at", 'asc')
             ->when($companyId, fn($q) => $q->whereHas('companies', fn($q) => $q->where('companies.id', $companyId)))
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->when($this->status === 'active', fn($q) => $q->whereNull('deleted_at'))

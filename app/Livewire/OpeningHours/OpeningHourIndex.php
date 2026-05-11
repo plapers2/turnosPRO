@@ -115,6 +115,7 @@ class OpeningHourIndex extends Component
         ];
 
         $openingHours = OpeningHour::withTrashed()
+            ->orderBy("deleted_at", 'asc')
             ->where('company_id', $companyId)
             ->when($this->status === 'active',   fn($q) => $q->whereNull('deleted_at'))
             ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
