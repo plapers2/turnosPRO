@@ -21,12 +21,6 @@
                 <h2 class="text-[17px] font-semibold leading-tight tracking-tight text-on-surface">
                     Citas
                 </h2>
-                <span
-                    class="inline-flex items-center justify-center rounded-full
-                             bg-primary-fixed/30 text-primary text-[11px] font-bold
-                             px-2 py-0.5 min-w-[24px]">
-                    {{ $total }}
-                </span>
             </div>
             <p class="text-[13px] text-on-surface-variant">
                 Gestiona y hace seguimiento de todas las citas agendadas.
