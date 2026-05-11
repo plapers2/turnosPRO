@@ -41,6 +41,7 @@ class TypeCompanyIndex extends Component
 
     public function render()
     {
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
         $typeCompanies = TypeCompany::withTrashed()
             ->withCount('companies')
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))

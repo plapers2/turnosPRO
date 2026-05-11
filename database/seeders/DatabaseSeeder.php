@@ -17,6 +17,7 @@ use Database\Seeders\AppointmentSeeder;
 use Database\Seeders\AppointmentServiceSeeder;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,6 +28,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        Storage::disk('public')->deleteDirectory('logos');
+        Storage::disk('public')->deleteDirectory('services');
+        Storage::disk('public')->makeDirectory('logos');
+        Storage::disk('public')->makeDirectory('services');
+        Storage::disk('public')->deleteDirectory('users');
+        Storage::disk('public')->makeDirectory('users');
         $this->call([
             RolesAndPermissionsSeeder::class,
             UserSeeder::class,

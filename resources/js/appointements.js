@@ -1,6 +1,5 @@
 // resources/js/appointments.js
 // Lógica Alpine del gestor de citas + persistencia de vista
-
 /**
  * Alpine component: appointmentsManager()
  * Gestiona:
@@ -31,16 +30,13 @@ function appointmentsManager() {
                     }
                 });
             }
-
             // Observar cambios de vista para persistir
             this.$watch("view", (val) => {
                 localStorage.setItem("appt_view", val);
-
                 if (val === "calendar") {
                     this.$nextTick(() => this.initCalendar());
                 }
             });
-
             // Escuchar eventos Livewire después de inicializar
             document.addEventListener("livewire:initialized", () => {
                 Livewire.on("calendarEventsUpdated", ({ events }) => {
@@ -56,7 +52,6 @@ function appointmentsManager() {
         // ── FullCalendar ────────────────────────────────────
         initCalendar(events = []) {
             if (this.calendarInitialized) return;
-
             this.$nextTick(() => {
                 const el = document.getElementById("fullcalendar");
                 if (!el || typeof FullCalendar === "undefined") return;
@@ -67,6 +62,9 @@ function appointmentsManager() {
                     headerToolbar: false,
                     events: events,
                     height: "auto",
+
+                    // Altura mínima para que ningún evento quede microscópico
+                    eventMinHeight: 28,
 
                     eventClick: (info) => {
                         const wireId = this.$el
@@ -80,9 +78,47 @@ function appointmentsManager() {
                         }
                     },
 
-                    eventContent: (arg) => ({
-                        html: `<div class="fc-event-inner">${arg.event.title}</div>`,
-                    }),
+                    eventContent: (arg) => {
+                        const { title, start, end, extendedProps } = arg.event;
+                        const props = extendedProps ?? {};
+
+                        // Calcular duración en minutos (si end está disponible)
+                        const durationMin =
+                            start && end ? (end - start) / 60000 : 60;
+
+                        // Citas muy cortas (≤ 20 min): una sola línea con tooltip
+                        if (durationMin <= 20) {
+                            return {
+                                html: `
+                                    <div class="fc-event-compact"
+                                         title="${this._escAttr(title)} | ${this._escAttr(props.professional)} | ${this._escAttr(props.services)}">
+                                        <span class="fc-event-compact__dot">●</span>
+                                        <span class="fc-event-compact__title">${this._escHtml(title)}</span>
+                                    </div>`,
+                            };
+                        }
+
+                        // Citas de duración media (21–40 min): título + profesional
+                        if (durationMin <= 40) {
+                            return {
+                                html: `
+                                    <div class="fc-event-inner fc-event-inner--md">
+                                        <div class="fc-event-inner__title">${this._escHtml(title)}</div>
+                                        <div class="fc-event-inner__sub">${this._escHtml(props.professional ?? "")}</div>
+                                    </div>`,
+                            };
+                        }
+
+                        // Citas largas (> 40 min): título + profesional + servicios
+                        return {
+                            html: `
+                                <div class="fc-event-inner fc-event-inner--lg">
+                                    <div class="fc-event-inner__title">${this._escHtml(title)}</div>
+                                    <div class="fc-event-inner__sub">${this._escHtml(props.professional ?? "")}</div>
+                                    <div class="fc-event-inner__sub">${this._escHtml(props.services ?? "")}</div>
+                                </div>`,
+                        };
+                    },
                 });
 
                 this.calendarInstance.render();
@@ -94,6 +130,20 @@ function appointmentsManager() {
             if (!this.calendarInstance) return;
             this.calendarInstance.removeAllEvents();
             this.calendarInstance.addEventSource(events);
+        },
+
+        // ── Helpers de escape ───────────────────────────────
+        _escHtml(str) {
+            return String(str ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        },
+        _escAttr(str) {
+            return String(str ?? "")
+                .replace(/"/g, "&quot;")
+                .replace(/\n/g, " ");
         },
     };
 }

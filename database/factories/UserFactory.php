@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @extends Factory<User>
@@ -24,6 +25,15 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $imagePath = null;
+        $localImages = glob(database_path('seeders/images/users/*.jpg'));
+        if (!empty($localImages)) {
+            $source = $localImages[array_rand($localImages)];
+            $filename = 'users/' . uniqid() . '.jpg';
+            Storage::disk('public')->put($filename, file_get_contents($source));
+            $imagePath = $filename;
+        }
+
         return [
             'name'              => fake()->name(),
             'email'             => fake()->unique()->safeEmail(),
@@ -31,7 +41,7 @@ class UserFactory extends Factory
             'password'          => static::$password ??= Hash::make('password'),
             'remember_token'    => Str::random(10),
             'phone'             => fake()->phoneNumber(),
-            'image'             => 'https://picsum.photos/200?random=' . rand(1, 1000),
+            'image'             => $imagePath,
         ];
     }
 
@@ -40,7 +50,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }

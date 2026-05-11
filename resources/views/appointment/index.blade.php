@@ -88,7 +88,7 @@
                         <div class="relative w-full h-36 overflow-hidden bg-surface-container flex items-center justify-center">
                             @if ($company->logo)
                             <img
-                                src="{{ asset('storage/' . $company->logo) }}"
+                                src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($company->name) }}"
                                 alt="{{ $company->name }}"
                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                             @else

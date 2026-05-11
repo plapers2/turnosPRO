@@ -88,12 +88,27 @@
     <div class="space-y-8">
 
         <!-- LOGO -->
-        <div class="bg-surface-container rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
-            <h3 class="text-md font-semibold text-primary">Logo de la empresa</h3>
-            <p class="text-sm text-on-surface-variant">PNG, JPG o GIF hasta 10MB</p>
-            <x-form.input-file name="logo" id="logo" />
-            <img id="preview" src="{{ $company?->logo ? asset('storage/' . $company->logo) : '' }}"
-                class="{{ isset($company) && $company->logo ? '' : 'hidden' }} w-full h-40 object-cover rounded-lg border border-outline-variant/20">
+        <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+            <h3 class="text-sm font-semibold text-primary">Logo de la empresa</h3>
+
+            <div class="flex justify-center">
+                <div class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
+                    @if(isset($company) && $company->logo)
+                    <img id="preview" src="{{ asset('storage/' . $company->logo) }}" class="w-full h-full object-cover" />
+                    @else
+                    <img id="preview" src="" class="w-full h-full object-cover hidden" />
+                    <span id="initials" class="material-symbols-outlined text-3xl text-primary/30">business</span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="logo" class="text-xs font-medium text-on-surface-variant">PNG o JPG hasta 10MB</label>
+                <input type="file" id="logo" name="logo" accept="image/png,image/jpg,image/jpeg"
+                    class="w-full text-sm text-on-surface-variant file:mr-3 file:py-1.5 file:px-3
+            file:rounded-lg file:border-0 file:text-xs file:font-semibold
+            file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition" />
+            </div>
         </div>
 
         <!-- RECOMENDACIONES -->
@@ -112,16 +127,16 @@
 </div>
 
 <script>
-    const input = document.getElementById('logo');
-    const preview = document.getElementById('preview');
-
-    input.addEventListener('change', e => {
+    document.getElementById('logo').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => {
+            const preview = document.getElementById('preview');
+            const initials = document.getElementById('initials');
             preview.src = reader.result;
             preview.classList.remove('hidden');
+            if (initials) initials.classList.add('hidden');
         };
         reader.readAsDataURL(file);
     });

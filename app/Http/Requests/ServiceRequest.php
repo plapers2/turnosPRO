@@ -22,13 +22,23 @@ class ServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'name' => 'required|string',
-			'description' => 'required|string',
-			'duration' => 'required',
-			'price' => 'required',
-			'image' => 'required|string',
-			'state' => 'required',
-			'company_id' => 'required',
+            'name' => 'required|string',
+            'description' => 'required|string',
+            'duration' => 'required',
+            'price' => 'required',
+            'image' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:10240'],
+            'state' => 'required',
+            'company_id' => 'required',
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'name.required'        => 'El nombre es obligatorio.',
+            'name.max'             => 'El nombre no puede superar los 255 caracteres.',
+            'image.image'          => 'El archivo debe ser una imagen.',
+            'image.mimes'          => 'La imagen debe ser PNG o JPG.',
+            'image.max'            => 'La imagen no puede superar los 10MB.',
         ];
     }
 }

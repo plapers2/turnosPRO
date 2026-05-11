@@ -12,6 +12,7 @@ class CompanyIndex extends Component
 
     public string $search = '';
     public string $status = '';
+    public string $tipo = '';
 
     public function updatingSearch(): void
     {
@@ -19,6 +20,10 @@ class CompanyIndex extends Component
     }
 
     public function updatingStatus(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingTipo(): void
     {
         $this->resetPage();
     }
@@ -41,13 +46,17 @@ class CompanyIndex extends Component
 
     public function render()
     {
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
+        $tipos = \App\Models\TypeCompany::orderBy('name')->pluck('name', 'id');
+
         $companies = Company::withTrashed()
             ->with('typeCompany')
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->when($this->status === 'active', fn($q) => $q->whereNull('deleted_at'))
             ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
+            ->when($this->tipo, fn($q) => $q->where('type_company_id', $this->tipo))
             ->paginate(10);
 
-        return view('livewire.companies.company-index', compact('companies'));
+        return view('livewire.companies.company-index', compact('companies', 'tipos'));
     }
 }

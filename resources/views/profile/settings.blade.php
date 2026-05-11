@@ -166,7 +166,39 @@
                             <p class="text-sm">{{ session('error') }}</p>
                         </div>
                         @endif
+                        <!-- FOTO DE PERFIL -->
+                        <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+                            <h3 class="text-sm font-semibold text-primary">Foto de perfil</h3>
 
+                            <!-- Preview actual -->
+                            <div class="flex justify-center">
+                                <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
+                                    @if($cliente->image)
+                                    <img id="preview" src="{{ asset('storage/' . $cliente->image) }}"
+                                        class="w-full h-full object-cover" />
+                                    @else
+                                    <img id="preview" src="" class="w-full h-full object-cover hidden" />
+                                    <span id="initials" class="text-2xl font-bold text-primary/50">
+                                        {{ strtoupper(substr($cliente->name, 0, 2)) }}
+                                    </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Input -->
+                            <div class="flex flex-col gap-1.5">
+                                <label for="image" class="text-xs font-medium text-on-surface-variant">
+                                    PNG o JPG hasta 10MB
+                                </label>
+                                <input type="file" id="image" name="image" accept="image/png,image/jpg,image/jpeg"
+                                    class="w-full text-sm text-on-surface-variant file:mr-3 file:py-1.5 file:px-3
+            file:rounded-lg file:border-0 file:text-xs file:font-semibold
+            file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition" />
+                                @error('image')
+                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
                         <!-- INFO -->
                         <div class="bg-primary-container/10 rounded-xl p-6 border border-primary/10 space-y-3">
                             <h3 class="text-sm font-semibold text-primary">Recomendaciones</h3>
@@ -199,6 +231,22 @@
     </main>
 </x-app-layout>
 <script>
+    // Preview de imagen
+    document.getElementById('image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            const preview = document.getElementById('preview');
+            const initials = document.getElementById('initials');
+            preview.src = reader.result;
+            preview.classList.remove('hidden');
+            if (initials) initials.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Toggle contraseña
     function togglePassword(id, btn) {
         const input = document.getElementById(id);
         const icon = btn.querySelector('.material-symbols-outlined');

@@ -32,7 +32,7 @@
                 <div
                     class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 shadow-sm border border-outline-variant/20">
                     @if ($company->logo)
-                    <img src="{{ $company->logo }}" alt="{{ $company->name }}" class="w-full h-full object-cover" />
+                    <img src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($company->name) }}" alt="{{ $company->name }}" class="w-full h-full object-cover" />
                     @else
                     <div class="w-full h-full bg-primary/10 flex items-center justify-center">
                         <span class="text-xl font-bold text-primary/50 font-headline">
@@ -152,7 +152,7 @@
                     <!-- Imagen -->
                     <div class="w-full h-40 overflow-hidden bg-surface-container">
                         @if ($service->image)
-                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}"
+                        <img src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($company->name) }}" alt="{{ $service->name }}"
                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         @else
                         <div

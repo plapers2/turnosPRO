@@ -56,7 +56,29 @@
 
                 <!-- COLUMNA PRINCIPAL -->
                 <div class="lg:col-span-2 space-y-6">
-
+                    <!-- LEYENDA DE COLORES -->
+                    <div class="flex flex-wrap gap-x-6 gap-y-3 mb-4 px-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(34,197,94,0.5); border: 1px solid rgba(34,197,94,0.3)"></span>
+                            <span class="text-xs text-on-surface-variant">Disponible</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(249,115,22,0.5); border: 1px solid rgba(249,115,22,0.4)"></span>
+                            <span class="text-xs text-on-surface-variant">Último slot</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(239,68,68,0.3); background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(239,68,68,0.15) 2px,rgba(239,68,68,0.15) 4px)"></span>
+                            <span class="text-xs text-on-surface-variant">No disponible</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(234,179,8,0.3); background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(234,179,8,0.15) 2px,rgba(234,179,8,0.15) 4px)"></span>
+                            <span class="text-xs text-on-surface-variant">Horario insuficiente</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0 bg-gray-200"></span>
+                            <span class="text-xs text-on-surface-variant">Fuera del horario</span>
+                        </div>
+                    </div>
                     <!-- CALENDARIO -->
                     <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
                         <div class="flex items-center justify-between">
@@ -142,7 +164,7 @@
                         <div class="flex items-center gap-3 pb-4 border-b border-outline-variant/20">
                             <div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-primary/10 flex items-center justify-center">
                                 @if ($company->logo)
-                                <img src="{{ $company->logo }}" alt="{{ $company->name }}" class="w-full h-full object-cover" />
+                                <img src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($company->name) }}" alt="{{ $company->name }}" class="w-full h-full object-cover" />
                                 @else
                                 <span class="text-sm font-bold text-primary/50">{{ strtoupper(substr($company->name, 0, 2)) }}</span>
                                 @endif
@@ -235,6 +257,122 @@
         font-size: 0.7rem;
         font-weight: 600;
         border: none;
+    }
+
+    /* Botones prev/next */
+    .fc .fc-prev-button,
+    .fc .fc-next-button {
+        background-color: transparent !important;
+        border: 1px solid rgba(107, 58, 31, 0.3) !important;
+        color: #6b3a1f !important;
+        border-radius: 8px !important;
+        padding: 4px 10px !important;
+        transition: all 0.15s !important;
+    }
+
+    .fc .fc-prev-button:hover,
+    .fc .fc-next-button:hover {
+        background-color: rgba(107, 58, 31, 0.08) !important;
+        border-color: rgba(107, 58, 31, 0.5) !important;
+    }
+
+    /* Botón Hoy */
+    .fc .fc-today-button {
+        background-color: transparent !important;
+        border: 1px solid rgba(107, 58, 31, 0.3) !important;
+        color: #6b3a1f !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+        transition: all 0.15s !important;
+    }
+
+    .fc .fc-today-button:hover:not(:disabled) {
+        background-color: rgba(107, 58, 31, 0.08) !important;
+    }
+
+    .fc .fc-today-button:disabled {
+        opacity: 0.4 !important;
+    }
+
+    /* Botones Semana/Día */
+    .fc .fc-timeGridWeek-button,
+    .fc .fc-timeGridDay-button {
+        background-color: transparent !important;
+        border: 1px solid rgba(107, 58, 31, 0.3) !important;
+        color: #6b3a1f !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+        transition: all 0.15s !important;
+    }
+
+    /* Botón activo Semana/Día */
+    .fc .fc-timeGridWeek-button.fc-button-active,
+    .fc .fc-timeGridDay-button.fc-button-active {
+        background-color: #6b3a1f !important;
+        color: #ffffff !important;
+        border-color: #6b3a1f !important;
+    }
+
+    .fc .fc-timeGridWeek-button:hover,
+    .fc .fc-timeGridDay-button:hover {
+        background-color: rgba(107, 58, 31, 0.08) !important;
+    }
+
+    /* Título del calendario */
+    .fc .fc-toolbar-title {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        color: #1c1208 !important;
+    }
+
+    .fc .fc-col-header-cell {
+        background-color: rgba(107, 58, 31, 0.04) !important;
+        border-color: rgba(107, 58, 31, 0.1) !important;
+    }
+
+    .fc .fc-col-header-cell-cushion {
+        color: #6b3a1f !important;
+        font-weight: 700 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 8px 0 !important;
+        text-decoration: none !important;
+    }
+
+    /* Línea del indicador de hora actual */
+    .fc-timegrid-now-indicator-line {
+        border-color: #6b3a1f !important;
+        border-width: 2px !important;
+    }
+
+    /* Flecha del indicador */
+    .fc-timegrid-now-indicator-arrow {
+        border-top-color: #6b3a1f !important;
+        border-bottom-color: transparent !important;
+        border-left-color: transparent !important;
+    }
+
+    /* Día actual */
+    .fc-day-today .fc-timegrid-col-frame {
+        background-color: rgba(107, 58, 31, 0.03) !important;
+    }
+
+    .fc .fc-timegrid-slot {
+        border-color: rgba(107, 58, 31, 0.06) !important;
+    }
+
+    .fc .fc-timegrid-slot-label {
+        font-size: 0.7rem !important;
+        color: rgba(107, 58, 31, 0.5) !important;
+        font-weight: 500 !important;
+    }
+
+    .fc td,
+    .fc th {
+        border-color: rgba(107, 58, 31, 0.08) !important;
     }
 </style>
 <script>

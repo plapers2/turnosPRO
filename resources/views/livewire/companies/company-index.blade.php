@@ -24,6 +24,14 @@
             <option value="active">Activas</option>
             <option value="inactive">Inactivas</option>
         </select>
+        <select wire:model.live="tipo"
+            class="px-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest
+           text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition">
+            <option value="">Todos los tipos</option>
+            @foreach ($tipos as $id => $nombre)
+            <option value="{{ $id }}">{{ $nombre }}</option>
+            @endforeach
+        </select>
 
     </div>
 
@@ -40,7 +48,7 @@
 
             {{-- DESKTOP --}}
             <div wire:loading.class="opacity-50 pointer-events-none transition-opacity duration-200"
-                wire:target="search, status" class="hidden md:block overflow-x-auto">
+                wire:target="search, status, tipo" class="hidden md:block overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead class="bg-surface/50 text-on-surface-variant">
                         <tr>

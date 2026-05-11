@@ -81,7 +81,7 @@
                                     <td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;">
                                         <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
-                                                <td style="width:32px;vertical-align:middle;"><span style="font-size:18px;">✂️</span></td>
+                                                <td style="width:32px;vertical-align:middle;"><span style="font-size:18px;">🛎️</span></td>
                                                 <td style="vertical-align:middle;padding-left:12px;">
                                                     <p style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Servicio(s)</p>
                                                     <p style="margin:2px 0 0;font-size:14px;color:#1c1b1f;font-weight:600;">{{ $appointment->services->pluck('name')->join(', ') }}</p>

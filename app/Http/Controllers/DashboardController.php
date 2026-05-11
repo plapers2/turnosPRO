@@ -288,15 +288,17 @@ class DashboardController extends Controller
             ];
         }
 
-        // ── Próximas citas (próximas 2 horas) ──
+        // ── Próximas citas (FIX: ventana ampliada — ya no limitada a 2 horas) ──
         $appointments = $this->baseQuery()
             ->with(['customer', 'services', 'user'])
-            ->whereBetween('start_time', [now(), now()->addHours(2)])
+            ->where('start_time', '>=', now())
             ->where('status', '!=', Appointment::STATUS_CANCELLED)
             ->orderBy('start_time')
+            ->limit(10)
             ->get()
             ->map(fn($a) => [
                 'time'    => $a->start_time->format('H:i'),
+                'date'    => $a->start_time->isoFormat('ddd D MMM'),
                 'name'    => optional($a->customer)->name ?? 'Sin cliente',
                 'service' => $a->services->pluck('name')->join(', '),
                 'staff'   => optional($a->user)->name ?? 'Sin asignar',
@@ -310,37 +312,41 @@ class DashboardController extends Controller
                 },
             ]);
 
-        // ── Servicios más usados (solo admin) ──
-        $services = null;
+        // ── Servicios más usados (FIX: admin Y empleado; empleado filtra por user_id) ──
+        $services = [];
 
-        if ($user->hasRole('admin')) {
-            foreach ($periods as $key => [$start, $end]) {
-                $services[$key] = DB::table('appointment_service')
-                    ->join('appointments', 'appointments.id', '=', 'appointment_service.appointment_id')
-                    ->join('services', 'services.id', '=', 'appointment_service.service_id')
-                    ->where('appointments.company_id', $companyId)
-                    ->whereNull('appointments.deleted_at')
-                    ->where('appointments.status', '!=', Appointment::STATUS_CANCELLED)
-                    ->whereBetween('appointments.start_time', [$start, $end])
-                    ->select(
-                        'services.name',
-                        DB::raw('COUNT(*) as count'),
-                        DB::raw('SUM(services.price) as income')
-                    )
-                    ->groupBy('services.id', 'services.name')
-                    ->orderByDesc('count')
-                    ->limit(5)
-                    ->get()
-                    ->map(fn($s) => [
-                        $s->name,
-                        (int) $s->count,
-                        (float) $s->income,
-                    ])
-                    ->values();
+        foreach ($periods as $key => [$start, $end]) {
+            $query = DB::table('appointment_service')
+                ->join('appointments', 'appointments.id', '=', 'appointment_service.appointment_id')
+                ->join('services', 'services.id', '=', 'appointment_service.service_id')
+                ->where('appointments.company_id', $companyId)
+                ->whereNull('appointments.deleted_at')
+                ->where('appointments.status', '!=', Appointment::STATUS_CANCELLED)
+                ->whereBetween('appointments.start_time', [$start, $end]);
+
+            // El empleado solo ve los servicios de sus propias citas
+            if ($user->hasRole('empleado')) {
+                $query->where('appointments.user_id', $user->id);
             }
+
+            $services[$key] = $query
+                ->select(
+                    'services.name',
+                    DB::raw('COUNT(*) as count'),
+                    DB::raw('SUM(services.price) as income')
+                )
+                ->groupBy('services.id', 'services.name')
+                ->orderByDesc('count')
+                ->limit(5)
+                ->get()
+                ->map(fn($s) => [
+                    $s->name,
+                    (int) $s->count,
+                    (float) $s->income,
+                ])
+                ->values();
         }
 
-        // ── dd() eliminado ──
         return view('dashboard', compact('kpis', 'appointments', 'services'));
     }
 }

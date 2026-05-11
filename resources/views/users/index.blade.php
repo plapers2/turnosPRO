@@ -1,7 +1,7 @@
 <x-app-layout>
     <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
 
-        <x-header-admin icono="group" titulo="Gestion de Profesionales" mensaje="Administra los usuarios del sistema"
+        <x-header-admin icono="workspace_premium" titulo="Gestion de Profesionales" mensaje="Administra los usuarios del sistema"
             textoBoton="Nuevo Usuario" ruta="users" />
 
         @livewire('users.user-index')

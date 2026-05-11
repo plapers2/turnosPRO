@@ -261,6 +261,10 @@ class SpecialAppointmentSeeder extends Seeder
             $cancelledBy = $status === 'cancelled' ? $clienteId : null;
             $cancelReason = $status === 'cancelled' ? 'El cliente canceló la cita.' : null;
 
+            // Solo las citas pendientes necesitan cancel_token activo
+            $cancelToken        = $status === 'pending' ? uniqid() : null;
+            $cancelTokenExpires = $status === 'pending' ? $start->copy()->subHours(24) : null;
+
             $apptId = DB::table('appointments')->insertGetId([
                 'start_time'              => $start,
                 'end_time'                => $end,
@@ -269,8 +273,8 @@ class SpecialAppointmentSeeder extends Seeder
                 'cancellation_reason'     => $cancelReason,
                 'completed_at'            => $completedAt,
                 'payment_expires_at'      => null,
-                'cancel_token'            => null,
-                'cancel_token_expires_at' => null,
+                'cancel_token'            => $cancelToken,           // ← agregado
+                'cancel_token_expires_at' => $cancelTokenExpires,   // ← agregado
                 'customer_id'             => $customerId,
                 'user_id'                 => $professionalId,
                 'confirmed_by'            => $confirmedBy,
@@ -284,6 +288,7 @@ class SpecialAppointmentSeeder extends Seeder
                 'updated_at'              => now(),
             ]);
 
+          
             DB::table('appointment_service')->insert([
                 'appointment_id' => $apptId,
                 'service_id'     => $serviceId,
