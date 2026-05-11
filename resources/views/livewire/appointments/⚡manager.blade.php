@@ -1,28 +1,8 @@
 {{-- resources/views/livewire/appointments/manager.blade.php --}}
-<div x-data="{
-    view: '{{ $view }}',
-    init() {
-        const saved = localStorage.getItem('appt_view');
-        if (saved && ['list', 'calendar'].includes(saved)) {
-            this.view = saved;
-        }
-        this.$watch('view', (val) => {
-            localStorage.setItem('appt_view', val);
-            $wire.set('view', val);
-            if (val === 'calendar') {
-                this.$nextTick(() => {
-                    window.dispatchEvent(new CustomEvent('calendar-view-shown'));
-                });
-            }
-        });
-        if (this.view === 'calendar') {
-            this.$nextTick(() => {
-                window.dispatchEvent(new CustomEvent('calendar-view-shown'));
-            });
-        }
-    }
-}" class="appt-manager">
-
+@php
+    $company_id = session('active_company_id')
+@endphp
+<div x-data="appointmentsManager({{$company_id }})" class="appt-manager">
     @include('livewire.appointments.partials.toast')
     @include('livewire.appointments.partials.header', ['total' => $stats['total']])
     @include('livewire.appointments.partials.stats-row', ['stats' => $stats])
@@ -40,7 +20,6 @@
     </div>
 
     {{-- Vista Calendario --}}
-    {{-- ⚠️ Sin wire:ignore aquí: ya está dentro de calendar/view.blade.php --}}
     <div x-show="view === 'calendar'">
         @include('livewire.appointments.calendar.nav', ['calendarMonth' => $calendarMonth])
         @include('livewire.appointments.calendar.view', ['calendarEvents' => $calendarEvents])
@@ -49,19 +28,15 @@
     @if ($showModal && $selectedAppt)
         @include('livewire.appointments.modals.appointment-detail', ['appt' => $selectedAppt])
     @endif
-
     @if ($showConfirmConfirm)
         @include('livewire.appointments.modals.confirm-confirm')
     @endif
-
     @if ($showCancelConfirm)
         @include('livewire.appointments.modals.cancel-confirm')
     @endif
-
     @if ($showCompleteConfirm)
         @include('livewire.appointments.modals.complete-confirm')
     @endif
-
 </div>
 
 @push('scripts')

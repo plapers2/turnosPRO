@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\AppointmentObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -60,11 +61,18 @@ class Appointment extends Model
         'reminder_1h_sent',
         'booking_group',
     ];
+
     protected $casts = [
         'start_time' => 'datetime',
         'end_time'   => 'datetime',
     ];
 
+    // ─── Boot ─────────────────────────────────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::observe(AppointmentObserver::class);
+    }
 
     // ─── Status constants ─────────────────────────────────────────────────────
 
@@ -80,9 +88,7 @@ class Appointment extends Model
         self::STATUS_CANCELLED,
     ];
 
-
-
-       // ─── Relaciones ───────────────────────────────────────────────────────────
+    // ─── Relaciones ───────────────────────────────────────────────────────────
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -107,6 +113,7 @@ class Appointment extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
     }
+
     public function services()
     {
         return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
@@ -126,7 +133,6 @@ class Appointment extends Model
     {
         return $this->belongsTo(User::class, 'completed_by');
     }
-
 
     // ─── Scopes ───────────────────────────────────────────────────────────────
 
