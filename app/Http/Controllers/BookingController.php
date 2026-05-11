@@ -50,7 +50,8 @@ class BookingController extends Controller
     // ─── PASO 2: Seleccionar servicios ──────────────────────────────────
     public function selectServices(Company $company): View
     {
-        // Solo mostrar servicios que tengan al menos un profesional (empleado) asignado
+        // Solo mostrar servicios que tengan al menos un profesional (empleado)
+        // asignado Y con disponibilidad semanal configurada
         $services = $company->services()
             ->whereHas(
                 "users",
@@ -60,10 +61,11 @@ class BookingController extends Controller
                     fn($r) =>
                     $r->where("name", "empleado")
                 )
+                    ->whereHas("professionalAvailabilities")
             )
             ->get();
 
-        // Si hay servicios pero ninguno tiene profesional asignado
+        // Si hay servicios en la empresa pero ninguno está disponible para reservar
         $sinProfesionales = $company->services()->exists() && $services->isEmpty();
 
         return view("appointment.select-services", compact("company", "services", "sinProfesionales"));
