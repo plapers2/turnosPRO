@@ -125,7 +125,7 @@ class OpeningHourController extends Controller
             'company_id' => $company_id
         ]);
 
-        return redirect()->route('opening-hours.index')->with("success", "Horario de atencion editado");;
+        return redirect()->route('opening-hours.index')->with('success', 'Horario de atencion editado');
     }
 
     public function destroy($id)
