@@ -107,6 +107,7 @@ class OpeningHourController extends Controller
                 $query->where('start_time', '<', $data['hora_fin'])
                     ->where('end_time', '>', $data['hora_inicio']);
             })
+            ->where('id', "!=", $openingHour->id)
             ->exists();
 
         if ($exists) {
@@ -124,7 +125,7 @@ class OpeningHourController extends Controller
             'company_id' => $company_id
         ]);
 
-        return redirect()->route('opening-hours.index');
+        return redirect()->route('opening-hours.index')->with("success", "Horario de atencion editado");;
     }
 
     public function destroy($id)
@@ -135,14 +136,6 @@ class OpeningHourController extends Controller
             ->where('company_id', $companyId)
             ->firstOrFail();
 
-        \Log::info('Intentando eliminar horario', [
-            'hour_id' => $hour->id,
-            'day_of_week' => $hour->day_of_week,
-            'start_time' => $hour->start_time,
-            'end_time' => $hour->end_time,
-            'company_id' => $companyId,
-        ]);
-
         $conflictingAvailabilities = ProfessionalAvailability::with('user')
             ->where('day_of_week', $hour->day_of_week)
             ->where('start_time', '<', $hour->end_time)
@@ -152,20 +145,8 @@ class OpeningHourController extends Controller
             })
             ->get();
 
-        \Log::info('Disponibilidades encontradas', [
-            'count' => $conflictingAvailabilities->count(),
-            'data' => $conflictingAvailabilities->toArray(),
-        ]);
-
         foreach ($conflictingAvailabilities as $availability) {
             $covered = $this->isFullyCovered($availability, $hour->id, $companyId);
-
-            \Log::info('Verificando cobertura', [
-                'availability_id' => $availability->id,
-                'avail_start' => $availability->start_time,
-                'avail_end' => $availability->end_time,
-                'is_covered' => $covered,
-            ]);
 
             if (!$covered) {
                 return response()->json([
@@ -226,21 +207,6 @@ class OpeningHourController extends Controller
         }
 
         return $covered->gte($availEnd);
-    }
-
-    private function getDayName(int $dayOfWeek): string
-    {
-        $days = [
-            0 => 'Domingo',
-            1 => 'Lunes',
-            2 => 'Martes',
-            3 => 'Miércoles',
-            4 => 'Jueves',
-            5 => 'Viernes',
-            6 => 'Sábado',
-        ];
-
-        return $days[$dayOfWeek] ?? "día $dayOfWeek";
     }
 
 
