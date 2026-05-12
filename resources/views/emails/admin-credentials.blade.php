@@ -2,168 +2,117 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenido a TurnosPRO</title>
-    <style>
-        body {
-            font-family: 'Inter', Arial, sans-serif;
-            background: #f5f0eb;
-            margin: 0;
-            padding: 24px;
-            color: #1c1208;
-        }
-
-        .container {
-            max-width: 560px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(107, 58, 31, 0.08);
-        }
-
-        .header {
-            background: #6b3a1f;
-            padding: 32px 32px 24px;
-            text-align: center;
-        }
-
-        .header img {
-            height: 48px;
-        }
-
-        .header h1 {
-            color: #fff;
-            font-size: 20px;
-            font-weight: 700;
-            margin: 12px 0 0;
-        }
-
-        .body {
-            padding: 32px;
-        }
-
-        .greeting {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .text {
-            font-size: 14px;
-            color: #4a3728;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        .credentials {
-            background: #faf7f4;
-            border: 1px solid #d6c3b3;
-            border-radius: 12px;
-            padding: 20px 24px;
-            margin: 20px 0;
-        }
-
-        .cred-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #ede4d9;
-        }
-
-        .cred-row:last-child {
-            border-bottom: none;
-        }
-
-        .cred-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #847467;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .cred-value {
-            font-size: 14px;
-            font-weight: 700;
-            color: #6b3a1f;
-            font-family: monospace;
-        }
-
-        .btn {
-            display: block;
-            width: fit-content;
-            margin: 24px auto;
-            background: #6b3a1f;
-            color: #fff;
-            padding: 12px 28px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .warning {
-            background: #fff8f0;
-            border: 1px solid #f5c07a;
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-size: 13px;
-            color: #7a4a10;
-            margin-top: 16px;
-        }
-
-        .footer {
-            background: #faf7f4;
-            padding: 20px 32px;
-            text-align: center;
-            font-size: 12px;
-            color: #847467;
-            border-top: 1px solid #ede4d9;
-        }
-    </style>
 </head>
 
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Bienvenido a TurnosPRO</h1>
-        </div>
-        <div class="body">
-            <p class="greeting">Hola, {{ $admin->name }}</p>
-            <p class="text">
-                Has sido registrado como administrador de <strong>{{ $company->name }}</strong> en la plataforma TurnosPRO.
-                A continuación encontrarás tus credenciales de acceso temporales:
-            </p>
+<body style="margin:0;padding:0;background-color:#f5f3ef;font-family:'Segoe UI',Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ef;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
-            <div class="credentials">
-                <div class="cred-row">
-                    <span class="cred-label">Correo</span>
-                    <span class="cred-value">{{ $admin->email }}</span>
-                </div>
-                <div class="cred-row">
-                    <span class="cred-label">Contraseña temporal</span>
-                    <span class="cred-value">{{ $tempPassword }}</span>
-                </div>
-                <div class="cred-row">
-                    <span class="cred-label">Empresa</span>
-                    <span class="cred-value">{{ $company->name }}</span>
-                </div>
-            </div>
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#92400e,#b45309);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+                            <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;margin:0 auto 16px;text-align:center;line-height:56px;">
+                                <span style="font-size:28px;">🎉</span>
+                            </div>
+                            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">TurnosPRO</h1>
+                            <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">Panel de administración</p>
+                        </td>
+                    </tr>
 
-            <a href="{{ url('/login') }}" class="btn">Ingresar al sistema</a>
+                    <!-- BODY -->
+                    <tr>
+                        <td style="background:#ffffff;padding:40px;">
 
-            <div class="warning">
-                ⚠️ Al iniciar sesión por primera vez, el sistema te pedirá cambiar tu contraseña. Esto es obligatorio antes de acceder al panel.
-            </div>
-        </div>
-        <div class="footer">
-            TurnosPRO · Sistema de gestión de citas<br />
-            Si no esperabas este correo, por favor ignóralo.
-        </div>
-    </div>
+                            <div style="text-align:center;margin-bottom:24px;">
+                                <span style="display:inline-block;background:#fef3c7;color:#92400e;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #fcd34d;letter-spacing:0.3px;">
+                                    🔐 CREDENCIALES DE ACCESO
+                                </span>
+                            </div>
+
+                            <h2 style="margin:0 0 8px;font-size:20px;color:#1c1b1f;font-weight:700;">Bienvenido a TurnosPRO</h2>
+                            <p style="margin:0 0 28px;color:#6b7280;font-size:14px;line-height:1.6;">
+                                Hola, <strong style="color:#b45309;">{{ $admin->name }}</strong>. Has sido registrado como administrador de <strong style="color:#b45309;">{{ $company->name }}</strong>. A continuación tus credenciales de acceso temporales:
+                            </p>
+
+                            <!-- Credenciales -->
+                            <table width="100%" cellpadding="0" cellspacing="0"
+                                style="background:#fdf8f0;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:20px;">
+                                <tr>
+                                    <td style="padding:14px 20px;background:#92400e;border-radius:12px 12px 0 0;">
+                                        <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Credenciales de acceso</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="width:32px;vertical-align:middle;"><span style="font-size:18px;">📧</span></td>
+                                                <td style="vertical-align:middle;padding-left:12px;">
+                                                    <p style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Correo</p>
+                                                    <p style="margin:2px 0 0;font-size:14px;color:#1c1b1f;font-weight:600;">{{ $admin->email }}</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="width:32px;vertical-align:middle;"><span style="font-size:18px;">🔑</span></td>
+                                                <td style="vertical-align:middle;padding-left:12px;">
+                                                    <p style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Contraseña temporal</p>
+                                                    <p style="margin:2px 0 0;font-size:14px;color:#1c1b1f;font-weight:600;font-family:monospace;">{{ $tempPassword }}</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:16px 20px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="width:32px;vertical-align:middle;"><span style="font-size:18px;">🏢</span></td>
+                                                <td style="vertical-align:middle;padding-left:12px;">
+                                                    <p style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Empresa</p>
+                                                    <p style="margin:2px 0 0;font-size:14px;color:#1c1b1f;font-weight:600;">{{ $company->name }}</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <div style="text-align:center;margin:24px 0;">
+                                <a href="{{ url('/login') }}"
+                                    style="display:inline-block;background:#92400e;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;">
+                                    Ingresar al sistema
+                                </a>
+                            </div>
+
+                            <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;line-height:1.6;">
+                                ⚠️ Al iniciar sesión por primera vez deberás cambiar tu contraseña obligatoriamente.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="background:#fdf8f0;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">TurnosPRO</p>
+                            <p style="margin:0;font-size:12px;color:#9ca3af;">© {{ date('Y') }} TurnosPRO · Todos los derechos reservados</p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 
 </html>

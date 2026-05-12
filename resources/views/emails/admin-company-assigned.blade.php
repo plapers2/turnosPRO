@@ -2,121 +2,106 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva empresa asignada</title>
-    <style>
-        body {
-            font-family: 'Inter', Arial, sans-serif;
-            background: #f5f0eb;
-            margin: 0;
-            padding: 24px;
-            color: #1c1208;
-        }
-
-        .container {
-            max-width: 560px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(107, 58, 31, 0.08);
-        }
-
-        .header {
-            background: #6b3a1f;
-            padding: 32px 32px 24px;
-            text-align: center;
-        }
-
-        .header h1 {
-            color: #fff;
-            font-size: 20px;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .body {
-            padding: 32px;
-        }
-
-        .greeting {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .text {
-            font-size: 14px;
-            color: #4a3728;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        .company-box {
-            background: #faf7f4;
-            border: 1px solid #d6c3b3;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin: 20px 0;
-        }
-
-        .company-name {
-            font-size: 16px;
-            font-weight: 700;
-            color: #6b3a1f;
-        }
-
-        .btn {
-            display: block;
-            width: fit-content;
-            margin: 24px auto;
-            background: #6b3a1f;
-            color: #fff;
-            padding: 12px 28px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .footer {
-            background: #faf7f4;
-            padding: 20px 32px;
-            text-align: center;
-            font-size: 12px;
-            color: #847467;
-            border-top: 1px solid #ede4d9;
-        }
-    </style>
 </head>
 
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Nueva empresa asignada</h1>
-        </div>
-        <div class="body">
-            <p class="greeting">Hola, {{ $admin->name }}</p>
-            <p class="text">
-                Se te ha asignado acceso de administrador a una nueva empresa en TurnosPRO.
-                Ya puedes gestionarla desde tu panel seleccionando la empresa en el selector correspondiente.
-            </p>
+<body style="margin:0;padding:0;background-color:#f5f3ef;font-family:'Segoe UI',Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ef;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
-            <div class="company-box">
-                <p class="company-name">{{ $company->name }}</p>
-                @if ($company->address)
-                <p style="font-size:13px;color:#847467;margin:4px 0 0;">{{ $company->address }}</p>
-                @endif
-            </div>
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#92400e,#b45309);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+                            <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;margin:0 auto 16px;text-align:center;line-height:56px;">
+                                <span style="font-size:28px;">🏢</span>
+                            </div>
+                            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">TurnosPRO</h1>
+                            <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">Panel de administración</p>
+                        </td>
+                    </tr>
 
-            <a href="{{ url('/select-company') }}" class="btn">Ir al panel</a>
-        </div>
-        <div class="footer">
-            TurnosPRO · Sistema de gestión de citas<br />
-            Si no esperabas este correo, contacta al administrador de la plataforma.
-        </div>
-    </div>
+                    <!-- BODY -->
+                    <tr>
+                        <td style="background:#ffffff;padding:40px;">
+
+                            <div style="text-align:center;margin-bottom:24px;">
+                                <span style="display:inline-block;background:#fef3c7;color:#92400e;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #fcd34d;letter-spacing:0.3px;">
+                                    🏢 NUEVA EMPRESA ASIGNADA
+                                </span>
+                            </div>
+
+                            <h2 style="margin:0 0 8px;font-size:20px;color:#1c1b1f;font-weight:700;">Nueva empresa asignada</h2>
+                            <p style="margin:0 0 28px;color:#6b7280;font-size:14px;line-height:1.6;">
+                                Hola, <strong style="color:#b45309;">{{ $admin->name }}</strong>. Se te ha asignado acceso de administrador a una nueva empresa en TurnosPRO. Ya puedes gestionarla desde tu panel.
+                            </p>
+
+                            <!-- Card empresa -->
+                            <table width="100%" cellpadding="0" cellspacing="0"
+                                style="background:#fdf8f0;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:20px;">
+                                <tr>
+                                    <td style="padding:14px 20px;background:#92400e;border-radius:12px 12px 0 0;">
+                                        <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Datos de la empresa</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:16px 20px;{{ $company->address ? 'border-bottom:1px solid #e5e7eb;' : '' }}">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="width:32px;vertical-align:middle;"><span style="font-size:18px;">🏢</span></td>
+                                                <td style="vertical-align:middle;padding-left:12px;">
+                                                    <p style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Empresa</p>
+                                                    <p style="margin:2px 0 0;font-size:14px;color:#1c1b1f;font-weight:600;">{{ $company->name }}</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                @if ($company->address)
+                                <tr>
+                                    <td style="padding:16px 20px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="width:32px;vertical-align:middle;"><span style="font-size:18px;">📍</span></td>
+                                                <td style="vertical-align:middle;padding-left:12px;">
+                                                    <p style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Dirección</p>
+                                                    <p style="margin:2px 0 0;font-size:14px;color:#1c1b1f;font-weight:600;">{{ $company->address }}</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                @endif
+                            </table>
+
+                            <div style="text-align:center;margin:24px 0;">
+                                <a href="{{ url('/login') }}"
+                                    style="display:inline-block;background:#92400e;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;">
+                                    Ir al panel
+                                </a>
+                            </div>
+
+                            <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;line-height:1.6;">
+                                Si no esperabas este correo, contacta al administrador de la plataforma.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="background:#fdf8f0;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">TurnosPRO</p>
+                            <p style="margin:0;font-size:12px;color:#9ca3af;">© {{ date('Y') }} TurnosPRO · Todos los derechos reservados</p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 
 </html>
