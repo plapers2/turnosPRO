@@ -31,7 +31,7 @@
                 scrollbar-thin scrollbar-thumb-outline-variant scrollbar-track-transparent">
 
         @can('gestionar plataforma')
-        <x-sidebar-link route="master.index" pattern="master.*" icon="admin_panel_settings">
+        <x-sidebar-link route="master.index" pattern="master.index" icon="admin_panel_settings">
             Empresas
         </x-sidebar-link>
 
