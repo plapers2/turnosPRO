@@ -17,10 +17,13 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    if (auth()->check() && auth()->user()->hasRole('master')) {
-        return redirect()->route('master.index');
+    if (auth()->check()) {
+        if (auth()->user()->hasRole('master')) {
+            return redirect()->route('master.index');
+        }
+        return redirect()->route('dashboard');
     }
-    return redirect()->route('dashboard');
+    return redirect()->route('login');
 });
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')

@@ -1,41 +1,21 @@
 <x-app-layout>
     <main class="flex-1 flex flex-col h-full overflow-y-auto bg-surface">
 
-        <!-- HEADER -->
-        <header class="relative mx-8 mt-10 mb-4 overflow-hidden rounded-2xl border border-outline-variant/30
-                       bg-surface-container-lowest px-6 py-10
-                       flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4
-                       shadow-[0_1px_8px_rgba(95,94,90,0.06)]">
-            <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-primary rounded-l-2xl"></div>
-            <div class="flex items-center gap-4 pl-2">
-                <div class="flex h-[42px] w-[42px] shrink-0 items-center justify-center
-                            rounded-xl border border-primary-fixed-dim/40 bg-primary-fixed/20 text-primary">
-                    <span class="material-symbols-outlined text-[20px]">add_business</span>
-                </div>
-                <div class="flex flex-col gap-0.5">
-                    <h2 class="text-[17px] font-semibold leading-tight tracking-tight text-on-surface">Nueva Empresa</h2>
-                    <p class="text-[13px] text-on-surface-variant">Registra una nueva empresa en la plataforma</p>
-                </div>
-            </div>
-            <a href="{{ route('master.index') }}"
-                class="inline-flex items-center gap-2 rounded-xl border border-outline-variant/30 px-4 py-2 text-[13px]
-                      font-semibold text-on-surface-variant hover:bg-surface-container transition">
-                <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-                Volver
-            </a>
-        </header>
+        <x-form.header icono="arrow_back" ruta="master" titulo="Nueva Empresa" subtitulo="Gestión de Plataforma" />
 
-        <!-- FORM -->
         <div class="px-8 pb-20">
-            <form method="POST" action="{{ route('master.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('master.store') }}" enctype="multipart/form-data"
+                class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
                 @csrf
-                <div class="max-w-4xl space-y-6">
 
-                    <!-- CARD EMPRESA -->
+                <!-- COLUMNA PRINCIPAL -->
+                <div class="lg:col-span-2 space-y-8">
+
+                    <!-- CARD INFO EMPRESA -->
                     <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
                         <div>
-                            <h3 class="text-base font-semibold text-primary">Información de la empresa</h3>
-                            <p class="text-sm text-on-surface-variant mt-0.5">Datos básicos del negocio</p>
+                            <h2 class="text-lg font-semibold text-primary mb-1">Información de la empresa</h2>
+                            <p class="text-sm text-on-surface-variant">Datos básicos del negocio</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -79,28 +59,22 @@
                             </x-form.select>
                             <x-input-error class="mt-1" :messages="$errors->get('type_company_id')" />
                         </x-form.field>
-
-                        <x-form.field label="Logo (opcional)" for="logo">
-                            <x-form.input-file id="logo" name="logo" accept="image/png,image/jpg,image/jpeg" />
-                            <x-input-error class="mt-1" :messages="$errors->get('logo')" />
-                        </x-form.field>
                     </div>
 
                     <!-- CARD ADMINISTRADOR -->
                     <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6"
                         x-data="{ adminType: '{{ old('admin_type', 'new') }}' }">
                         <div>
-                            <h3 class="text-base font-semibold text-primary">Administrador de la empresa</h3>
-                            <p class="text-sm text-on-surface-variant mt-0.5">Asigna quién gestionará esta empresa</p>
+                            <h2 class="text-lg font-semibold text-primary mb-1">Administrador de la empresa</h2>
+                            <p class="text-sm text-on-surface-variant">Asigna quién gestionará esta empresa</p>
                         </div>
 
-                        <!-- Selector tipo -->
                         <div class="flex gap-3">
                             <label class="flex-1 cursor-pointer">
                                 <input type="radio" name="admin_type" value="new" x-model="adminType" class="sr-only" />
                                 <div :class="adminType === 'new'
-                                    ? 'border-primary bg-primary/5 text-primary'
-                                    : 'border-outline-variant/30 text-on-surface-variant hover:border-primary/40'"
+                                        ? 'border-primary bg-primary/5 text-primary'
+                                        : 'border-outline-variant/30 text-on-surface-variant hover:border-primary/40'"
                                     class="flex items-center gap-3 p-4 rounded-xl border-2 transition">
                                     <span class="material-symbols-outlined text-[20px]">person_add</span>
                                     <div>
@@ -112,8 +86,8 @@
                             <label class="flex-1 cursor-pointer">
                                 <input type="radio" name="admin_type" value="existing" x-model="adminType" class="sr-only" />
                                 <div :class="adminType === 'existing'
-                                    ? 'border-primary bg-primary/5 text-primary'
-                                    : 'border-outline-variant/30 text-on-surface-variant hover:border-primary/40'"
+                                        ? 'border-primary bg-primary/5 text-primary'
+                                        : 'border-outline-variant/30 text-on-surface-variant hover:border-primary/40'"
                                     class="flex items-center gap-3 p-4 rounded-xl border-2 transition">
                                     <span class="material-symbols-outlined text-[20px]">manage_accounts</span>
                                     <div>
@@ -124,7 +98,6 @@
                             </label>
                         </div>
 
-                        <!-- Nuevo admin -->
                         <div x-show="adminType === 'new'" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <x-form.field label="Nombre completo" for="admin_name">
                                 <x-form.input id="admin_name" name="admin_name" type="text"
@@ -147,7 +120,6 @@
                             </div>
                         </div>
 
-                        <!-- Admin existente -->
                         <div x-show="adminType === 'existing'" x-cloak>
                             <x-form.field label="Seleccionar administrador" for="admin_id">
                                 <x-form.select id="admin_id" name="admin_id">
@@ -162,24 +134,75 @@
                             </x-form.field>
                         </div>
                     </div>
+                </div>
+
+                <!-- SIDEBAR -->
+                <div class="space-y-8">
+
+                    <!-- LOGO -->
+                    <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+                        <h3 class="text-sm font-semibold text-primary">Logo de la empresa</h3>
+
+                        <div class="flex justify-center">
+                            <div class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
+                                <img id="logo_preview" src="" class="w-full h-full object-cover hidden" />
+                                <span id="logo_placeholder" class="material-symbols-outlined text-3xl text-primary/30">add_business</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label for="logo" class="text-xs font-medium text-on-surface-variant">PNG o JPG hasta 10MB</label>
+                            <input type="file" id="logo" name="logo" accept="image/png,image/jpg,image/jpeg"
+                                class="w-full text-sm text-on-surface-variant file:mr-3 file:py-1.5 file:px-3
+                                       file:rounded-lg file:border-0 file:text-xs file:font-semibold
+                                       file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition" />
+                            <x-input-error :messages="$errors->get('logo')" />
+                        </div>
+                    </div>
+
+                    <!-- INFO -->
+                    <div class="bg-primary-container/10 rounded-xl p-6 border border-primary/10 space-y-3">
+                        <h3 class="text-sm font-semibold text-primary">Recomendaciones</h3>
+                        <ul class="text-sm text-on-surface-variant space-y-2">
+                            <li>• Usa un logo claro con fondo transparente o blanco</li>
+                            <li>• Verifica que el correo de la empresa sea válido</li>
+                            <li>• El administrador recibirá sus credenciales por correo</li>
+                        </ul>
+                    </div>
 
                     <!-- BOTONES -->
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <a href="{{ route('master.index') }}"
-                            class="px-5 py-2.5 rounded-xl border border-outline-variant/30 text-sm font-semibold
-                                  text-on-surface-variant hover:bg-surface-container transition">
-                            Cancelar
-                        </a>
+                    <div class="flex justify-end gap-4 pt-4">
                         <button type="submit"
-                            class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary
-                                       text-sm font-semibold text-on-primary shadow-sm hover:opacity-90 transition">
-                            <span class="material-symbols-outlined text-[16px]">save</span>
+                            class="px-6 py-2.5 rounded-lg text-sm font-semibold
+                                   bg-primary text-white hover:bg-primary/90 transition shadow-md hover:shadow-lg">
                             Crear empresa
                         </button>
+                        <a href="{{ route('master.index') }}"
+                            class="px-5 py-2.5 rounded-lg text-sm font-semibold
+                                   bg-surface-container hover:bg-surface-container-high transition">
+                            Cancelar
+                        </a>
                     </div>
 
                 </div>
+
             </form>
         </div>
+
+        <script>
+            document.getElementById('logo').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const preview = document.getElementById('logo_preview');
+                    const placeholder = document.getElementById('logo_placeholder');
+                    preview.src = reader.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            });
+        </script>
     </main>
 </x-app-layout>

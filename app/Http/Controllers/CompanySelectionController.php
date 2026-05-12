@@ -9,12 +9,12 @@ class CompanySelectionController extends Controller
     public function index()
     {
         $user = auth()->user();
-
         $companies = $user->companies;
 
         if ($companies->count() > 1) {
             return view('auth.select-company', compact('companies'));
         }
+
         if ($companies->count() === 1) {
             $company = $companies->first();
             session([
@@ -23,7 +23,14 @@ class CompanySelectionController extends Controller
             ]);
             return redirect()->route('dashboard');
         }
-        return abort(403, 'No tienes empresas asignadas.');
+
+        // Sin empresas — cerrar sesión y redirigir al login con mensaje
+        auth()->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+        request()->session()->flash('error', 'Tu cuenta no tiene ninguna empresa asignada. Contacta al administrador de la plataforma.');
+
+        return redirect()->route('login');
     }
 
     public function store(Request $request)
