@@ -833,4 +833,44 @@ class BookingController extends Controller
             'duracion_total' => $services->sum('duration'),
         ]);
     }
+    public function cancelFromPanel(Request $request, $id): \Illuminate\Http\JsonResponse
+    {
+        $user     = auth()->user();
+        $customerIds = Customer::where('user_id', $user->id)->pluck('id');
+
+        $appointment = Appointment::whereIn('customer_id', $customerIds)
+            ->where('id', $id)
+            ->first();
+
+        if (!$appointment) {
+            return response()->json(['success' => false, 'message' => 'Cita no encontrada.'], 404);
+        }
+
+        if (!$appointment->isCancellable()) {
+            return response()->json(['success' => false, 'message' => 'Esta cita no se puede cancelar.'], 422);
+        }
+
+        if (now()->gt($appointment->start_time->subHours(2))) {
+            return response()->json(['success' => false, 'message' => 'No puedes cancelar con menos de 2 horas de anticipación.'], 422);
+        }
+
+        $appointment->update([
+            'status'               => 'cancelled',
+            'cancelled_by'         => $user->id,
+            'cancellation_reason'  => 'Cancelada por el cliente desde el panel.',
+        ]);
+
+        $appointment->load(['customer', 'user', 'company', 'services']);
+        $adminEmail = $appointment->company->email;
+        if ($adminEmail) {
+            $this->enviarEmail(
+                new AppointmentCancelledAdminMail($appointment),
+                $adminEmail,
+                $appointment->id,
+                'cancelled_admin'
+            );
+        }
+
+        return response()->json(['success' => true, 'message' => 'Cita cancelada correctamente.']);
+    }
 }

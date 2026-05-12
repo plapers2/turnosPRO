@@ -102,7 +102,7 @@
                         <!-- ACCIÓN CANCELAR -->
                         @if ($cita->isCancellable() && now()->lt($cita->start_time->subHours(2)))
                         <button
-                            data-url="{{ route('appointments.cancel', $cita->cancel_token) }}"
+                            data-id="{{ $cita->id }}"
                             data-empresa="{{ $cita->company->name }}"
                             data-fecha="{{ $cita->start_time->format('d/m/Y H:i') }}"
                             onclick="confirmarCancelacion(this)"
@@ -226,7 +226,7 @@
 
 <script>
     function confirmarCancelacion(btn) {
-        const url = btn.dataset.url;
+        const id = btn.dataset.id;
         const empresa = btn.dataset.empresa;
         const fecha = btn.dataset.fecha;
 
@@ -254,9 +254,58 @@
                 confirmButton: 'px-4 py-2 rounded-lg font-semibold',
                 cancelButton: 'px-4 py-2 rounded-lg'
             },
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = url;
+        }).then(async (result) => {
+            if (!result.isConfirmed) return;
+
+            Swal.fire({
+                title: 'Cancelando...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+                background: '#fcf9f3',
+                color: '#1c1c19',
+            });
+
+            try {
+                const res = await fetch(`/my-appointments/cancel/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: '¡Cita cancelada!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#fcf9f3',
+                        color: '#1c1c19',
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({
+                        title: 'No se pudo cancelar',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Entendido',
+                        confirmButtonColor: '#ba1a1a',
+                        background: '#fcf9f3',
+                        color: '#1c1c19',
+                    });
+                }
+            } catch (e) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un error inesperado. Intenta de nuevo.',
+                    icon: 'error',
+                    confirmButtonColor: '#ba1a1a',
+                    background: '#fcf9f3',
+                    color: '#1c1c19',
+                });
             }
         });
     }

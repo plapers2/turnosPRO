@@ -92,7 +92,8 @@ Route::middleware(['auth', 'password.changed', 'role:cliente'])->group(function 
     Route::get('/booking/confirm', [BookingController::class, 'prepareCreate'])->name('booking.prepareCreate');
     Route::post('/booking/store', [BookingController::class, 'store'])->name('appointments.store');
     Route::get('/booking/profesionales-disponibles', [BookingController::class, 'profesionalesDisponibles'])->name('booking.profesionales');
-    Route::get('/mis-citas', [BookingController::class, 'misCitas'])->name('appointment.history');
+    Route::get('/my-appointments', [BookingController::class, 'misCitas'])->name('appointment.history');
+    Route::post('/my-appointments/cancel/{id}', [BookingController::class, 'cancelFromPanel'])->name('appointments.cancelFromPanel');
     Route::get('/booking/validar-combinacion', [BookingController::class, 'validarCombinacion']);
 });
 
