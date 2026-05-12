@@ -34,14 +34,14 @@
         <x-form.field label="Rol del Usuario" for="roles_id">
             <x-form.select name="role" id="role">
                 @forelse ($roles as $role)
-                @if ($role->name != 'cliente')
-                <option {{ old('role', $user->roles->first()?->name) === $role->name ? 'selected' : '' }}
-                    value="{{ $role->name }}">
-                    {{ ucfirst($role->name) }}
-                </option>
-                @endif
+                    @if ($role->name != 'cliente' && $role->name != 'master')
+                        <option {{ old('role', $user->roles->first()?->name) === $role->name ? 'selected' : '' }}
+                            value="{{ $role->name }}">
+                            {{ ucfirst($role->name) }}
+                        </option>
+                    @endif
                 @empty
-                <option value="">No hay ningún rol en el sistema</option>
+                    <option value="">No hay ningún rol en el sistema</option>
                 @endforelse
             </x-form.select>
 
@@ -51,27 +51,27 @@
 
     <!-- CARD SEGURIDAD -->
     @if (!$user->password)
-    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+        <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
 
-        <h2 class="text-lg font-semibold text-primary">
-            Seguridad
-        </h2>
+            <h2 class="text-lg font-semibold text-primary">
+                Seguridad
+            </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <x-form.field label="Contraseña" for="password">
-                <x-form.input name="password" id="password" type="password" placeholder="•••••••••"
-                    class="focus:ring-secondary/10 focus:border-secondary/40" />
-            </x-form.field>
+                <x-form.field label="Contraseña" for="password">
+                    <x-form.input name="password" id="password" type="password" placeholder="•••••••••"
+                        class="focus:ring-secondary/10 focus:border-secondary/40" />
+                </x-form.field>
 
-            <x-form.field label="Confirmar contraseña" for="password_confirmation">
-                <x-form.input name="password_confirmation" id="password_confirmation" type="password"
-                    placeholder="•••••••••" class="focus:ring-secondary/10 focus:border-secondary/40" />
-            </x-form.field>
+                <x-form.field label="Confirmar contraseña" for="password_confirmation">
+                    <x-form.input name="password_confirmation" id="password_confirmation" type="password"
+                        placeholder="•••••••••" class="focus:ring-secondary/10 focus:border-secondary/40" />
+                </x-form.field>
+
+            </div>
 
         </div>
-
-    </div>
     @endif
 
     {{-- CARD DISPONIBILIDAD --}}
@@ -85,8 +85,8 @@
             </p>
         </div>
         @include('components.form.disponibilidad', [
-        'disponibilidades' => $user->professionalAvailabilities ?? collect(),
-        'horariosEmpresa' => $horariosEmpresa,
+            'disponibilidades' => $user->professionalAvailabilities ?? collect(),
+            'horariosEmpresa' => $horariosEmpresa,
         ])
     </div>
 
@@ -107,19 +107,19 @@
 
         <select name="services[]" id="services" multiple placeholder="Buscar servicio..." autocomplete="off">
             @forelse ($services as $service)
-            @php
-            $selected = in_array($service->id, old('services', $user->services->pluck('id')->toArray() ?? []));
-            @endphp
-            <option value="{{ $service->id }}" {{ $selected ? 'selected' : '' }}>
-                {{ $service->name }}
-            </option>
+                @php
+                    $selected = in_array($service->id, old('services', $user->services->pluck('id')->toArray() ?? []));
+                @endphp
+                <option value="{{ $service->id }}" {{ $selected ? 'selected' : '' }}>
+                    {{ $service->name }}
+                </option>
             @empty
-            <option disabled>No hay servicios registrados.</option>
+                <option disabled>No hay servicios registrados.</option>
             @endforelse
         </select>
 
         @error('services')
-        <p class="text-xs text-error mt-1">{{ $message }}</p>
+            <p class="text-xs text-error mt-1">{{ $message }}</p>
         @enderror
 
     </div>
@@ -129,14 +129,16 @@
         <h3 class="text-sm font-semibold text-primary">Foto de perfil</h3>
 
         <div class="flex justify-center">
-            <div class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
-                @if(isset($user) && $user->image)
-                <img id="preview" src="{{ asset('storage/' . $user->image) }}" class="w-full h-full object-cover" />
+            <div
+                class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
+                @if (isset($user) && $user->image)
+                    <img id="preview" src="{{ asset('storage/' . $user->image) }}"
+                        class="w-full h-full object-cover" />
                 @else
-                <img id="preview" src="" class="w-full h-full object-cover hidden" />
-                <span id="initials" class="material-symbols-outlined text-3xl text-primary/30">
-                    person
-                </span>
+                    <img id="preview" src="" class="w-full h-full object-cover hidden" />
+                    <span id="initials" class="material-symbols-outlined text-3xl text-primary/30">
+                        person
+                    </span>
                 @endif
             </div>
         </div>
@@ -145,10 +147,10 @@
             <label for="archivo" class="text-xs font-medium text-on-surface-variant">PNG o JPG hasta 10MB</label>
             <input type="file" id="archivo" name="archivo" accept="image/png,image/jpg,image/jpeg"
                 class="w-full text-sm text-on-surface-variant file:mr-3 file:py-1.5 file:px-3
-            file:rounded-lg file:border-0 file:text-xs file:font-semibold
+            file:rounded-lg file:border-0 file:text-xs file:font-semibold cursor-pointer
             file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition" />
             @error('archivo')
-            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
             @enderror
         </div>
     </div>
