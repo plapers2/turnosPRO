@@ -1,5 +1,5 @@
 <div class="sticky top-0 z-40 w-full flex items-center h-[60px] px-5 gap-3"
-    style="background: rgba(252,249,243,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid #e8ddd5;">
+    style="background: rgba(253,253,253,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e8ddd5;">
 
     {{-- Botón menú móvil --}}
     <button id="menuBtn"
@@ -13,6 +13,7 @@
     <nav class="hidden md:flex items-center gap-1.5 flex-1">
         @php
             $translations = [
+                'settings' => 'Configuracion',
                 'dashboard' => 'Dashboard',
                 'appointment-manager' => 'Citas',
                 'appointment' => 'Citas',

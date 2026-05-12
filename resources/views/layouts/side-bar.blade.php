@@ -3,11 +3,11 @@
     class="fixed top-0 left-0 h-screen w-60 z-[70]
            transform -translate-x-full md:translate-x-0
            transition-transform duration-300 ease-in-out
-           flex flex-col overflow-hidden"
-    style="background-color: #faf7f4; border-right: 1px solid #d6c3b3;">
+           flex flex-col overflow-hidden
+           bg-white border">
 
     {{-- Brand Header con Logo --}}
-    <div class="flex flex-col items-center px-4 pt-5 pb-4 shrink-0" style="border-bottom: 1px solid #d6c3b3;">
+    <div class="flex flex-col items-center px-4 pt-5 pb-4 shrink-0">
 
         {{-- Logo --}}
         <div class="relative group flex items-center justify-center w-full">

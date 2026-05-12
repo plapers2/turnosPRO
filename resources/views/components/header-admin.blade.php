@@ -2,7 +2,7 @@
 
 <header
     class="relative mx-8 mt-10 mb-4 overflow-hidden rounded-2xl border border-outline-variant/30
-               bg-surface-container-lowest px-6 py-5
+               bg-surface-container-lowest px-6 py-7
                flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4
                shadow-[0_1px_8px_rgba(95,94,90,0.06)]">
 
