@@ -11,7 +11,9 @@ class DashboardController extends Controller
     private function baseQuery()
     {
         $user      = auth()->user();
-        $companyId = session('active_company_id');
+        $companyId = session('active_company_id') ?? $user->companies()->first()?->id;
+
+        abort_if(is_null($companyId), 403, 'No tienes una empresa asignada.');
 
         $query = Appointment::forCompany($companyId);
 

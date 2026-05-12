@@ -41,7 +41,12 @@ class TypeCompanyIndex extends Component
 
     public function render()
     {
+        abort_unless(auth()->user()->hasRole('master'), 403);
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
+        \Illuminate\Pagination\Paginator::currentPathResolver(function () {
+            return url('/master/type-companies');
+        });
+
         $typeCompanies = TypeCompany::withTrashed()
             ->withCount('companies')
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))

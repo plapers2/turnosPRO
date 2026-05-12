@@ -30,10 +30,22 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
+        // Si tiene contraseña temporal, redirige a cambiarla antes de todo
+        if ($user->must_change_password) {
+            return redirect()->route('password.change');
+        }
+
+        // Master va directo a su panel
+        if ($user->hasRole('master')) {
+            return redirect()->route('master.index');
+        }
+
+        // Clientes van al dashboard
         if ($user->hasRole('cliente')) {
             return redirect()->route('dashboard');
         }
 
+        // Admin y empleado seleccionan empresa
         return redirect()->route('company.select');
     }
 

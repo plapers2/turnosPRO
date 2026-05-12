@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('image')->nullable();
             $table->enum("state", ["Active", "Inactive"])->default("Active");
+            $table->boolean('must_change_password')->default(false);
             $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();

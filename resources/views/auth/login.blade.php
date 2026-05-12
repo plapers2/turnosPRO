@@ -1,4 +1,9 @@
 <x-guest-layout>
+    @if (session('error'))
+    <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+        {{ session('error') }}
+    </div>
+    @endif
     <x-auth-session-status class="mb-2" :status="session('status')" />
 
     <form class="flex flex-col gap-5" method="POST" action="{{ route('login') }}">
@@ -27,10 +32,10 @@
             <div class="flex items-center justify-between">
                 <x-input-label for="password" :value="__('Contraseña')" />
                 @if (Route::has('password.request'))
-                    <a class="text-xs text-primary font-medium hover:underline underline-offset-4"
-                        href="{{ route('password.request') }}">
-                        ¿Olvidaste tu contraseña?
-                    </a>
+                <a class="text-xs text-primary font-medium hover:underline underline-offset-4"
+                    href="{{ route('password.request') }}">
+                    ¿Olvidaste tu contraseña?
+                </a>
                 @endif
             </div>
             <div class="relative group">

@@ -20,6 +20,16 @@ class UserSeeder extends Seeder
         Storage::disk('public')->makeDirectory('users');
 
         // Usuarios base con firstOrCreate para evitar duplicados
+        $master = User::firstOrCreate(
+            ['email' => 'master@gmail.com'],
+            [
+                'name'     => 'Master',
+                'password' => Hash::make('12345'),
+                'phone'    => '000000000',
+                'image'    => null,
+            ]
+        );
+        
         $admin = User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
             [
@@ -51,6 +61,7 @@ class UserSeeder extends Seeder
         );
 
         // Asignar roles a usuarios base
+        $master->assignRole('master');
         $admin->assignRole('admin');
         $empleado->assignRole('empleado');
         $cliente->assignRole('cliente');
