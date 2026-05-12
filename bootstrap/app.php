@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission'        => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'password.changed'  => EnsurePasswordChanged::class,
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
