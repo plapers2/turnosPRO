@@ -205,15 +205,15 @@ class BookingController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // \Log::info('Store iniciado', $request->all());
-        $validated = validator($request->all(), [
-            'company_id'              => 'required|exists:companies,id',
-            'fecha'                   => 'required|date|after_or_equal:today',
-            'hora'                    => 'required',
-            'asignaciones'            => 'required|array|min:1',
-            'asignaciones.*.user_id'  => 'required|exists:users,id',
-            'asignaciones.*.service_id' => 'required|exists:services,id',
-            'asignaciones.*.hora_inicio' => 'required',
-        ]);
+        // $validated = validator($request->all(), [
+        //     'company_id'              => 'required|exists:companies,id',
+        //     'fecha'                   => 'required|date|after_or_equal:today',
+        //     'hora'                    => 'required',
+        //     'asignaciones'            => 'required|array|min:1',
+        //     'asignaciones.*.user_id'  => 'required|exists:users,id',
+        //     'asignaciones.*.service_id' => 'required|exists:services,id',
+        //     'asignaciones.*.hora_inicio' => 'required',
+        // ]);
 
         // \Log::info('Errores', $validated->errors()->toArray());
         // \Log::info('Errores de validacion', session()->get('errors') ? session()->get('errors')->toArray() : []);
@@ -224,8 +224,9 @@ class BookingController extends Controller
                 $bookingGroup = \Str::uuid();
                 $fecha        = $request->fecha;
                 $companyId    = $request->company_id;
-
                 $user     = auth()->user();
+                $customerIds = Customer::where('user_id', $user->id)->pluck('id');
+
                 $customer = Customer::firstOrCreate(
                     ['user_id' => $user->id, 'company_id' => $companyId]
                 );
@@ -241,15 +242,43 @@ class BookingController extends Controller
                     }
                     // \Log::info('Horario', ['inicio' => $inicio, 'fin' => $fin]);
 
-                    // Verificar conflicto con bloqueo pesimista
-                    $conflicto = Appointment::where('user_id', $asignacion['user_id'])
+                    // Servicio pertenece a la empresa
+                    $servicioValido = Service::where('id', $asignacion['service_id'])
+                        ->where('company_id', $companyId)
+                        ->exists();
+                    if (!$servicioValido) throw new \Exception('datos_invalidos');
+
+                    // Profesional pertenece a la empresa y atiende el servicio
+                    $profesionalValido = \App\Models\User::where('id', $asignacion['user_id'])
+                        ->whereHas('companies', fn($q) => $q->where('companies.id', $companyId))
+                        ->whereHas('services', fn($q) => $q->where('services.id', $asignacion['service_id']))
+                        ->exists();
+                    if (!$profesionalValido) throw new \Exception('datos_invalidos');
+                    // \Log::info('Validando conflicto cliente', [
+                    //     'customerIds' => $customerIds->toArray(),
+                    //     'inicio' => $inicio,
+                    //     'fin' => $fin,
+                    // ]);
+                    // Verificar conflicto de horario de cliente
+                    $conflictoCliente = Appointment::whereIn('customer_id', $customerIds)
                         ->where('start_time', '<', $fin)
                         ->where('end_time', '>', $inicio)
+                        ->whereNotIn('status', ['cancelled'])
                         ->lockForUpdate()
                         ->exists();
-                    // \Log::info('Conflicto', ['hay_conflicto' => $conflicto]);
+                    // \Log::info('Resultado conflicto cliente', ['conflicto' => $conflictoCliente]);
+                    if ($conflictoCliente) throw new \Exception('cliente_ocupado');
 
-                    if ($conflicto) throw new \Exception('slot_ocupado');
+                    // Verificar conflicto con bloqueo pesimista
+                    $conflictoProfesional = Appointment::where('user_id', $asignacion['user_id'])
+                        ->where('start_time', '<', $fin)
+                        ->where('end_time', '>', $inicio)
+                        ->whereNotIn('status', ['cancelled'])
+                        ->lockForUpdate()
+                        ->exists();
+                    // \Log::info('Conflicto', ['hay_conflicto' => $conflictoProfesional]);
+
+                    if ($conflictoProfesional) throw new \Exception('slot_ocupado');
 
                     $appointment = Appointment::create([
                         'start_time'   => $inicio,
@@ -296,13 +325,19 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             // \Log::error('Error en store', [
             //     'mensaje' => $e->getMessage(),
-            //     'linea'   => $e->getLine(),
-            //     'archivo' => $e->getFile(),
+            //     'clase'   => get_class($e),
+            //     'anterior' => $e->getPrevious()?->getMessage(),
             // ]);
-            $mensaje = match ($e->getMessage()) {
-                'slot_ocupado' => 'Un horario fue reservado mientras confirmabas. Por favor selecciona otro.',
-                'hora_pasada'  => 'No puedes agendar citas en horarios que ya pasaron.',
-                default        => 'Ocurrió un error al agendar la cita. Intenta de nuevo.',
+
+            $mensajeReal = $e->getPrevious()?->getMessage() ?? $e->getMessage();
+
+            $mensaje = match ($mensajeReal) {
+                'slot_ocupado'         => 'Un horario fue reservado mientras confirmabas. Por favor selecciona otro.',
+                'hora_pasada'          => 'No puedes agendar citas en horarios que ya pasaron.',
+                'cliente_ocupado'      => 'Ya tienes una cita agendada en ese horario. Revisa tus citas antes de continuar.',
+                'datos_invalidos'      => 'Los datos enviados no son válidos.',
+                'profesional_invalido' => 'El profesional seleccionado no está disponible.',
+                default                => 'Ocurrió un error al agendar la cita. Intenta de nuevo.',
             };
 
             return redirect()->back()->with('error', $mensaje)->withInput();

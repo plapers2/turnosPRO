@@ -15,7 +15,6 @@
                 <p class="text-sm text-on-surface-variant ml-13">Elige fecha, hora y profesional para tu cita</p>
             </div>
         </header>
-
         <!-- HERO -->
         <div class="relative bg-gradient-to-br from-primary/10 via-surface to-secondary/10 px-8 py-8 border-b border-outline-variant/20">
             <div class="flex items-center gap-5">
@@ -218,6 +217,26 @@
                 </div>
             </div>
         </form>
+        @if (session('error'))
+        <div
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-4"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-4"
+            class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3
+               bg-red-600 text-white text-sm font-medium px-5 py-3.5 rounded-2xl
+               shadow-xl max-w-sm w-full mx-4">
+            <span class="material-symbols-outlined text-[18px] flex-shrink-0">error</span>
+            <span class="flex-1">{{ session('error') }}</span>
+            <button @click="show = false" class="ml-2 opacity-70 hover:opacity-100 transition">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+        </div>
+        @endif
     </main>
 </x-app-layout>
 
