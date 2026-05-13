@@ -62,7 +62,7 @@ class Manager extends Component
                 CASE WHEN start_time >= ? THEN start_time ELSE NULL END ASC,
                 CASE WHEN start_time < ? THEN start_time ELSE NULL END DESC
             ", [$now, $now, $now])
-            ->paginate(15);
+            ->paginate(8);
     }
 
     #[Computed]
@@ -96,6 +96,7 @@ class Manager extends Component
 
     public function render()
     {
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
         return view('livewire.appointments.⚡manager', [
             'appointments'   => $this->appointments(),
             'stats'          => $this->stats(),
