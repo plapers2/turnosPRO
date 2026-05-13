@@ -5,41 +5,60 @@
     </div>
 
     {{-- FILTROS --}}
-    <div class="px-8 pt-4 pb-2 flex flex-col sm:flex-row gap-3">
-
-        {{-- Estado --}}
-        <div class="relative">
-            <select wire:model.live="status"
-                class="appearance-none pl-4 pr-9 py-2.5 rounded-xl border-[1.5px] border-outline-variant
-                       bg-surface-container-lowest text-on-surface text-[13px] font-medium
-                       focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10
-                       transition-all cursor-pointer min-w-[160px]">
-                <option value="">Todos los estados</option>
-                <option value="active">Activos</option>
-                <option value="inactive">Inactivos</option>
-            </select>
+    <div class="flex flex-col gap-3 px-4 pt-3 sm:px-8 lg:flex-row lg:items-center mb-3">
+        {{-- Filtro de dias --}}
+        <div class="relative w-full lg:max-w-[200px]">
             <span
-                class="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant">
-                expand_more
+                class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2
+                         -translate-y-1/2 text-[17px] text-on-surface-variant">
+                calendar_month
             </span>
-        </div>
-
-        {{-- Día --}}
-        <div class="relative">
             <select wire:model.live="day"
-                class="appearance-none pl-4 pr-9 py-2.5 rounded-xl border-[1.5px] border-outline-variant
-                       bg-surface-container-lowest text-on-surface text-[13px] font-medium
-                       focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10
-                       transition-all cursor-pointer min-w-[160px]">
+                class="w-full appearance-none rounded-xl border border-outline-variant/60
+                       bg-surface-container-lowest py-2.5 pl-9 pr-8
+                       text-[13px] text-on-surface
+                       focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow cursor-pointer">
                 <option value="">Todos los días</option>
                 @foreach ($days as $key => $label)
                     <option value="{{ $key }}">{{ $label }}</option>
                 @endforeach
+
             </select>
             <span
-                class="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant">
+                class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2
+                         -translate-y-1/2 text-[17px] text-on-surface-variant">
                 expand_more
             </span>
+        </div>
+
+        {{-- Tabs de estado --}}
+        <div
+            class="flex gap-1 rounded-xl border border-outline-variant/60
+                    bg-surface-container-lowest p-1 shrink-0 self-start lg:self-auto">
+            <button wire:click="$set('status', '')"
+                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
+                       text-[12.5px] font-semibold transition-all duration-150
+                       {{ $status === ''
+                           ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm'
+                           : 'text-on-surface-variant hover:bg-surface-container' }}">
+                Todos
+            </button>
+            <button wire:click="$set('status', 'active')"
+                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
+                       text-[12.5px] font-semibold transition-all duration-150
+                       {{ $status === 'active'
+                           ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm'
+                           : 'text-on-surface-variant hover:bg-surface-container' }}">
+                Activos
+            </button>
+            <button wire:click="$set('status', 'inactive')"
+                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
+                       text-[12.5px] font-semibold transition-all duration-150
+                       {{ $status === 'inactive'
+                           ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm'
+                           : 'text-on-surface-variant hover:bg-surface-container' }}">
+                Inactivos
+            </button>
         </div>
 
     </div>

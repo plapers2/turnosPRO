@@ -13,6 +13,7 @@
     <nav class="hidden md:flex items-center gap-1.5 flex-1">
         @php
             $translations = [
+                'professional-availability' => 'Disponibilidad de Profesionales',
                 'settings' => 'Configuración',
                 'dashboard' => 'Dashboard',
                 'appointment-manager' => 'Citas',
