@@ -13,7 +13,7 @@
     <nav class="hidden md:flex items-center gap-1.5 flex-1">
         @php
             $translations = [
-                'settings' => 'Configuracion',
+                'settings' => 'Configuración',
                 'dashboard' => 'Dashboard',
                 'appointment-manager' => 'Citas',
                 'appointment' => 'Citas',
@@ -26,15 +26,25 @@
                 'opening-hours' => 'Horarios de atención',
                 'notification-logs' => 'Notificaciones',
                 'profile' => 'Perfil',
+
+                // Acciones
+                'create' => 'Crear',
+                'edit' => 'Editar',
+                'show' => 'Detalle',
+                'index' => 'Listado',
             ];
+
             $combinedTranslations = [
                 'appointment/index' => 'Reservar cita',
                 'appointment/history' => 'Historial de citas',
                 'appointments/export' => 'Exportar citas',
                 'profile/settings' => 'Configuración de perfil',
             ];
+
             $rawSegments = collect(request()->segments())->filter(fn($s) => !is_numeric($s));
+
             $combined = $rawSegments->values()->take(2)->implode('/');
+
             $segments = isset($combinedTranslations[$combined])
                 ? collect([$combinedTranslations[$combined]])
                 : $rawSegments->map(fn($s) => $translations[$s] ?? ucfirst(str_replace('-', ' ', $s)));

@@ -2,7 +2,7 @@
     <main class="flex-1 flex flex-col h-full overflow-y-auto bg-surface">
 
         <!-- HEADER -->
-        <x-form.header icono="arrow_back" ruta="users" titulo="Nuevo Usuario" subtitulo="Gestion de Profesionales" />
+        <x-form.header icono="arrow_back" ruta="users" titulo="Nuevo Profesional" subtitulo="Gestion de Profesionales" />
 
         <!-- FORM -->
         <div class="px-8 pb-20">
