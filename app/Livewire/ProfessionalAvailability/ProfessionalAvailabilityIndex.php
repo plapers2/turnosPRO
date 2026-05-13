@@ -27,7 +27,7 @@ class ProfessionalAvailabilityIndex extends Component
             'sunday'    => 'Domingo',
         ];
 
-        $query = ProfessionalAvailability::with(['user'])
+        $query = ProfessionalAvailability::with(['user' => fn($q) => $q->withTrashed()])
             ->withTrashed()
             ->orderBy('deleted_at', 'asc')
 
@@ -58,7 +58,7 @@ class ProfessionalAvailabilityIndex extends Component
 
                 $q->whereHas('user', function ($userQuery) use ($search) {
 
-                    $userQuery->where('name', 'like', $search)
+                    $userQuery->withTrashed()->where('name', 'like', $search)
                         ->orWhere('email', 'like', $search);
                 });
             });
@@ -66,7 +66,7 @@ class ProfessionalAvailabilityIndex extends Component
         if ($user->hasRole('admin')) {
 
             $query->whereHas('user', function ($q) use ($companyId) {
-                $q->whereHas('companies', function ($j) use ($companyId) {
+                $q->withTrashed()->whereHas('companies', function ($j) use ($companyId) {
                     $j->where('company_id', $companyId);
                 });
             });
