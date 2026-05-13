@@ -56,7 +56,7 @@ class UserController extends Controller
             'email'    => 'required|string|max:255|unique:users,email',
             'telefono' => 'required|string|min:8|max:20',
             'password' => ['required', Password::min(8), 'confirmed'],
-            'archivo'  => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'archivo'  => 'required|image|mimes:jpg,png|max:10240',
             'role'     => 'required|exists:roles,name',
             'services'     => 'required|array',
             'services.*'   => 'exists:services,id',
@@ -132,7 +132,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show(int $id): View
     {
         $user = User::find($id);
 
@@ -142,7 +142,7 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(int $id): View
     {
         $companyId = session('active_company_id');
         $user = User::find($id);
@@ -170,7 +170,7 @@ class UserController extends Controller
             ],
             'telefono' => 'required|string|min:8|max:20',
             'password' => ['nullable', Password::min(8), 'confirmed'],
-            'archivo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'archivo' => 'nullable|image|mimes:jpg,png|max:10240',
             'role'     => 'required|exists:roles,name',
             'services'     => 'required|array',
             'services.*'   => 'exists:services,id',
@@ -268,7 +268,7 @@ class UserController extends Controller
             ->with('success', 'Usuario enviado a la papelera');
     }
 
-    public function restore($id)
+    public function restore(int $id)
     {
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
