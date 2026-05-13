@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileSettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\ProfessionalAvailabilityController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -79,6 +80,11 @@ Route::middleware(['auth', 'password.changed', 'role:master'])->prefix('master')
     Route::post('/{company}/assign-admin', [CompanyController::class, 'assignAdmin'])->name('assign-admin');
     Route::resource('/type-companies', TypeCompanyController::class);
     Route::post('/type-companies/{id}/restore', [TypeCompanyController::class, 'restore'])->name('type-companies.restore');
+    Route::get('/admins', [AdminController::class, 'index'])->name('admins.index');
+    Route::get('/admins/create', [AdminController::class, 'create'])->name('admins.create');
+    Route::post('/admins', [AdminController::class, 'store'])->name('admins.store');
+    Route::delete('/admins/{admin}', [AdminController::class, 'destroy'])->name('admins.destroy');
+    Route::post('/admins/{id}/restore', [AdminController::class, 'restore'])->name('admins.restore');
 });
 
 

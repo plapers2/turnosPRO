@@ -15,9 +15,9 @@ class AdminCredentialsMail extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public User    $admin,
-        public Company $company,
-        public string  $tempPassword,
+        public User     $admin,
+        public ?Company $company,
+        public string   $tempPassword,
     ) {}
 
     public function envelope(): Envelope

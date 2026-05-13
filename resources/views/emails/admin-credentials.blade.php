@@ -36,7 +36,9 @@
 
                             <h2 style="margin:0 0 8px;font-size:20px;color:#1c1b1f;font-weight:700;">Bienvenido a TurnosPRO</h2>
                             <p style="margin:0 0 28px;color:#6b7280;font-size:14px;line-height:1.6;">
-                                Hola, <strong style="color:#b45309;">{{ $admin->name }}</strong>. Has sido registrado como administrador de <strong style="color:#b45309;">{{ $company->name }}</strong>. A continuación tus credenciales de acceso temporales:
+                                Hola, <strong style="color:#b45309;">{{ $admin->name }}</strong>. Has sido registrado como administrador
+                                @if($company) de <strong style="color:#b45309;">{{ $company->name }}</strong>@endif.
+                                A continuación tus credenciales de acceso temporales:
                             </p>
 
                             <!-- Credenciales -->
@@ -73,6 +75,7 @@
                                         </table>
                                     </td>
                                 </tr>
+                                @if($company)
                                 <tr>
                                     <td style="padding:16px 20px;">
                                         <table width="100%" cellpadding="0" cellspacing="0">
@@ -86,6 +89,7 @@
                                         </table>
                                     </td>
                                 </tr>
+                                @endif
                             </table>
 
                             <div style="text-align:center;margin:24px 0;">
