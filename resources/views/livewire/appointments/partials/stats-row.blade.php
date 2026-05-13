@@ -8,8 +8,8 @@
                 'value' => $stats['total'],
                 'icon' =>
                     '<rect x="1" y="3" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 3V2M11 3V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.5"/>',
-                'bg' => 'bg-primary-fixed/20',
-                'text' => 'text-primary',
+                'bg' => 'bg-primary-container',
+                'text' => 'text-on-primary-container',
                 'num' => 'text-primary',
             ],
             [

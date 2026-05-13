@@ -124,32 +124,6 @@
             const APPTS = @json($appointments);
             const SERVICES = @json($services);
 
-            const KPI_META = [{
-                    icon: 'schedule',
-                    bg: '#FAEEDA',
-                    color: '#854F0B',
-                    border: '#E7C98A'
-                },
-                {
-                    icon: 'check_circle',
-                    bg: '#E1F5EE',
-                    color: '#0F6E56',
-                    border: '#9FE1CB'
-                },
-                {
-                    icon: 'task_alt',
-                    bg: '#E6F1FB',
-                    color: '#185FA5',
-                    border: '#9EC8F0'
-                },
-                {
-                    icon: 'cancel',
-                    bg: '#FCEBEB',
-                    color: '#A32D2D',
-                    border: '#F7C1C1'
-                }
-            ];
-
             let currentPeriod = localStorage.getItem('dashboard_period') || 'hoy';
             let currentChart = localStorage.getItem('dashboard_chart') || 'barras';
             let chartInstance = null;
@@ -165,77 +139,80 @@
                 document.getElementById('kpi-grid').innerHTML =
                     DATA[period].kpis.map((k, i) => {
 
-                        const m = KPI_META[i];
+                        const meta = [{
+                                icon: 'calendar_month',
+                                wrap: 'bg-primary-container text-on-primary-container',
+                                accent: 'bg-primary'
+                            },
+                            {
+                                icon: 'check_circle',
+                                wrap: 'bg-[#DDF4E8] text-[#0F6E56]',
+                                accent: 'bg-[#0F6E56]'
+                            },
+                            {
+                                icon: 'cancel',
+                                wrap: 'bg-error-container/60 text-on-error-container',
+                                accent: 'bg-error'
+                            },
+                            {
+                                icon: 'schedule',
+                                wrap: 'bg-blue-200 text-blue-700',
+                                accent: 'bg-blue-600'
+                            }
+                        ][i];
 
                         return `
-            <div class="
-                relative overflow-hidden
-                bg-surface-container-lowest
-                border border-outline-variant/40
-                rounded-xl
-                p-4
-                flex flex-col gap-4
-                shadow-[0_1px_6px_rgba(95,94,90,0.06)]
-                hover:shadow-[0_4px_16px_rgba(95,94,90,0.10)]
-                hover:-translate-y-0.5
-                transition-all duration-200
-                fade-in
-            ">
+            <div
+                class="
+                    relative overflow-hidden
+                    flex items-center gap-3
+                    rounded-xl
+                    shadow-sm
+                    bg-surface-container-lowest
+                    px-4 py-3
+                    transition-all duration-200
+                    hover:border-outline-variant
+                    hover:bg-surface-container-lowest
+                "
+            >
 
                 <!-- Accent -->
-                <div
-                    class="absolute left-0 top-4 bottom-4 w-[3px] rounded-r-full"
-                    style="background:${m.color}"
-                ></div>
+                <div class="
+                    absolute left-0 top-2 bottom-2 w-[3px]
+                    rounded-r-full
+                    ${meta.accent}
+                "></div>
 
-                <!-- Header -->
-                <div class="flex items-start justify-between gap-3 pl-2">
+                <!-- Icon -->
+                <div class="
+                    flex h-9 w-9 shrink-0 items-center justify-center
+                    rounded-[10px]
+                    ${meta.wrap}
+                ">
+                    <span class="material-symbols-outlined text-[17px]">
+                        ${meta.icon}
+                    </span>
+                </div>
 
-                    <div class="flex items-center gap-3 min-w-0">
+                <!-- Content -->
+                <div class="flex min-w-0 flex-col gap-0.5">
 
-                        <!-- Icon -->
-                        <div
-                            class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                            style="
-                                background:${m.bg};
-                                border:1px solid ${m.border};
-                            "
-                        >
-                            <span
-                                class="material-symbols-rounded"
-                                style="
-                                    font-size:1.2rem;
-                                    color:${m.color};
-                                "
-                            >
-                                ${m.icon}
-                            </span>
-                        </div>
+                    <span class="
+                        text-[17px]
+                        font-semibold
+                        leading-none
+                        text-on-surface
+                    ">
+                        ${k.value}
+                    </span>
 
-                        <!-- Text -->
-                        <div class="min-w-0">
-                            <p class="
-                                text-[12px]
-                                font-medium
-                                text-on-surface-variant
-                                tracking-tight
-                                leading-tight
-                            ">
-                                ${k.label}
-                            </p>
-
-                            <p class="
-                                text-3xl
-                                font-bold
-                                text-on-surface
-                                leading-none
-                                mt-1
-                            ">
-                                ${k.value}
-                            </p>
-                        </div>
-
-                    </div>
+                    <span class="
+                        text-[11px]
+                        font-normal
+                        text-on-surface-variant
+                    ">
+                        ${k.label}
+                    </span>
 
                 </div>
 
