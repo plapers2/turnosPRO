@@ -209,7 +209,7 @@
                                      bg-secondary-container/50 px-2.5 py-[5px]
                                      text-[11.5px] font-semibold text-on-secondary-container">
                             <span class="material-symbols-outlined text-[13px]">payments</span>
-                            {{ $service->price }}
+                            $ {{ number_format($service->price, 0, ',', '.') }}
                         </span>
                     </div>
 
