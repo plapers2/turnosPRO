@@ -87,8 +87,7 @@
 
 
         @can('ver disponibilidades')
-            <x-sidebar-link route="professional-availability.index" pattern="professional-availability.*"
-                icon="calendar_month">
+            <x-sidebar-link route="professional-availability.index" pattern="professional-availability.*" icon="chronic">
                 Horarios de profesionales
             </x-sidebar-link>
         @endcan

@@ -10,7 +10,6 @@
         {{-- FILTROS --}}
         @livewire('services.service-index')
 
-        </div>
     </main>
 </x-app-layout>
 
