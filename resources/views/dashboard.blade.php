@@ -125,25 +125,29 @@
             const SERVICES = @json($services);
 
             const KPI_META = [{
-                    icon: 'calendar_month',
-                    bg: '#ede9fe',
-                    color: '#6d28d9'
+                    icon: 'schedule',
+                    bg: '#FAEEDA',
+                    color: '#854F0B',
+                    border: '#E7C98A'
+                },
+                {
+                    icon: 'check_circle',
+                    bg: '#E1F5EE',
+                    color: '#0F6E56',
+                    border: '#9FE1CB'
                 },
                 {
                     icon: 'task_alt',
-                    bg: '#d1fae5',
-                    color: '#059669'
+                    bg: '#E6F1FB',
+                    color: '#185FA5',
+                    border: '#9EC8F0'
                 },
                 {
-                    icon: 'event_busy',
-                    bg: '#fee2e2',
-                    color: '#dc2626'
-                },
-                {
-                    icon: 'hourglass_empty',
-                    bg: '#fef3c7',
-                    color: '#d97706'
-                },
+                    icon: 'cancel',
+                    bg: '#FCEBEB',
+                    color: '#A32D2D',
+                    border: '#F7C1C1'
+                }
             ];
 
             let currentPeriod = localStorage.getItem('dashboard_period') || 'hoy';
@@ -157,21 +161,86 @@
             }
 
             function renderKPIs(period) {
+
                 document.getElementById('kpi-grid').innerHTML =
                     DATA[period].kpis.map((k, i) => {
-                        const m = KPI_META[i] || {
-                            icon: 'info',
-                            bg: '#f5f5f5',
-                            color: '#555'
-                        };
+
+                        const m = KPI_META[i];
+
                         return `
-                        <div class="kpi-card fade-in">
-                            <div class="kpi-icon-wrap" style="background:${m.bg}">
-                                <span class="material-symbols-rounded" style="font-size:1.25rem;color:${m.color}">${m.icon}</span>
-                            </div>
-                            <span class="text-xs text-on-surface-variant">${k.label}</span>
-                            <span class="text-3xl font-bold text-on-surface mt-1">${k.value}</span>
-                        </div>`;
+            <div class="
+                relative overflow-hidden
+                bg-surface-container-lowest
+                border border-outline-variant/40
+                rounded-xl
+                p-4
+                flex flex-col gap-4
+                shadow-[0_1px_6px_rgba(95,94,90,0.06)]
+                hover:shadow-[0_4px_16px_rgba(95,94,90,0.10)]
+                hover:-translate-y-0.5
+                transition-all duration-200
+                fade-in
+            ">
+
+                <!-- Accent -->
+                <div
+                    class="absolute left-0 top-4 bottom-4 w-[3px] rounded-r-full"
+                    style="background:${m.color}"
+                ></div>
+
+                <!-- Header -->
+                <div class="flex items-start justify-between gap-3 pl-2">
+
+                    <div class="flex items-center gap-3 min-w-0">
+
+                        <!-- Icon -->
+                        <div
+                            class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                            style="
+                                background:${m.bg};
+                                border:1px solid ${m.border};
+                            "
+                        >
+                            <span
+                                class="material-symbols-rounded"
+                                style="
+                                    font-size:1.2rem;
+                                    color:${m.color};
+                                "
+                            >
+                                ${m.icon}
+                            </span>
+                        </div>
+
+                        <!-- Text -->
+                        <div class="min-w-0">
+                            <p class="
+                                text-[12px]
+                                font-medium
+                                text-on-surface-variant
+                                tracking-tight
+                                leading-tight
+                            ">
+                                ${k.label}
+                            </p>
+
+                            <p class="
+                                text-3xl
+                                font-bold
+                                text-on-surface
+                                leading-none
+                                mt-1
+                            ">
+                                ${k.value}
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            `;
                     }).join('');
             }
 
@@ -181,20 +250,17 @@
                 const isLine = type === 'lineas';
                 let data = JSON.parse(JSON.stringify(DATA[period][type]));
 
-                data.datasets = data.datasets.map((ds, i) => isLine ?
-                    {
-                        ...ds,
-                        borderColor: i === 0 ? '#046289' : '#ba1a1a',
-                        backgroundColor: 'transparent',
-                        tension: 0.4,
-                        pointRadius: 3
-                    } :
-                    {
-                        ...ds,
-                        backgroundColor: '#663a00',
-                        borderRadius: 8
-                    }
-                );
+                data.datasets = data.datasets.map((ds, i) => isLine ? {
+                    ...ds,
+                    borderColor: i === 0 ? '#046289' : '#ba1a1a',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 3
+                } : {
+                    ...ds,
+                    backgroundColor: '#663a00',
+                    borderRadius: 8
+                });
 
                 chartInstance = new Chart(document.getElementById('mainChart'), {
                     type: isLine ? 'line' : 'bar',
