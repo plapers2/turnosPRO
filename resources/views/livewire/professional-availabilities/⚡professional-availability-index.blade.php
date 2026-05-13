@@ -5,21 +5,22 @@
     </div>
 
     {{-- FILTROS --}}
-    <div class="flex flex-col gap-3 px-4 pt-5 sm:px-8 lg:flex-row lg:items-center mb-3">
+    <div class="flex flex-col gap-3 px-4 pt-3 sm:px-8 lg:flex-row lg:items-center mb-3">
         {{-- Buscador --}}
-        <div class="relative w-full lg:max-w-[280px]">
-            <span
-                class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2
+        @role('admin')
+            <div class="relative w-full lg:max-w-[280px]">
+                <span
+                    class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2
                          -translate-y-1/2 text-[17px] text-on-surface-variant">
-                search
-            </span>
-            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar usuario..."
-                class="w-full rounded-xl border border-outline-variant/60 bg-surface-container-lowest
+                    search
+                </span>
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar por usuario o email..."
+                    class="w-full rounded-xl border border-outline-variant/60 bg-surface-container-lowest
                        py-2.5 pl-9 pr-4 text-[13px] text-on-surface placeholder:text-on-surface-variant/50
                        focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow" />
-        </div>
-
-        {{-- Filtro de rol --}}
+            </div>
+        @endrole
+        {{-- Filtro de dias --}}
         <div class="relative w-full lg:max-w-[200px]">
             <span
                 class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2
@@ -30,7 +31,7 @@
                 class="w-full appearance-none rounded-xl border border-outline-variant/60
                        bg-surface-container-lowest py-2.5 pl-9 pr-8
                        text-[13px] text-on-surface
-                       focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow">
+                       focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow cursor-pointer">
                 <option value="">Todos los días</option>
                 @foreach ($days as $key => $label)
                     <option value="{{ $key }}">{{ $label }}</option>
@@ -82,7 +83,7 @@
                     shadow-[0_2px_16px_rgba(95,94,90,0.05)] p-6">
 
             <div wire:loading.class="opacity-50 pointer-events-none transition-opacity duration-200"
-                wire:target="status, day" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                wire:target="status, day, search" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
 
                 @foreach ($visibleDays as $key => $label)
                     <div class="bg-surface rounded-2xl border border-outline-variant/25 p-4 flex flex-col gap-3">
@@ -138,9 +139,12 @@
 
                                             <div class="flex items-center justify-between gap-2">
 
-                                                <h4 class="text-[13.5px] font-semibold text-on-surface truncate">
+                                                <h4 class="text-md font-semibold text-on-surface truncate">
                                                     {{ $hour->user->name }}
+                                                    <span
+                                                        class="block text-sm text-primary-container">{{ $hour->user->email }}</span>
                                                 </h4>
+
 
                                                 <span
                                                     class="text-[10px] font-semibold px-2.5 py-1 rounded-full

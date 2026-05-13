@@ -10,6 +10,7 @@ class ProfessionalAvailabilityIndex extends Component
 {
     public string $status = '';
     public string $day = '';
+    public string $search = '';
 
     public function render()
     {
@@ -26,15 +27,41 @@ class ProfessionalAvailabilityIndex extends Component
             'sunday'    => 'Domingo',
         ];
 
-        $query = ProfessionalAvailability::withTrashed()
+        $query = ProfessionalAvailability::with(['user'])
+            ->withTrashed()
             ->orderBy('deleted_at', 'asc')
-            ->when($this->status === 'active', fn($q) => $q->whereNull('deleted_at'))
-            ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
+
+            // FILTRO STATUS
+            ->when(
+                $this->status === 'active',
+                fn($q) =>
+                $q->whereNull('deleted_at')
+            )
+
+            ->when(
+                $this->status === 'inactive',
+                fn($q) =>
+                $q->onlyTrashed()
+            )
+
+            // FILTRO DIA
             ->when(
                 $this->day,
                 fn($q) =>
                 $q->whereRaw('LOWER(day_of_week) = ?', [strtolower($this->day)])
-            );
+            )
+
+            // FILTRO SEARCH
+            ->when($this->search, function ($q) {
+
+                $search = '%' . $this->search . '%';
+
+                $q->whereHas('user', function ($userQuery) use ($search) {
+
+                    $userQuery->where('name', 'like', $search)
+                        ->orWhere('email', 'like', $search);
+                });
+            });
 
         if ($user->hasRole('admin')) {
 
