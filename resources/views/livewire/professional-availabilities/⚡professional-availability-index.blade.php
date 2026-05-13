@@ -108,14 +108,17 @@
                             @forelse ($profesionalAvailability[$key] ?? [] as $hour)
                                 <div
                                     class="group bg-surface-container-lowest rounded-2xl border border-outline-variant/20
-               p-4 flex flex-col gap-4
-               hover:shadow-[0_6px_24px_rgba(95,94,90,0.10)]
-               hover:border-primary/20
-               hover:-translate-y-[1px]
-               transition-all duration-300">
+                                    p-4 flex flex-col gap-4
+                                    hover:shadow-[0_6px_24px_rgba(95,94,90,0.10)]
+                                    hover:border-primary/20
+                                    hover:-translate-y-[1px]
+                                    transition-all duration-300">
 
                                     {{-- HEADER PROFESIONAL --}}
-                                    <div class="flex items-start gap-3">
+                                    <div
+                                        class="flex items-start gap-3  {{ $hour->deleted_at
+                                            ? 'border-dashed border-outline-variant/50 opacity-85'
+                                            : 'border-outline-variant/50 hover:border-outline-variant' }}">
 
                                         {{-- AVATAR --}}
                                         <div

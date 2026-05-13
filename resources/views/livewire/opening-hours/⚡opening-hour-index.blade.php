@@ -74,7 +74,6 @@
 
                 @foreach ($visibleDays as $key => $label)
                     <div class="bg-surface rounded-2xl border border-outline-variant/25 p-4 flex flex-col gap-3">
-
                         {{-- HEADER DÍA --}}
                         <div class="flex items-center justify-between">
                             <h3 class="text-[13.5px] font-semibold text-primary flex items-center gap-1.5">
@@ -97,7 +96,10 @@
                                     class="bg-surface-container-lowest rounded-xl border border-outline-variant/25
                                             px-3.5 py-3 flex flex-col gap-2.5
                                             hover:shadow-[0_4px_16px_rgba(95,94,90,0.08)]
-                                            hover:-translate-y-px transition-all duration-200">
+                                            hover:-translate-y-px transition-all duration-200
+                                            {{ $hour->trashed()
+                                                ? 'border-dashed border-outline-variant/50 opacity-75'
+                                                : 'border-outline-variant/50 hover:border-outline-variant' }}">
 
                                     {{-- TIEMPO + DURACIÓN --}}
                                     <div class="flex items-center gap-1.5">
