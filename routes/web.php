@@ -13,6 +13,7 @@ use App\Http\Controllers\NotificationLogController;
 use App\Http\Controllers\ProfileSettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\PasswordChangeController;
+use App\Http\Controllers\ProfessionalAvailabilityController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -120,6 +121,7 @@ Route::middleware(['auth', 'password.changed', 'role:admin|empleado'])->group(fu
     Route::get('/appointment-manager', function () {
         return view('appointment-manager.index');
     })->name('appointment-manager.index');
+    Route::get('/professional-availability', [ProfessionalAvailabilityController::class, 'index'])->name('professional-availability.index');
 });
 
 
