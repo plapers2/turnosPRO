@@ -77,7 +77,12 @@ class CompanyController extends Controller
     {
         $company->load(['typeCompany', 'users' => fn($q) => $q->role('admin')]);
         $typeCompanies = TypeCompany::all();
-        $admins        = User::role('admin')->get();
+
+        $assignedAdminIds = $company->users()->role('admin')->pluck('users.id');
+
+        $admins = User::role('admin')
+            ->whereNotIn('id', $assignedAdminIds)
+            ->get();
 
         return view('master.edit', compact('company', 'typeCompanies', 'admins'));
     }

@@ -97,6 +97,14 @@
                             </p>
                             <div class="flex gap-3">
                                 <div class="flex-1">
+                                    @if($admins->isEmpty())
+                                    <p class="text-sm text-gray-500 italic mt-2">
+                                        No hay administradores disponibles.
+                                        <a href="{{ route('master.create') }}" class="text-amber-700 underline font-medium">
+                                            Crea uno nuevo
+                                        </a>
+                                    </p>
+                                    @else
                                     <x-form.select id="admin_id" name="admin_id">
                                         <option value="">Selecciona un administrador...</option>
                                         @foreach ($admins as $admin)
@@ -106,13 +114,17 @@
                                         @endforeach
                                     </x-form.select>
                                     <x-input-error class="mt-1" :messages="$errors->get('admin_id')" />
+                                    @endif
                                 </div>
+
+                                @unless($admins->isEmpty())
                                 <button type="submit"
                                     class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary
-                                           text-sm font-semibold text-on-primary hover:opacity-90 transition flex-shrink-0">
+                   text-sm font-semibold text-on-primary hover:opacity-90 transition flex-shrink-0">
                                     <span class="material-symbols-outlined text-[16px]">person_add</span>
                                     Asignar
                                 </button>
+                                @endunless
                             </div>
                         </form>
                     </div>
