@@ -28,11 +28,15 @@ class TypeCompanyController extends Controller
     {
         $data = $request->validated();
 
+        $logo = null;
         if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('type-companies', 'public');
+            $logo = $request->file('logo')->store('type-companies', 'public');
         }
 
-        TypeCompany::create($data);
+        TypeCompany::create([
+            'name' => $data['name'],
+            'logo' => $logo,
+        ]);
 
         return Redirect::route('master.type-companies.index')
             ->with('success', 'Tipo de empresa creado correctamente.');

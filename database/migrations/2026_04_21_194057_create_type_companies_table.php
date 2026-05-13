@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('type_companies', function (Blueprint $table) {
             $table->id();
             $table->string("name");
-            $table->string("logo", 255);
+            $table->string("logo", 255)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
