@@ -32,10 +32,42 @@ class ConfirmPendingAppointmentsJob implements ShouldQueue
             ->where('created_at', '<=', now()->subHours(24))
             ->with(['customer', 'user', 'company', 'services'])
             ->each(function (Appointment $appointment) {
-                $appointment->update(['status' => 'confirmed']);
 
-                Mail::to($appointment->customer->email)
-                    ->send(new AppointmentAutoConfirmedMail($appointment));
+                // Actualizar sin disparar el Observer automático para evitar
+                // que auth()->id() quede null en el log
+                $appointment->status = 'confirmed';
+                $appointment->saveQuietly();
+
+                // Registrar el log manualmente con actor = sistema (null)
+                \App\Models\AppointmentStatusLog::create([
+                    'appointment_id' => $appointment->id,
+                    'changed_by'     => null,   // null = sistema automático
+                    'from_status'    => 'pending',
+                    'to_status'      => 'confirmed',
+                    'reason'         => 'Confirmación automática — 24h sin gestión',
+                ]);
+
+                // Registrar en NotificationLog y enviar correo
+                try {
+                    \Illuminate\Support\Facades\Mail::to($appointment->customer->email)
+                        ->send(new \App\Mail\AppointmentAutoConfirmedMail($appointment));
+
+                    \App\Models\NotificationLog::create([
+                        'appointment_id'  => $appointment->id,
+                        'type'            => 'auto_confirmed',
+                        'recipient_email' => $appointment->customer->email,
+                        'status'          => 'sent',
+                        'error_message'   => null,
+                    ]);
+                } catch (\Exception $e) {
+                    \App\Models\NotificationLog::create([
+                        'appointment_id'  => $appointment->id,
+                        'type'            => 'auto_confirmed',
+                        'recipient_email' => $appointment->customer->email,
+                        'status'          => 'error',
+                        'error_message'   => $e->getMessage(),
+                    ]);
+                }
             });
     }
 }
