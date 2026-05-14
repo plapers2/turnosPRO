@@ -133,6 +133,10 @@ class Appointment extends Model
     {
         return $this->belongsTo(User::class, 'completed_by');
     }
+    public function statusLogs()
+    {
+        return $this->hasMany(AppointmentStatusLog::class)->orderBy('created_at');
+    }
 
     // ─── Scopes ───────────────────────────────────────────────────────────────
 

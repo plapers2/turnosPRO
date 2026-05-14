@@ -16,6 +16,7 @@ trait HasDetailModal
                 'customer' => fn($q) => $q->withTrashed(),
                 'user'     => fn($q) => $q->withTrashed(),
                 'services' => fn($q) => $q->withTrashed(),
+                'statusLogs.changedBy',
             ])
         )->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()));
 
@@ -42,6 +43,7 @@ trait HasDetailModal
                 'customer' => fn($q) => $q->withTrashed(),
                 'user'     => fn($q) => $q->withTrashed(),
                 'services' => fn($q) => $q->withTrashed(),
+                'statusLogs.changedBy',
             ]);
         }
     }

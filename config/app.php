@@ -77,6 +77,7 @@ return [
     | set to any locale for which you plan to have translation strings.
     |
     */
+    'lang_path' => resource_path('lang'),
 
     'locale' => env('APP_LOCALE', 'es'),
 
