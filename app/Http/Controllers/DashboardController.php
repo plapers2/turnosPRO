@@ -208,7 +208,7 @@ class DashboardController extends Controller
             $completed = (clone $base)->where('status', Appointment::STATUS_COMPLETED)->count();
             $pending   = (clone $base)->where('status', Appointment::STATUS_PENDING)->count();
 
-            $attendedPct = $total > 0 ? round(($confirmed / $total) * 100) : 0;
+            $attendedPct = $total > 0 ? round(($completed / $total) * 100) : 0;
 
             $rows = (clone $base)
                 ->selectRaw("DATE(start_time) as day, status, COUNT(*) as total")
@@ -285,7 +285,7 @@ class DashboardController extends Controller
                 ],
                 'asistencia' => [
                     'pct'  => $attendedPct,
-                    'text' => "{$confirmed} de {$total} citas confirmadas",
+                    'text' => "{$completed} de {$total} citas completadas",
                 ],
             ];
         }
