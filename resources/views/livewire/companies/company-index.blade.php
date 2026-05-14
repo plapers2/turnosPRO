@@ -236,6 +236,23 @@
                 }
             });
         });
+        $wire.on('company-has-active-appointments', ({
+            count
+        }) => {
+            Swal.fire({
+                title: 'No se puede desactivar',
+                text: `Esta empresa tiene ${count} cita(s) pendiente(s) o confirmada(s) activas. Gestiónalas antes de eliminarla.`,
+                icon: 'error',
+                confirmButtonColor: '#ba1a1a',
+                confirmButtonText: 'Entendido',
+                background: '#fcf9f3',
+                color: '#1c1c19',
+                customClass: {
+                    popup: 'rounded-xl shadow-lg',
+                    confirmButton: 'px-4 py-2 rounded-lg font-semibold',
+                },
+            });
+        });
     </script>
     @endscript
 </div>
