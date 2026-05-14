@@ -16,7 +16,7 @@ class UpdateProfileRequest extends FormRequest
     {
         $rules = [
             'name'  => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'min:7', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
+            'phone' => ['required', 'string', 'min:8', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
             'image' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:10240'],
         ];
 
@@ -33,7 +33,8 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name.required'        => 'El nombre es obligatorio.',
             'name.max'             => 'El nombre no puede superar los 255 caracteres.',
-            'phone.min'            => 'El teléfono debe tener al menos 7 dígitos.',
+            'phone.min'            => 'El teléfono debe tener al menos 8 dígitos.',
+            'phone.required'       => 'El teléfono es obligatorio.',
             'phone.max'            => 'El teléfono no puede superar los 20 caracteres.',
             'phone.regex'          => 'El teléfono solo puede contener números, espacios, +, -, ( y ).',
             'image.image'          => 'El archivo debe ser una imagen.',
