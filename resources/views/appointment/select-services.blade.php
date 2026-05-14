@@ -1,36 +1,13 @@
 <x-app-layout>
     <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
 
-        <!-- HEADER -->
-        <header
-            class="relative bg-[#fcf9f3]/80 backdrop-blur-md border border-outline-variant/20
-           rounded-xl mx-8 mt-10 mb-4 px-6 py-5 flex flex-col lg:flex-row
-           items-start lg:items-center justify-between gap-4 shadow-[0_8px_20px_rgba(95,94,90,0.04)]">
-
-            <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined">design_services</span>
-                    </div>
-
-                    <h2 class="text-xl font-bold text-primary tracking-tight">
-                        Seleccionar Servicios
-                    </h2>
-                </div>
-
-                <p class="text-sm text-on-surface-variant ml-13">
-                    Elige los servicios que deseas incluir en tu cita
-                </p>
-            </div>
-        </header>
-
         <!-- HERO / INFO EMPRESA -->
         <div
-            class="relative bg-gradient-to-br from-primary/10 via-surface to-secondary/10 px-8 py-8 border-b border-outline-variant/20">
+            class="relative bg-surface px-8 py-8 border-b border-outline-variant/60">
             <div class="flex items-center gap-5">
                 <!-- Logo empresa -->
                 <div
-                    class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 shadow-sm border border-outline-variant/20">
+                    class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-outline-variant/20">
                     @if ($company->logo)
                     <img src="{{ $company->logo ? asset('storage/' . $company->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($company->name) }}" alt="{{ $company->name }}" class="w-full h-full object-cover" />
                     @else

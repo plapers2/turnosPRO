@@ -2,7 +2,7 @@
     <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
 
         <!-- HERO -->
-        <div class="relative bg-gradient-to-br from-primary/10 via-surface to-secondary/10 px-8 py-10 border-b border-outline-variant/20">
+        <div class="relative bg-surface px-8 py-10 border-b border-outline-variant/60">
             <div class="max-w-2xl">
                 <p class="text-xs font-semibold tracking-widest uppercase text-primary mb-2 font-label">Paso 1 de 3</p>
                 <h2 class="text-3xl font-bold text-on-surface font-headline tracking-tight mb-2">
@@ -14,7 +14,7 @@
             </div>
 
             <!-- Decoración fondo -->
-            <div class="absolute right-8 top-4 opacity-5 pointer-events-none select-none">
+            <div class="absolute right-8 top-4 opacity-10 pointer-events-none select-none">
                 <span class="material-symbols-outlined" style="font-size: 160px;">store</span>
             </div>
         </div>
