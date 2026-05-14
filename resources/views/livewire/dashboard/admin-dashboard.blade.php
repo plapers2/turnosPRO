@@ -27,7 +27,7 @@
                     </div>
                 </div>
 
-                {{-- TOGGLE PERÍODO — debounce 300ms evita clicks dobles --}}
+                {{-- TOGGLE PERÍODO --}}
                 <div class="flex gap-1 bg-surface-container rounded-full p-1 border border-outline-variant/40">
                     <button wire:click.debounce.300ms="setPeriod('hoy')"
                         class="period-btn {{ $period === 'hoy' ? 'btn-active' : '' }}">
@@ -48,18 +48,35 @@
                 </div>
             </header>
 
-            {{-- KPIs — lazy, muestra skeleton mientras carga --}}
-            <livewire:dashboard.kpi-cards :period="$period" />
+            {{-- KPIs con skeleton al cambiar período --}}
+            <div x-data="{ loading: false }" x-on:period-changed.window="loading = true"
+                x-on:kpis-updated.window="loading = false">
+                <div x-show="loading" class="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-pulse">
+                    <div class="h-[72px] rounded-xl bg-surface-container"></div>
+                    <div class="h-[72px] rounded-xl bg-surface-container"></div>
+                    <div class="h-[72px] rounded-xl bg-surface-container"></div>
+                    <div class="h-[72px] rounded-xl bg-surface-container"></div>
+                </div>
+                <div x-show="!loading">
+                    <livewire:dashboard.kpi-cards :period="$period" />
+                </div>
+            </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {{-- LEFT --}}
                 <div class="lg:col-span-2 flex flex-col gap-6">
 
-                    {{-- GRÁFICO — lazy --}}
-                    <livewire:dashboard.ocupacion-chart :period="$period" :chartType="$chartType" />
+                    {{-- GRÁFICO con skeleton al cambiar período --}}
+                    <div x-data="{ loading: false }" x-on:period-changed.window="loading = true"
+                        x-on:chart-data-updated.window="loading = false">
+                        <div x-show="loading" class="h-[340px] rounded-2xl bg-surface-container animate-pulse"></div>
+                        <div x-show="!loading">
+                            <livewire:dashboard.ocupacion-chart :period="$period" :chartType="$chartType" />
+                        </div>
+                    </div>
 
-                    {{-- PRÓXIMAS CITAS — no lazy, no depende de período --}}
+                    {{-- PRÓXIMAS CITAS — no depende del período --}}
                     <livewire:dashboard.proximas-citas />
 
                 </div>
@@ -67,11 +84,23 @@
                 {{-- RIGHT --}}
                 <div class="flex flex-col gap-6">
 
-                    {{-- TASA DE ASISTENCIA — lazy --}}
-                    <livewire:dashboard.tasa-asistencia :period="$period" />
+                    {{-- TASA DE ASISTENCIA con skeleton --}}
+                    <div x-data="{ loading: false }" x-on:period-changed.window="loading = true"
+                        x-on:tasa-updated.window="loading = false">
+                        <div x-show="loading" class="h-40 rounded-2xl bg-surface-container animate-pulse"></div>
+                        <div x-show="!loading">
+                            <livewire:dashboard.tasa-asistencia :period="$period" />
+                        </div>
+                    </div>
 
-                    {{-- SERVICIOS MÁS SOLICITADOS — lazy --}}
-                    <livewire:dashboard.servicios-solicitados :period="$period" />
+                    {{-- SERVICIOS con skeleton --}}
+                    <div x-data="{ loading: false }" x-on:period-changed.window="loading = true"
+                        x-on:servicios-updated.window="loading = false">
+                        <div x-show="loading" class="h-48 rounded-2xl bg-surface-container animate-pulse"></div>
+                        <div x-show="!loading">
+                            <livewire:dashboard.servicios-solicitados :period="$period" />
+                        </div>
+                    </div>
 
                 </div>
             </div>

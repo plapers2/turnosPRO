@@ -57,6 +57,7 @@
         });
     },
 }">
+    {{-- LOADING BAR --}}
     <div wire:loading.delay class="loading-bar">
         <div class="loading-bar__progress"></div>
     </div>

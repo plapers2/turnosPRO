@@ -34,6 +34,8 @@ class ServiciosSolicitados extends Component
 
     public function render()
     {
+        $this->dispatch('servicios-updated');
+
         return view('livewire.dashboard.servicios-solicitados', [
             'services' => $this->buildServices(),
         ]);

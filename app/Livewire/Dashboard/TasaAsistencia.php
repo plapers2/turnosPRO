@@ -36,6 +36,8 @@ class TasaAsistencia extends Component
     {
         $data = $this->buildKpis();
 
+        $this->dispatch('tasa-updated');
+
         return view('livewire.dashboard.tasa-asistencia', [
             'asistencia' => $data['asistencia'],
         ]);

@@ -41,6 +41,9 @@ class KpiCards extends Component
     {
         $data = $this->buildKpis();
 
+        // Notifica al blade padre que los KPIs ya están listos
+        $this->dispatch('kpis-updated');
+
         return view('livewire.dashboard.kpi-cards', [
             'kpis' => $data['cards'],
         ]);
