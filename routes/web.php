@@ -15,7 +15,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\ProfessionalAvailabilityController;
 use App\Http\Controllers\AdminController;
-use App\Livewire\Dashboard\Dashboard;
+use App\Livewire\Dashboard;
 use Illuminate\Support\Facades\Route;
 
 
@@ -28,9 +28,9 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 });
-Route::get('/dashboard', Dashboard::class)
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 
 // ─────────────────────────────────────────────

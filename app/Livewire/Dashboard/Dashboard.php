@@ -1,27 +1,15 @@
 <?php
 
-namespace App\Livewire\Dashboard;
+namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class Dashboard extends Component
 {
     public function render()
     {
-        $user = auth()->user();
-
-        if ($user->hasRole('cliente')) {
-            return view('livewire.dashboard.cliente-dashboard')
-                ->layout('layouts.app');
-        }
-
-        if ($user->hasRole('empleado')) {
-            return view('livewire.dashboard.empleado-dashboard')
-                ->layout('layouts.app');
-        }
-
-        // admin (y cualquier otro rol privilegiado)
-        return view('livewire.dashboard.admin-dashboard')
-            ->layout('layouts.app');
+        return view('dashboard');
     }
 }
