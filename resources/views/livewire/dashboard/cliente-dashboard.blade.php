@@ -2,9 +2,11 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
+    {{-- LOADING BAR --}}
     <div wire:loading.delay class="loading-bar">
         <div class="loading-bar__progress"></div>
     </div>
+
     <main class="flex-1 bg-surface px-8 py-8">
         <div class="max-w-5xl mx-auto flex flex-col gap-8">
 

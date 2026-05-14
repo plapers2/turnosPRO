@@ -7,9 +7,21 @@
                     'accent' => 'bg-primary',
                     'wrap' => 'bg-primary-container text-on-primary-container',
                 ],
-                ['icon' => 'check_circle', 'accent' => 'bg-[#0F6E56]', 'wrap' => 'bg-[#DDF4E8] text-[#0F6E56]'],
-                ['icon' => 'cancel', 'accent' => 'bg-error', 'wrap' => 'bg-error-container/60 text-on-error-container'],
-                ['icon' => 'schedule', 'accent' => 'bg-blue-600', 'wrap' => 'bg-blue-200 text-blue-700'],
+                [
+                    'icon' => 'check_circle',
+                    'accent' => 'bg-[#0F6E56]',
+                    'wrap' => 'bg-[#DDF4E8] text-[#0F6E56]',
+                ],
+                [
+                    'icon' => 'cancel',
+                    'accent' => 'bg-error',
+                    'wrap' => 'bg-error-container/60 text-on-error-container',
+                ],
+                [
+                    'icon' => 'schedule',
+                    'accent' => 'bg-blue-600',
+                    'wrap' => 'bg-blue-200 text-blue-700',
+                ],
             ];
         @endphp
 

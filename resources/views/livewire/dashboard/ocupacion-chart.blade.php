@@ -1,65 +1,66 @@
 <div x-data="{
     chart: null,
     chartType: @entangle('chartType'),
-    init() {
-        this.buildChart();
-        this.$wire.on('chart-data-updated', ({ payload }) => {
-            this.updateChart(payload);
-        });
+
+    destroyChart() {
+        // Destruye por referencia Y por cualquier instancia registrada en el canvas
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = null;
+        }
+        // Limpia instancias huérfanas que Livewire morph deja en el canvas
+        if (this.$refs.canvas) {
+            const existing = Chart.getChart(this.$refs.canvas);
+            if (existing) existing.destroy();
+        }
     },
-    buildChart() {
-        const ctx = this.$refs.canvas.getContext('2d');
-        const isLine = this.chartType === 'lineas';
-        const raw = @js($chartData);
-        const data = raw[this.chartType];
 
-        if (this.chart) this.chart.destroy();
-
-        this.chart = new Chart(ctx, {
+    makeConfig(data, isLine) {
+        return {
             type: isLine ? 'line' : 'bar',
             data: {
                 labels: data.labels,
-                datasets: data.datasets.map(ds => isLine ?
-                    { ...ds, backgroundColor: 'transparent', tension: 0.4, pointRadius: 3 } :
-                    { ...ds, borderRadius: 8 }
-                ),
+                datasets: data.datasets.map(ds => isLine ? { ...ds, backgroundColor: 'transparent', tension: 0.4, pointRadius: 3 } : { ...ds, borderRadius: 8 }),
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: { duration: 300 },
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: { display: false }, ticks: { font: { size: 11 } } },
                     y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
                 },
             },
-        });
+        };
     },
-    updateChart(payload) {
+
+    buildChart() {
+        if (!this.$refs.canvas) return;
+        this.destroyChart();
+        const raw = @js($chartData);
         const isLine = this.chartType === 'lineas';
-        if (this.chart) this.chart.destroy();
-        const ctx = this.$refs.canvas.getContext('2d');
-        this.chart = new Chart(ctx, {
-            type: isLine ? 'line' : 'bar',
-            data: {
-                labels: payload.labels,
-                datasets: payload.datasets.map(ds => isLine ?
-                    { ...ds, backgroundColor: 'transparent', tension: 0.4, pointRadius: 3 } :
-                    { ...ds, borderRadius: 8 }
-                ),
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-                    y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
-                },
-            },
+        this.chart = new Chart(this.$refs.canvas.getContext('2d'), this.makeConfig(raw[this.chartType], isLine));
+    },
+
+    updateChart(payload) {
+        if (!this.$refs.canvas) return;
+        this.destroyChart();
+        const isLine = this.chartType === 'lineas';
+        this.chart = new Chart(this.$refs.canvas.getContext('2d'), this.makeConfig(payload, isLine));
+    },
+
+    init() {
+        this.$nextTick(() => this.buildChart());
+        this.$wire.on('chart-data-updated', ({ payload }) => {
+            this.$nextTick(() => this.updateChart(payload));
         });
     },
 }">
+    <div wire:loading.delay class="loading-bar">
+        <div class="loading-bar__progress"></div>
+    </div>
+
     <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 shadow-sm">
         <div class="flex justify-between items-center mb-5">
             <h2 class="font-semibold text-primary flex items-center gap-2">

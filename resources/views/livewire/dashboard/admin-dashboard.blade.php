@@ -2,9 +2,11 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
+    {{-- LOADING BAR --}}
     <div wire:loading.delay class="loading-bar">
         <div class="loading-bar__progress"></div>
     </div>
+
     <main class="flex-1 bg-surface px-8 py-8">
         <div class="max-w-7xl mx-auto flex flex-col gap-8">
 
@@ -25,19 +27,19 @@
                     </div>
                 </div>
 
-                {{-- TOGGLE PERÍODO --}}
+                {{-- TOGGLE PERÍODO — debounce 300ms evita clicks dobles --}}
                 <div class="flex gap-1 bg-surface-container rounded-full p-1 border border-outline-variant/40">
-                    <button wire:click="setPeriod('hoy')"
+                    <button wire:click.debounce.300ms="setPeriod('hoy')"
                         class="period-btn {{ $period === 'hoy' ? 'btn-active' : '' }}">
                         <span class="material-symbols-rounded ms-outline" style="font-size:.95rem;">today</span>
                         Hoy
                     </button>
-                    <button wire:click="setPeriod('semana')"
+                    <button wire:click.debounce.300ms="setPeriod('semana')"
                         class="period-btn {{ $period === 'semana' ? 'btn-active' : '' }}">
                         <span class="material-symbols-rounded ms-outline" style="font-size:.95rem;">date_range</span>
                         Semana
                     </button>
-                    <button wire:click="setPeriod('mes')"
+                    <button wire:click.debounce.300ms="setPeriod('mes')"
                         class="period-btn {{ $period === 'mes' ? 'btn-active' : '' }}">
                         <span class="material-symbols-rounded ms-outline"
                             style="font-size:.95rem;">calendar_month</span>
@@ -46,7 +48,7 @@
                 </div>
             </header>
 
-            {{-- KPIs --}}
+            {{-- KPIs — lazy, muestra skeleton mientras carga --}}
             <livewire:dashboard.kpi-cards :period="$period" />
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -54,10 +56,10 @@
                 {{-- LEFT --}}
                 <div class="lg:col-span-2 flex flex-col gap-6">
 
-                    {{-- GRÁFICO --}}
+                    {{-- GRÁFICO — lazy --}}
                     <livewire:dashboard.ocupacion-chart :period="$period" :chartType="$chartType" />
 
-                    {{-- PRÓXIMAS CITAS --}}
+                    {{-- PRÓXIMAS CITAS — no lazy, no depende de período --}}
                     <livewire:dashboard.proximas-citas />
 
                 </div>
@@ -65,10 +67,10 @@
                 {{-- RIGHT --}}
                 <div class="flex flex-col gap-6">
 
-                    {{-- TASA DE ASISTENCIA --}}
+                    {{-- TASA DE ASISTENCIA — lazy --}}
                     <livewire:dashboard.tasa-asistencia :period="$period" />
 
-                    {{-- SERVICIOS MÁS SOLICITADOS --}}
+                    {{-- SERVICIOS MÁS SOLICITADOS — lazy --}}
                     <livewire:dashboard.servicios-solicitados :period="$period" />
 
                 </div>
