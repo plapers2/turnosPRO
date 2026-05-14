@@ -16,7 +16,10 @@ class AppointmentAdminNotificationMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public Appointment $appointment) {}
+    public function __construct(public Appointment $appointment)
+    {
+        $this->appointment->loadMissing(['company', 'customer', 'user', 'services']);
+    }
 
     /**
      * Get the message envelope.

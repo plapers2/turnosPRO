@@ -20,8 +20,20 @@
                             <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;margin:0 auto 16px;text-align:center;line-height:56px;">
                                 <span style="font-size:28px;">📅</span>
                             </div>
+                            {{-- Logo si existe, nombre de la empresa siempre --}}
+                            @if($appointment->company->logo)
+                            <div style="margin:0 auto 12px;width:56px;height:56px;">
+                                <img src="{{ asset('storage/' . $appointment->company->logo) }}"
+                                    alt="{{ $appointment->company->name }}"
+                                    style="width:56px;height:56px;object-fit:contain;border-radius:10px;">
+                            </div>
+                            @else
+                            <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;margin:0 auto 16px;text-align:center;line-height:56px;">
+                                <span style="font-size:28px;">📅</span>
+                            </div>
+                            @endif
                             <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">
-                                TurnosPRO
+                                {{ $appointment->company->name }} · TurnosPRO
                             </h1>
                             <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">
                                 Gestión de citas profesional
@@ -35,7 +47,7 @@
 
                             <!-- Badge -->
                             <div style="text-align:center;margin-bottom:24px;">
-                                <span style="display:inline-block;background:#dcfce7;color:#166534;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #86efac;">
+                                <span style="display:inline-block;background:#fef3c7;color:#92400e;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #fcd34d;letter-spacing:0.3px;">
                                     ✔ CONFIRMADA POR PROFESIONAL
                                 </span>
                             </div>
@@ -46,13 +58,13 @@
                             </h2>
 
                             <p style="margin:0 0 28px;color:#6b7280;font-size:14px;line-height:1.6;">
-                                Tu cita ha sido <strong style="color:#166534;">confirmada por {{ $appointment->user->name }}</strong>.
+                                Tu cita ha sido <strong style="color:#b45309;">confirmada por {{ $appointment->user->name }}</strong>.
                                 Ya todo está listo para atenderte. Aquí tienes los detalles:
                             </p>
 
                             <!-- Card detalles -->
                             <table width="100%" cellpadding="0" cellspacing="0"
-                                style="background:#f0fdf4;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:28px;">
+                                style="background:#fdf8f0;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:28px;">
 
                                 <!-- Empresa -->
                                 <tr>
@@ -127,7 +139,7 @@
                             <!-- CTA -->
                             <div style="text-align:center;margin-bottom:28px;">
                                 <a href="{{ url('/appointments/cancel/' . $appointment->cancel_token) }}"
-                                    style="background:#166534;color:#fff;padding:12px 32px;border-radius:10px;text-decoration:none;font-weight:600;">
+                                    style="display:inline-block;background:#b45309;color:#fff;padding:12px 32px;border-radius:10px;text-decoration:none;font-weight:600;">
                                     Cancelar cita
                                 </a>
                             </div>
@@ -142,8 +154,10 @@
 
                     <!-- FOOTER -->
                     <tr>
-                        <td style="background:#f0fdf4;border-radius:0 0 16px 16px;padding:20px;text-align:center;">
-                            <p style="margin:0;font-size:13px;font-weight:600;color:#166534;">TurnosPRO</p>
+                        <td style="background:#fdf8f0;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">
+                                {{ $appointment->company->name }} · TurnosPRO
+                            </p>
                             <p style="margin:0;font-size:12px;color:#9ca3af;">
                                 © {{ date('Y') }} TurnosPRO
                             </p>

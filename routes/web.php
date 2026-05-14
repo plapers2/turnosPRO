@@ -130,11 +130,24 @@ Route::middleware(['auth', 'password.changed', 'role:admin|empleado'])->group(fu
 // Cancelar cita desde email (pública con token)
 Route::get('/appointments/cancel/{token}', [BookingController::class, 'cancelByToken'])->name('appointments.cancel');
 
-// ⚠️ Solo para pruebas — eliminar en producción
-Route::get('/test-mail', function () {
+// Prueba todos los emails de una vez
+Route::get('/test-all-mails', function () {
     $appointment = \App\Models\Appointment::with(['customer', 'user', 'company', 'services'])->latest()->first();
+    $admin = \App\Models\User::role('admin')->first();
+    $company = $appointment->company;
+
     \Mail::to('test@test.com')->send(new \App\Mail\AppointmentConfirmationMail($appointment));
-    return 'Email enviado — revisa Mailtrap o el log';
+    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentAutoConfirmedMail($appointment));
+    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentCancelledAdminMail($appointment));
+    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentCancelledByEmployeeMail($appointment));
+    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentCompletedMail($appointment));
+    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentConfirmedByEmployeeMail($appointment));
+    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentReminderMail($appointment, '24h'));
+    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentReminderMail($appointment, '1h'));
+    \Mail::to('test@test.com')->send(new \App\Mail\AdminCredentialsMail($admin, null, 'TempPass123'));
+    \Mail::to('test@test.com')->send(new \App\Mail\AdminCompanyAssignedMail($admin, $company));
+
+    return 'Todos los emails enviados — revisa Mailtrap';
 });
 
 require __DIR__ . '/auth.php';

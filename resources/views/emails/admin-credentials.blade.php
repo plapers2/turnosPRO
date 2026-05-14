@@ -19,7 +19,9 @@
                             <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;margin:0 auto 16px;text-align:center;line-height:56px;">
                                 <span style="font-size:28px;">🎉</span>
                             </div>
-                            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">TurnosPRO</h1>
+                            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">
+                                @if($company) {{ $company->name }} · @endif TurnosPRO
+                            </h1>
                             <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">Panel de administración</p>
                         </td>
                     </tr>
@@ -108,7 +110,9 @@
                     <!-- FOOTER -->
                     <tr>
                         <td style="background:#fdf8f0;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
-                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">TurnosPRO</p>
+                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">
+                                @if($company) {{ $company->name }} · @endif TurnosPRO
+                            </p>
                             <p style="margin:0;font-size:12px;color:#9ca3af;">© {{ date('Y') }} TurnosPRO · Todos los derechos reservados</p>
                         </td>
                     </tr>

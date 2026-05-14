@@ -13,7 +13,10 @@ class AppointmentConfirmedByEmployeeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Appointment $appointment) {}
+    public function __construct(public Appointment $appointment)
+    {
+        $this->appointment->loadMissing(['company', 'customer', 'user', 'services']);
+    }
 
     public function envelope(): Envelope
     {

@@ -14,10 +14,20 @@
                 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
                     <tr>
                         <td style="background:linear-gradient(135deg,#92400e,#b45309);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+                            @if($appointment->company->logo)
+                            <div style="margin:0 auto 12px;width:56px;height:56px;">
+                                <img src="{{ asset('storage/' . $appointment->company->logo) }}"
+                                    alt="{{ $appointment->company->name }}"
+                                    style="width:56px;height:56px;object-fit:contain;border-radius:10px;">
+                            </div>
+                            @else
                             <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;margin:0 auto 16px;text-align:center;line-height:56px;">
                                 <span style="font-size:28px;">❌</span>
                             </div>
-                            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">TurnosPRO</h1>
+                            @endif
+                            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">
+                                {{ $appointment->company->name }} · TurnosPRO
+                            </h1>
                             <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">Panel de administración</p>
                         </td>
                     </tr>
@@ -127,10 +137,15 @@
                             </p>
                         </td>
                     </tr>
+                    <!-- FOOTER -->
                     <tr>
                         <td style="background:#fdf8f0;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
-                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">TurnosPRO</p>
-                            <p style="margin:0;font-size:12px;color:#9ca3af;">© {{ date('Y') }} TurnosPRO · Todos los derechos reservados</p>
+                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">
+                                {{ $appointment->company->name }} · TurnosPRO
+                            </p>
+                            <p style="margin:0;font-size:12px;color:#9ca3af;">
+                                © {{ date('Y') }} TurnosPRO · Todos los derechos reservados
+                            </p>
                         </td>
                     </tr>
                 </table>
