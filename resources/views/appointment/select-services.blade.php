@@ -46,7 +46,7 @@
             </div>
 
             <!-- Decoración -->
-            <div class="absolute right-6 top-2 opacity-5 pointer-events-none select-none">
+            <div class="absolute right-6 top-2 opacity-10 pointer-events-none select-none">
                 <span class="material-symbols-outlined" style="font-size: 130px;">design_services</span>
             </div>
         </div>
