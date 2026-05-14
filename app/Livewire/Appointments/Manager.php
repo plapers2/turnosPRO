@@ -46,6 +46,7 @@ class Manager extends Component
                     ->orWhereHas('services', fn($s) => $s->withTrashed()->where('services.name', 'like', "%{$this->search}%"))
             ))
             ->when($this->isAdmin && $this->filterProfessional, fn($q) => $q->where('user_id', $this->filterProfessional))
+            ->when($this->isAdmin && $this->filterService, fn($q) => $q->whereHas('services', fn($s) => $s->where('services.id', $this->filterService)))
             ->when($this->filterStatus,   fn($q) => $q->where('status', $this->filterStatus))
             ->when($this->filterDateFrom, fn($q) => $q->whereDate('start_time', '>=', $this->filterDateFrom))
             ->when($this->filterDateTo,   fn($q) => $q->whereDate('start_time', '<=', $this->filterDateTo));
@@ -94,6 +95,16 @@ class Manager extends Component
             ->get();
     }
 
+    #[Computed]
+    public function services()
+    {
+        if (! $this->isAdmin) return collect();
+
+        return \App\Models\Service::where('company_id', $this->companyId)
+            ->orderBy('name')
+            ->get();
+    }
+
     public function render()
     {
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
@@ -101,6 +112,7 @@ class Manager extends Component
             'appointments'   => $this->appointments(),
             'stats'          => $this->stats(),
             'professionals'  => $this->professionals(),
+            'services'       => $this->services(),
             'calendarEvents' => $this->calendarEvents(),
             'isAdmin'        => $this->isAdmin,
         ]);

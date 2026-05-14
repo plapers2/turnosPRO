@@ -9,6 +9,7 @@ trait HasFilters
     public string $filterStatus       = '';
     public string $filterDateFrom     = '';
     public string $filterDateTo       = '';
+    public ?int $filterService        = null;
 
     public function updatedSearch(): void
     {
@@ -50,11 +51,17 @@ trait HasFilters
         $this->filterStatus   = '';
         $this->filterDateFrom = '';
         $this->filterDateTo   = '';
+        $this->filterService  = null;
 
         if ($this->isAdmin) {
             $this->filterProfessional = null;
         }
 
+        $this->resetPage();
+        $this->refreshCalendarEvents();
+    }
+    public function updatedFilterService(): void
+    {
         $this->resetPage();
         $this->refreshCalendarEvents();
     }

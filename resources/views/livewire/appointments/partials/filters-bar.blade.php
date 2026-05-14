@@ -21,14 +21,26 @@
 
     {{-- Profesional: solo visible para admin --}}
     @if ($isAdmin)
-        <select wire:model.live="filterProfessional"
-            class="h-9 bg-surface-container rounded-lg border border-outline-variant/20
+    <select wire:model.live="filterProfessional"
+        class="h-9 bg-surface-container rounded-lg border border-outline-variant/20
                        px-3 text-sm text-on-surface outline-none cursor-pointer">
-            <option value="">Todos los profesionales</option>
-            @foreach ($professionals as $pro)
-                <option value="{{ $pro->id }}">{{ $pro->name }}</option>
-            @endforeach
-        </select>
+        <option value="">Todos los profesionales</option>
+        @foreach ($professionals as $pro)
+        <option value="{{ $pro->id }}">{{ $pro->name }}</option>
+        @endforeach
+    </select>
+    @endif
+
+    {{-- Servicio: solo visible para admin --}}
+    @if ($isAdmin)
+    <select wire:model.live="filterService"
+        class="h-9 bg-surface-container rounded-lg border border-outline-variant/20
+                   px-3 text-sm text-on-surface outline-none cursor-pointer">
+        <option value="">Todos los servicios</option>
+        @foreach ($services as $service)
+        <option value="{{ $service->id }}">{{ $service->name }}</option>
+        @endforeach
+    </select>
     @endif
 
     {{-- Estado --}}
