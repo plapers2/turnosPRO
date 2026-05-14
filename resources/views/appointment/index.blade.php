@@ -20,7 +20,7 @@
         </div>
 
         <!-- BUSCADOR + FILTRO RÁPIDO -->
-        <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-8 py-3 flex flex-col gap-3">
+        <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-4 py-3 flex flex-col gap-2">
 
             <!-- Búsqueda -->
             <div class="relative w-full max-w-sm">
@@ -33,19 +33,15 @@
             </div>
 
             <!-- Filtros por categoría (pills) -->
-            <div class="flex flex-wrap gap-2" id="categoryFilters">
-                <button
-                    data-category="all"
-                    class="category-pill active px-3 py-1.5 rounded-full text-xs font-semibold font-label transition-all border
-                    bg-primary text-on-primary border-primary">
+            <div class="flex flex-nowrap overflow-x-auto md:flex-wrap md:overflow-x-visible gap-2 pb-1 scrollbar-none" id="categoryFilters">
+                <button data-category="all"
+                    class="category-pill flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold font-label border bg-surface-container text-on-surface-variant border-outline-variant/30">
                     Todos
                 </button>
                 @foreach ($tiposNegocio as $tipo)
                 @if ($tipo->companies->count() > 0)
-                <button
-                    data-category="{{ $tipo->id }}"
-                    class="category-pill px-3 py-1.5 rounded-full text-xs font-semibold font-label transition-all border
-                            bg-surface-container text-on-surface-variant border-outline-variant/30 hover:border-primary hover:text-primary">
+                <button data-category="{{ $tipo->id }}"
+                    class="category-pill flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold font-label border bg-surface-container text-on-surface-variant border-outline-variant/30">
                     {{ $tipo->name }}
                 </button>
                 @endif
@@ -238,5 +234,14 @@
 <style>
     .category-pill.active:hover {
         color: white !important;
+    }
+
+    .scrollbar-none {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
     }
 </style>
