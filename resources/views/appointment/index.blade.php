@@ -1,5 +1,5 @@
 <x-app-layout>
-    <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
+    <main class="flex-1 flex flex-col relative bg-surface">
 
         <!-- HERO -->
         <div class="relative bg-surface px-8 py-10 border-b border-outline-variant/60">
@@ -20,10 +20,10 @@
         </div>
 
         <!-- BUSCADOR + FILTRO RÁPIDO -->
-        <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-8 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-8 py-3 flex flex-col gap-3">
 
             <!-- Búsqueda -->
-            <div class="relative flex-1 max-w-sm">
+            <div class="relative w-full max-w-sm">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
                 <input
                     type="text"
@@ -235,3 +235,8 @@
         document.getElementById('emptySearch').style.display = visibleCount === 0 ? 'flex' : 'none';
     }
 </script>
+<style>
+    .category-pill.active:hover {
+        color: white !important;
+    }
+</style>
