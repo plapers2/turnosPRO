@@ -74,26 +74,53 @@
              <!-- SIDEBAR -->
              <div class="space-y-8">
 
-                 <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
+                 <div
+                     class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
                      <h3 class="text-sm font-semibold text-primary">Imagen del servicio</h3>
 
                      <div class="flex justify-center">
-                         <div class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
-                             @if(isset($service) && $service->image)
-                             <img id="preview" src="{{ asset('storage/' . $service->image) }}" class="w-full h-full object-cover" />
+                         <div
+                             class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
+                             @if (isset($service) && $service->image)
+                                 <img id="preview" src="{{ asset('storage/' . $service->image) }}"
+                                     class="w-full h-full object-cover" />
                              @else
-                             <img id="preview" src="" class="w-full h-full object-cover hidden" />
-                             <span id="initials" class="material-symbols-outlined text-3xl text-primary/30">spa</span>
+                                 <img id="preview" src="" class="w-full h-full object-cover hidden" />
+                                 <span id="initials"
+                                     class="material-symbols-outlined text-3xl text-primary/30">spa</span>
                              @endif
                          </div>
                      </div>
 
+                     @php
+                         $hasError = $errors->has('imagen');
+                     @endphp
                      <div class="flex flex-col gap-1.5">
-                         <label for="image" class="text-xs font-medium text-on-surface-variant">PNG o JPG hasta 10MB</label>
+
+                         <label for="image" class="text-xs font-medium text-on-surface-variant">
+                             PNG o JPG hasta 10MB
+                         </label>
+
                          <input type="file" id="image" name="imagen" accept="image/png,image/jpg,image/jpeg"
-                             class="w-full text-sm text-on-surface-variant file:mr-3 file:py-1.5 file:px-3
-            file:rounded-lg file:border-0 file:text-xs file:font-semibold
-            file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition" />
+                             class="
+            w-full text-sm transition
+            text-on-surface-variant
+            file:mr-3 file:py-1.5 file:px-3
+            file:rounded-lg file:border-0
+            file:text-xs file:font-semibold
+            file:bg-primary/10 file:text-primary
+            hover:file:bg-primary/20
+
+            {{ $hasError ? 'border border-red-500 rounded-lg p-1' : 'rounded-lg p-1' }}
+        " />
+
+                         @error('imagen')
+                             <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                                 <span class="material-symbols-outlined text-[14px]">error</span>
+                                 {{ $message }}
+                             </p>
+                         @enderror
+
                      </div>
                  </div>
 

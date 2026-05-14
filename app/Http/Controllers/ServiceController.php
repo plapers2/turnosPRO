@@ -99,7 +99,7 @@ class ServiceController extends Controller
             'descripcion' => 'required|string',
             'duracion' => 'required|integer',
             'precio' => 'required|numeric',
-            'imagen' => 'nullable|image|mimes:jpg,png|max:10240'
+            'imagen' => 'required|image|mimes:jpg,png|max:10240'
         ]);
 
         // Manejo de imagen
