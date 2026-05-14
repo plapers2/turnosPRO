@@ -30,7 +30,7 @@ class SendReminder24hJob implements ShouldQueue
     {
         Appointment::whereIn('status', ['confirmed'])
             ->where('reminder_24h_sent', false)
-            ->whereBetween('start_time', [now()->addHours(23), now()->addHours(25)])
+            ->whereBetween('start_time', [now()->addHours(23), now()->addHours(24)])
             ->with(['customer', 'user', 'company', 'services'])
             ->each(function (Appointment $appointment) {
                 Mail::to($appointment->customer->email)
