@@ -4,8 +4,10 @@ namespace App\Livewire\Dashboard;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Lazy;
 use App\Livewire\Dashboard\Concerns\HasDashboardData;
 
+#[Lazy]
 class OcupacionChart extends Component
 {
     use HasDashboardData;
@@ -33,11 +35,25 @@ class OcupacionChart extends Component
         $this->pushChart();
     }
 
-    // Envía los nuevos datos al JS de Chart.js vía dispatch al browser
+    public function setChartType(string $type): void
+    {
+        $this->chartType = $type;
+        session(['dashboard_chart' => $type]);
+        $this->dispatch('chart-type-changed', chartType: $type);
+        $this->pushChart();
+    }
+
     public function pushChart(): void
     {
         $data = $this->buildChartData();
         $this->dispatch('chart-data-updated', payload: $data[$this->chartType]);
+    }
+
+    public function placeholder()
+    {
+        return <<<'HTML'
+        <div class="h-[340px] rounded-2xl bg-surface-container animate-pulse"></div>
+        HTML;
     }
 
     public function render()

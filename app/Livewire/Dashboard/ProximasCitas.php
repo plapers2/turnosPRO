@@ -10,7 +10,7 @@ class ProximasCitas extends Component
     use HasDashboardData;
 
     // No depende del período — siempre muestra las próximas desde ahora
-    public string $period = 'hoy'; // requerido por buildAppointments vía periodRange
+    public string $period = 'hoy';
 
     public function render()
     {

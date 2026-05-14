@@ -34,109 +34,135 @@ trait HasDashboardData
     }
 
     // ─────────────────────────────────────────────────────────
-    // KPIs
+    // CACHE KEY único por empresa + usuario + período
+    // ─────────────────────────────────────────────────────────
+    protected function cacheKey(string $suffix): string
+    {
+        $companyId = session('active_company_id')
+            ?? auth()->user()->companies()->first()?->id;
+
+        return "dashboard_{$suffix}_{$companyId}_{$this->period}_" . auth()->id();
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // KPIs — 1 sola query con selectRaw + cache 2 min
     // ─────────────────────────────────────────────────────────
     protected function buildKpis(): array
     {
-        [$start, $end] = $this->periodRange();
+        return cache()->remember($this->cacheKey('kpis'), now()->addMinutes(2), function () {
+            [$start, $end] = $this->periodRange();
 
-        $base = $this->baseQuery()->whereBetween('start_time', [$start, $end]);
+            $stats = (clone $this->baseQuery())
+                ->whereBetween('start_time', [$start, $end])
+                ->selectRaw("
+                    COUNT(*) as total,
+                    SUM(status = ?) as confirmed,
+                    SUM(status = ?) as cancelled,
+                    SUM(status = ?) as pending,
+                    SUM(status = ?) as completed
+                ", [
+                    Appointment::STATUS_CONFIRMED,
+                    Appointment::STATUS_CANCELLED,
+                    Appointment::STATUS_PENDING,
+                    Appointment::STATUS_COMPLETED,
+                ])
+                ->first();
 
-        $total     = (clone $base)->count();
-        $confirmed = (clone $base)->where('status', Appointment::STATUS_CONFIRMED)->count();
-        $cancelled = (clone $base)->where('status', Appointment::STATUS_CANCELLED)->count();
-        $pending   = (clone $base)->where('status', Appointment::STATUS_PENDING)->count();
-        $completed = (clone $base)->where('status', Appointment::STATUS_COMPLETED)->count();
+            $total     = (int) $stats->total;
+            $completed = (int) $stats->completed;
 
-        return [
-            'cards' => [                                          // ← índices 0-3
-                ['label' => 'Total',       'value' => $total],
-                ['label' => 'Confirmadas', 'value' => $confirmed],
-                ['label' => 'Canceladas',  'value' => $cancelled],
-                ['label' => 'Pendientes',  'value' => $pending],
-            ],
-            'asistencia' => [                                     // ← separado
-                'pct'  => $total > 0 ? round(($completed / $total) * 100) : 0,
-                'text' => "{$completed} de {$total} citas completadas",
-            ],
-        ];
+            return [
+                'cards' => [
+                    ['label' => 'Total',       'value' => $total],
+                    ['label' => 'Confirmadas', 'value' => (int) $stats->confirmed],
+                    ['label' => 'Canceladas',  'value' => (int) $stats->cancelled],
+                    ['label' => 'Pendientes',  'value' => (int) $stats->pending],
+                ],
+                'asistencia' => [
+                    'pct'  => $total > 0 ? round(($completed / $total) * 100) : 0,
+                    'text' => "{$completed} de {$total} citas completadas",
+                ],
+            ];
+        });
     }
 
     // ─────────────────────────────────────────────────────────
-    // DATOS DEL GRÁFICO (barras y líneas)
+    // DATOS DEL GRÁFICO — cache 2 min
     // ─────────────────────────────────────────────────────────
     protected function buildChartData(): array
     {
-        [$start, $end] = $this->periodRange();
+        return cache()->remember($this->cacheKey('chart'), now()->addMinutes(2), function () {
+            [$start, $end] = $this->periodRange();
 
-        $rows = $this->baseQuery()
-            ->whereBetween('start_time', [$start, $end])
-            ->selectRaw("DATE(start_time) as day, status, COUNT(*) as total")
-            ->groupByRaw("DATE(start_time), status")
-            ->get();
+            $rows = $this->baseQuery()
+                ->whereBetween('start_time', [$start, $end])
+                ->selectRaw("DATE(start_time) as day, status, COUNT(*) as total")
+                ->groupByRaw("DATE(start_time), status")
+                ->get();
 
-        $days = match ($this->period) {
-            'semana' => collect(range(0, 6))->map(
-                fn($i) => now()->startOfWeek()->addDays($i)->format('Y-m-d')
-            ),
-            'mes'    => collect(range(0, now()->daysInMonth - 1))->map(
-                fn($i) => now()->startOfMonth()->addDays($i)->format('Y-m-d')
-            ),
-            default  => collect([now()->format('Y-m-d')]),
-        };
+            $days = match ($this->period) {
+                'semana' => collect(range(0, 6))->map(
+                    fn($i) => now()->startOfWeek()->addDays($i)->format('Y-m-d')
+                ),
+                'mes'    => collect(range(0, now()->daysInMonth - 1))->map(
+                    fn($i) => now()->startOfMonth()->addDays($i)->format('Y-m-d')
+                ),
+                default  => collect([now()->format('Y-m-d')]),
+            };
 
-        $labels = $days->map(
-            fn($d) => Carbon::parse($d)->isoFormat('ddd D')
-        )->toArray();
+            $labels = $days->map(
+                fn($d) => Carbon::parse($d)->isoFormat('ddd D')
+            )->toArray();
 
-        $totalPerDay = $days->map(
-            fn($d) => (int) $rows->where('day', $d)->sum('total')
-        )->toArray();
+            $totalPerDay = $days->map(
+                fn($d) => (int) $rows->where('day', $d)->sum('total')
+            )->toArray();
 
-        $confirmedData = $days->map(
-            fn($d) => (int) $rows->where('day', $d)->where('status', Appointment::STATUS_CONFIRMED)->sum('total')
-        )->toArray();
+            $confirmedData = $days->map(
+                fn($d) => (int) $rows->where('day', $d)->where('status', Appointment::STATUS_CONFIRMED)->sum('total')
+            )->toArray();
 
-        $cancelledData = $days->map(
-            fn($d) => (int) $rows->where('day', $d)->where('status', Appointment::STATUS_CANCELLED)->sum('total')
-        )->toArray();
+            $cancelledData = $days->map(
+                fn($d) => (int) $rows->where('day', $d)->where('status', Appointment::STATUS_CANCELLED)->sum('total')
+            )->toArray();
 
-        return [
-            'barras' => [
-                'labels'   => $labels,
-                'datasets' => [[
-                    'label'           => 'Citas',
-                    'data'            => $totalPerDay,
-                    'backgroundColor' => '#663a00',
-                    'borderRadius'    => 8,
-                ]],
-            ],
-            'lineas' => [
-                'labels'   => $labels,
-                'datasets' => [
-                    [
-                        'label'       => 'Confirmadas',
-                        'data'        => $confirmedData,
-                        'borderColor' => '#046289',
-                        'tension'     => 0.4,
-                        'fill'        => false,
-                        'pointRadius' => 3,
-                    ],
-                    [
-                        'label'       => 'Canceladas',
-                        'data'        => $cancelledData,
-                        'borderColor' => '#ba1a1a',
-                        'tension'     => 0.4,
-                        'fill'        => false,
-                        'pointRadius' => 3,
+            return [
+                'barras' => [
+                    'labels'   => $labels,
+                    'datasets' => [[
+                        'label'           => 'Citas',
+                        'data'            => $totalPerDay,
+                        'backgroundColor' => '#663a00',
+                        'borderRadius'    => 8,
+                    ]],
+                ],
+                'lineas' => [
+                    'labels'   => $labels,
+                    'datasets' => [
+                        [
+                            'label'       => 'Confirmadas',
+                            'data'        => $confirmedData,
+                            'borderColor' => '#046289',
+                            'tension'     => 0.4,
+                            'fill'        => false,
+                            'pointRadius' => 3,
+                        ],
+                        [
+                            'label'       => 'Canceladas',
+                            'data'        => $cancelledData,
+                            'borderColor' => '#ba1a1a',
+                            'tension'     => 0.4,
+                            'fill'        => false,
+                            'pointRadius' => 3,
+                        ],
                     ],
                 ],
-            ],
-        ];
+            ];
+        });
     }
 
     // ─────────────────────────────────────────────────────────
-    // PRÓXIMAS CITAS
+    // PRÓXIMAS CITAS — no depende del período, sin cache
     // ─────────────────────────────────────────────────────────
     protected function buildAppointments(): array
     {
@@ -165,41 +191,41 @@ trait HasDashboardData
     }
 
     // ─────────────────────────────────────────────────────────
-    // SERVICIOS MÁS SOLICITADOS
+    // SERVICIOS MÁS SOLICITADOS — cache 2 min
     // ─────────────────────────────────────────────────────────
     protected function buildServices(): array
     {
-        [$start, $end] = $this->periodRange();
+        return cache()->remember($this->cacheKey('services'), now()->addMinutes(2), function () {
+            [$start, $end] = $this->periodRange();
 
-        $companyId = session('active_company_id')
-            ?? auth()->user()->companies()->first()?->id;
+            $companyId = session('active_company_id')
+                ?? auth()->user()->companies()->first()?->id;
 
-        $query = DB::table('appointment_service')
-            ->join('appointments', 'appointments.id', '=', 'appointment_service.appointment_id')
-            ->join('services', 'services.id', '=', 'appointment_service.service_id')
-            ->where('appointments.company_id', $companyId)
-            ->whereNull('appointments.deleted_at')
-            ->where('appointments.status', '!=', Appointment::STATUS_CANCELLED)
-            ->whereBetween('appointments.start_time', [$start, $end]);
+            $query = DB::table('appointment_service')
+                ->join('appointments', 'appointments.id', '=', 'appointment_service.appointment_id')
+                ->join('services', 'services.id', '=', 'appointment_service.service_id')
+                ->where('appointments.company_id', $companyId)
+                ->whereNull('appointments.deleted_at')
+                ->where('appointments.status', '!=', Appointment::STATUS_CANCELLED)
+                ->whereBetween('appointments.start_time', [$start, $end]);
 
-        // Si el trait lo usa un empleado, filtra por user_id
-        if ($this->applyUserFilter()) {
-            $query->where('appointments.user_id', auth()->id());
-        }
+            if ($this->applyUserFilter()) {
+                $query->where('appointments.user_id', auth()->id());
+            }
 
-        return $query
-            ->select('services.name', DB::raw('COUNT(*) as count'))
-            ->groupBy('services.id', 'services.name')
-            ->orderByDesc('count')
-            ->limit(5)
-            ->get()
-            ->map(fn($s) => ['name' => $s->name, 'count' => (int) $s->count])
-            ->toArray();
+            return $query
+                ->select('services.name', DB::raw('COUNT(*) as count'))
+                ->groupBy('services.id', 'services.name')
+                ->orderByDesc('count')
+                ->limit(5)
+                ->get()
+                ->map(fn($s) => ['name' => $s->name, 'count' => (int) $s->count])
+                ->toArray();
+        });
     }
 
     // ─────────────────────────────────────────────────────────
-    // Hook para que el empleado active el filtro en buildServices
-    // Admin → false, Empleado → true
+    // Hook: Admin → false, Empleado → true
     // ─────────────────────────────────────────────────────────
     protected function applyUserFilter(): bool
     {
