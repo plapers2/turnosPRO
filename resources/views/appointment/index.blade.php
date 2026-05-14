@@ -1,8 +1,8 @@
 <x-app-layout>
-    <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
+    <main class="flex-1 flex flex-col relative bg-surface">
 
         <!-- HERO -->
-        <div class="relative bg-gradient-to-br from-primary/10 via-surface to-secondary/10 px-8 py-10 border-b border-outline-variant/20">
+        <div class="relative bg-surface px-8 py-10 border-b border-outline-variant/60">
             <div class="max-w-2xl">
                 <p class="text-xs font-semibold tracking-widest uppercase text-primary mb-2 font-label">Paso 1 de 3</p>
                 <h2 class="text-3xl font-bold text-on-surface font-headline tracking-tight mb-2">
@@ -14,16 +14,16 @@
             </div>
 
             <!-- Decoración fondo -->
-            <div class="absolute right-8 top-4 opacity-5 pointer-events-none select-none">
+            <div class="absolute right-8 top-4 opacity-10 pointer-events-none select-none">
                 <span class="material-symbols-outlined" style="font-size: 160px;">store</span>
             </div>
         </div>
 
         <!-- BUSCADOR + FILTRO RÁPIDO -->
-        <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-8 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-4 py-3 flex flex-col gap-2">
 
             <!-- Búsqueda -->
-            <div class="relative flex-1 max-w-sm">
+            <div class="relative w-full max-w-sm">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
                 <input
                     type="text"
@@ -33,19 +33,15 @@
             </div>
 
             <!-- Filtros por categoría (pills) -->
-            <div class="flex flex-wrap gap-2" id="categoryFilters">
-                <button
-                    data-category="all"
-                    class="category-pill active px-3 py-1.5 rounded-full text-xs font-semibold font-label transition-all border
-                    bg-primary text-on-primary border-primary">
+            <div class="flex flex-nowrap overflow-x-auto md:flex-wrap md:overflow-x-visible gap-2 pb-1 scrollbar-none" id="categoryFilters">
+                <button data-category="all"
+                    class="category-pill flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold font-label border bg-surface-container text-on-surface-variant border-outline-variant/30">
                     Todos
                 </button>
                 @foreach ($tiposNegocio as $tipo)
                 @if ($tipo->companies->count() > 0)
-                <button
-                    data-category="{{ $tipo->id }}"
-                    class="category-pill px-3 py-1.5 rounded-full text-xs font-semibold font-label transition-all border
-                            bg-surface-container text-on-surface-variant border-outline-variant/30 hover:border-primary hover:text-primary">
+                <button data-category="{{ $tipo->id }}"
+                    class="category-pill flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold font-label border bg-surface-container text-on-surface-variant border-outline-variant/30">
                     {{ $tipo->name }}
                 </button>
                 @endif
@@ -235,3 +231,17 @@
         document.getElementById('emptySearch').style.display = visibleCount === 0 ? 'flex' : 'none';
     }
 </script>
+<style>
+    .category-pill.active:hover {
+        color: white !important;
+    }
+
+    .scrollbar-none {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+</style>

@@ -1,22 +1,8 @@
 <x-app-layout>
-    <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
+    <main class="flex-1 flex flex-col relative bg-surface">
 
-        <!-- HEADER -->
-        <header class="relative bg-[#fcf9f3]/80 backdrop-blur-md border border-outline-variant/20
-           rounded-xl mx-8 mt-10 mb-4 px-6 py-5 flex flex-col lg:flex-row
-           items-start lg:items-center justify-between gap-4 shadow-[0_8px_20px_rgba(95,94,90,0.04)]">
-            <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined">event_available</span>
-                    </div>
-                    <h2 class="text-xl font-bold text-primary tracking-tight">Confirmar Cita</h2>
-                </div>
-                <p class="text-sm text-on-surface-variant ml-13">Elige fecha, hora y profesional para tu cita</p>
-            </div>
-        </header>
         <!-- HERO -->
-        <div class="relative bg-gradient-to-br from-primary/10 via-surface to-secondary/10 px-8 py-8 border-b border-outline-variant/20">
+        <div class="relative bg-surface px-8 py-8 border-b border-outline-variant/60">
             <div class="flex items-center gap-5">
                 <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <span class="material-symbols-outlined text-primary text-[28px]">event_available</span>

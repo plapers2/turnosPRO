@@ -60,7 +60,7 @@
 
                                 <div class="flex flex-col gap-1.5">
                                     <label for="phone" class="text-sm font-medium text-on-surface">Teléfono</label>
-                                    <input id="phone" name="phone" type="text"
+                                    <input id="phone" name="phone" type="number"
                                         value="{{ old('phone', $cliente?->phone) }}"
                                         placeholder="Ej. 3001234567"
                                         class="w-full px-4 py-2.5 rounded-lg border border-outline-variant/30

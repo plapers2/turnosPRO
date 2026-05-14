@@ -1,11 +1,8 @@
 <x-app-layout>
-    <main class="flex-1 flex flex-col min-h-0 overflow-y-auto bg-surface">
+    <main class="flex-1 flex flex-col bg-surface">
 
-        <x-header-admin
-        icono="schedule"
-        titulo="Disponibilidad Profesional"
-        mensaje="Visualiza los horarios de cada empleado por dia"
-        mensajeEmpleado="Mis horarios de atención" />
+        <x-header-admin icono="schedule" titulo="Disponibilidad Profesional"
+            mensaje="Visualiza los horarios de cada empleado por dia" mensajeEmpleado="Mis horarios de atención" />
 
         @livewire('professional-availability.professional-availability-index')
 

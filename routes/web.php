@@ -46,10 +46,6 @@ Route::middleware('auth')->group(function () {
 // ─────────────────────────────────────────────
 Route::middleware(['auth', 'password.changed'])->group(function () {
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
     // Horarios de empresa
     Route::resource('/opening-hours', OpeningHourController::class)->except('index')->middleware('role:admin');
     Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore'])->middleware('role:admin');

@@ -40,4 +40,21 @@ class ProfileSettingsController extends Controller
         return redirect(session('profile_return_url', route('dashboard')))
             ->with('success', 'Perfil actualizado correctamente.');
     }
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
+    }
 }

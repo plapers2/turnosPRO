@@ -260,14 +260,20 @@ class BookingController extends Controller
                     //     'fin' => $fin,
                     // ]);
                     // Verificar conflicto de horario de cliente
-                    $conflictoCliente = Appointment::whereIn('customer_id', $customerIds)
+                    $citaConflicto = Appointment::whereIn('customer_id', $customerIds)
                         ->where('start_time', '<', $fin)
                         ->where('end_time', '>', $inicio)
                         ->whereNotIn('status', ['cancelled'])
                         ->lockForUpdate()
-                        ->exists();
+                        ->first();
                     // \Log::info('Resultado conflicto cliente', ['conflicto' => $conflictoCliente]);
-                    if ($conflictoCliente) throw new \Exception('cliente_ocupado');
+                    if ($citaConflicto) {
+                        $fechaFormateada = Carbon::parse($citaConflicto->start_time)
+                            ->locale('es')
+                            ->isoFormat('dddd D [de] MMMM');
+                        $horaFormateada = Carbon::parse($citaConflicto->start_time)->format('h:i A');
+                        throw new \Exception("cliente_ocupado:{$fechaFormateada} a las {$horaFormateada}");
+                    }
 
                     // Verificar conflicto con bloqueo pesimista
                     $conflictoProfesional = Appointment::where('user_id', $asignacion['user_id'])
@@ -331,14 +337,19 @@ class BookingController extends Controller
 
             $mensajeReal = $e->getPrevious()?->getMessage() ?? $e->getMessage();
 
-            $mensaje = match ($mensajeReal) {
-                'slot_ocupado'         => 'Un horario fue reservado mientras confirmabas. Por favor selecciona otro.',
-                'hora_pasada'          => 'No puedes agendar citas en horarios que ya pasaron.',
-                'cliente_ocupado'      => 'Ya tienes una cita agendada en ese horario. Revisa tus citas antes de continuar.',
-                'datos_invalidos'      => 'Los datos enviados no son válidos.',
-                'profesional_invalido' => 'El profesional seleccionado no está disponible.',
-                default                => 'Ocurrió un error al agendar la cita. Intenta de nuevo.',
-            };
+            if (str_starts_with($mensajeReal, 'cliente_ocupado:')) {
+                $detalle = substr($mensajeReal, strlen('cliente_ocupado:'));
+                $mensaje = "Ya tienes una cita agendada el {$detalle}. Revisa tus citas antes de continuar.";
+            } else {
+                $mensaje = match ($mensajeReal) {
+                    'slot_ocupado'         => 'Un horario fue reservado mientras confirmabas. Por favor selecciona otro.',
+                    'hora_pasada'          => 'No puedes agendar citas en horarios que ya pasaron.',
+                    'datos_invalidos'      => 'Los datos enviados no son válidos.',
+                    'profesional_invalido' => 'El profesional seleccionado no está disponible.',
+                    default                => 'Ocurrió un error al agendar la cita. Intenta de nuevo.',
+                };
+            }
+
 
             return redirect()->back()->with('error', $mensaje)->withInput();
         }
