@@ -1,5 +1,5 @@
 <x-app-layout>
-    <main class="flex-1 flex flex-col h-full overflow-y-auto bg-surface">
+    <main class="flex-1 flex flex-col bg-surface">
 
         <x-form.header icono="arrow_back" ruta="master" titulo="Editar Empresa" subtitulo="{{ $company->name }}" />
 

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <main class="flex-1 flex flex-col h-full overflow-y-auto bg-surface">
+    <main class="flex-1 flex flex-col bg-surface">
 
         <!-- HEADER -->
         <x-form.header icono="arrow_back" titulo="Editar Profesional" ruta="users" subtitulo="Gestion de Profesionales" />
