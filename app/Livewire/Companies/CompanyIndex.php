@@ -3,6 +3,7 @@
 namespace App\Livewire\Companies;
 
 use App\Models\Company;
+use App\Models\Appointment;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -40,7 +41,21 @@ class CompanyIndex extends Component
 
     public function deleteCompany(int $id): void
     {
-        Company::findOrFail($id)->delete();
+        $company = Company::findOrFail($id);
+
+        $activeCitas = Appointment::where('company_id', $company->id)
+            ->whereIn('status', [
+                Appointment::STATUS_PENDING,
+                Appointment::STATUS_CONFIRMED,
+            ])
+            ->count();
+
+        if ($activeCitas > 0) {
+            $this->dispatch('company-has-active-appointments', count: $activeCitas);
+            return;
+        }
+
+        $company->delete();
         $this->dispatch('company-deleted');
     }
 
