@@ -1,5 +1,5 @@
 <x-app-layout>
-    <main class="flex-1 flex flex-col relative h-full overflow-y-auto bg-surface">
+    <main class="flex-1 flex flex-col relative bg-surface">
 
         <!-- HERO -->
         <div class="relative bg-surface px-8 py-8 border-b border-outline-variant/60">
