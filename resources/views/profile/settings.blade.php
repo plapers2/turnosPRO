@@ -158,6 +158,52 @@
                     <!-- SIDEBAR -->
                     <div class="space-y-8">
 
+
+                        <!-- 2FA -->
+                        <a href="{{ route('two-factor.setup') }}"
+                            class="group flex items-center justify-between gap-3 p-4 rounded-xl border transition-all cursor-pointer
+    {{ auth()->user()->two_factor_confirmed_at
+        ? 'bg-green-50 border-green-200 hover:bg-green-100'
+        : 'bg-red-50 border-red-200 hover:bg-red-100' }}">
+
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0
+            {{ auth()->user()->two_factor_confirmed_at ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500' }}">
+                                    <span class="material-symbols-outlined text-[18px]"
+                                        style="font-variation-settings:'FILL' 1">
+                                        {{ auth()->user()->two_factor_confirmed_at ? 'verified_user' : 'gpp_bad' }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-sm font-semibold
+                {{ auth()->user()->two_factor_confirmed_at ? 'text-green-800' : 'text-red-800' }}">
+                                        Autenticación 2FA
+                                    </p>
+                                    <p
+                                        class="text-xs mt-0.5
+                {{ auth()->user()->two_factor_confirmed_at ? 'text-green-700' : 'text-red-700' }}">
+                                        {{ auth()->user()->two_factor_confirmed_at ? 'Activa · Cuenta protegida' : 'Inactiva · Solo contraseña' }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <span
+                                    class="text-[10px] font-bold px-2 py-0.5 rounded-full
+            {{ auth()->user()->two_factor_confirmed_at ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800' }}">
+                                    {{ auth()->user()->two_factor_confirmed_at ? 'ON' : 'OFF' }}
+                                </span>
+                                <span
+                                    class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-0.5
+            {{ auth()->user()->two_factor_confirmed_at ? 'text-green-600' : 'text-red-500' }}">
+                                    chevron_right
+                                </span>
+                            </div>
+
+                        </a>
+
                         <!-- MENSAJES -->
                         @if (session('success'))
                             <div
@@ -175,6 +221,7 @@
                                 <p class="text-sm">{{ session('error') }}</p>
                             </div>
                         @endif
+
                         <!-- FOTO DE PERFIL -->
                         <div
                             class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm space-y-4">
@@ -212,10 +259,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <!-- INFO -->
-                        <a href="{{ route('two-factor.setup') }}">
-                            Configurar 2FA
-                        </a>
+
 
                         <!-- BOTONES -->
                         <div class="flex flex-col gap-3">

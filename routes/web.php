@@ -40,6 +40,11 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/change-password', [PasswordChangeController::class, 'show'])->name('password.change');
     Route::post('/change-password', [PasswordChangeController::class, 'update'])->name('password.change.update');
+    Route::get('/profile/two-factor', [TwoFactorSetupController::class, 'index'])
+        ->name('two-factor.setup');
+    // Agrega esta:
+    Route::post('/user/confirmed-two-factor-authentication', [TwoFactorSetupController::class, 'confirm'])
+        ->name('two-factor.confirm');
 });
 
 
@@ -48,9 +53,9 @@ Route::middleware('auth')->group(function () {
 // ─────────────────────────────────────────────
 Route::middleware(['auth', 'password.changed'])->group(function () {
 
-    // Doble autenticacion
-    Route::get('/profile/two-factor', [TwoFactorSetupController::class, 'index'])
-        ->name('two-factor.setup');
+    // // Doble autenticacion
+    // Route::get('/profile/two-factor', [TwoFactorSetupController::class, 'index'])
+    //     ->name('two-factor.setup');
 
     // Horarios de empresa
     Route::resource('/opening-hours', OpeningHourController::class)->except('index')->middleware('role:admin');
