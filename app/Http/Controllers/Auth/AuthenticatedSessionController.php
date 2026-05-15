@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -24,26 +25,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->authenticate(); // login normal de Breeze
+
+        $user = $request->user() ?? Auth::user();
+
+        // Si el usuario tiene 2FA activo, redirigir al desafío
+        if ($user && in_array(TwoFactorAuthenticatable::class, class_uses_recursive($user))) {
+            if ($user->two_factor_confirmed_at && !session('auth.two_factor_confirmed')) {
+                Auth::logout(); // desloguear temporalmente
+                session(['login.id' => $user->getKey()]);
+                return redirect()->route('two-factor.login');
+            }
+        }
 
         $request->session()->regenerate();
-
-        $user = $request->user();
-
-        // Si tiene contraseña temporal, redirige a cambiarla antes de todo
-        if ($user->must_change_password) {
-            return redirect()->route('password.change');
-        }
-
-        // Master va directo a su panel
-        if ($user->hasRole('master')) {
-            return redirect()->route('master.index');
-        }
-
-        // Clientes van al dashboard
-        if ($user->hasRole('cliente')) {
-            return redirect()->route('dashboard');
-        }
 
         // Admin y empleado seleccionan empresa
         return redirect()->route('company.select');

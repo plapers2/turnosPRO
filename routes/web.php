@@ -15,6 +15,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\ProfessionalAvailabilityController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\TwoFactorSetupController;
 use App\Livewire\Dashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,10 @@ Route::middleware('auth')->group(function () {
 // Rutas generales autenticadas
 // ─────────────────────────────────────────────
 Route::middleware(['auth', 'password.changed'])->group(function () {
+
+    // Doble autenticacion
+    Route::get('/profile/two-factor', [TwoFactorSetupController::class, 'index'])
+        ->name('two-factor.setup');
 
     // Horarios de empresa
     Route::resource('/opening-hours', OpeningHourController::class)->except('index')->middleware('role:admin');

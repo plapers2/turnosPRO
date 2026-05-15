@@ -75,7 +75,6 @@
                                 'Sunday' => 'Domingo',
                             ];
 
-
                             $agrupados = $user->professionalAvailabilities->groupBy('day_of_week');
                         @endphp
 
@@ -135,33 +134,35 @@
                 <div class="space-y-8">
 
                     {{-- CARD SERVICIOS — insertar después de CARD DISPONIBILIDAD y antes de BOTONES --}}
-<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
+                    <div
+                        class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
 
-    <div>
-        <h2 class="text-lg font-semibold text-primary mb-1">Servicios asignados</h2>
-        <p class="text-sm text-on-surface-variant">
-            Servicios que este profesional puede gestionar
-        </p>
-    </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-primary mb-1">Servicios asignados</h2>
+                            <p class="text-sm text-on-surface-variant">
+                                Servicios que este profesional puede gestionar
+                            </p>
+                        </div>
 
-    @if ($user->services->isNotEmpty())
-        <div class="flex flex-wrap gap-2">
-            @foreach ($user->services as $service)
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+                        @if ($user->services->isNotEmpty())
+                            <div class="flex flex-wrap gap-2">
+                                @foreach ($user->services as $service)
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
                              bg-primary/10 text-primary border border-primary/15">
-                    <span class="material-symbols-outlined text-[13px]">design_services</span>
-                    {{ $service->name }}
-                </span>
-            @endforeach
-        </div>
-    @else
-        <div class="flex items-center gap-3 py-4 text-sm text-on-surface-variant">
-            <span class="material-symbols-outlined text-xl opacity-40">design_services</span>
-            Sin servicios asignados
-        </div>
-    @endif
+                                        <span class="material-symbols-outlined text-[13px]">design_services</span>
+                                        {{ $service->name }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="flex items-center gap-3 py-4 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-xl opacity-40">design_services</span>
+                                Sin servicios asignados
+                            </div>
+                        @endif
 
-</div>
+                    </div>
 
 
                     <!-- FOTO -->
@@ -183,20 +184,6 @@
                         @endif
 
                     </div>
-
-                    <!-- INFO EXTRA -->
-                    <div class="bg-primary-container/10 rounded-xl p-6 border border-primary/10 space-y-3">
-                        <h3 class="text-sm font-semibold text-primary">
-                            Información
-                        </h3>
-
-                        <ul class="text-sm text-on-surface-variant space-y-2">
-                            <li>• Usuario creado correctamente</li>
-                            <li>• Puedes editar sus horarios</li>
-                            <li>• Verifica su disponibilidad antes de asignar citas</li>
-                        </ul>
-                    </div>
-
                 </div>
 
             </div>
