@@ -205,44 +205,60 @@
 
                     {{-- Acciones --}}
                     <div class="flex items-center gap-1 border-t border-outline-variant/30 pt-2 mt-1">
+
                         @if ($user->trashed())
                             <button wire:click="restoreUser({{ $user->id }})" wire:loading.attr="disabled"
                                 class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
-                                       px-3 py-1.5 text-[12px] font-semibold text-green-700
-                                       transition-all hover:border-green-200/70 hover:bg-green-50 disabled:opacity-50">
+               px-3 py-1.5 text-[12px] font-semibold text-green-700
+               transition-all hover:border-green-200/70 hover:bg-green-50 disabled:opacity-50">
+
                                 <span wire:loading.remove wire:target="restoreUser({{ $user->id }})">
                                     <span class="material-symbols-outlined text-[14px] leading-none">restore</span>
                                 </span>
+
                                 <span wire:loading wire:target="restoreUser({{ $user->id }})">
                                     <span
                                         class="block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
                                 </span>
+
                                 Restaurar
                             </button>
                         @else
+                            {{-- TODOS pueden ver --}}
                             <a href="{{ route('users.show', $user) }}"
                                 class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
-                                      px-3 py-1.5 text-[12px] font-semibold text-on-surface-variant
-                                      transition-all hover:border-outline-variant/40 hover:bg-surface-container">
+              px-3 py-1.5 text-[12px] font-semibold text-on-surface-variant
+              transition-all hover:border-outline-variant/40 hover:bg-surface-container">
+
                                 <span class="material-symbols-outlined text-[14px] leading-none">visibility</span>
                                 Ver
                             </a>
-                            <a href="{{ route('users.edit', $user) }}"
-                                class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
-                                      px-3 py-1.5 text-[12px] font-semibold text-primary/80
-                                      transition-all hover:border-primary/20 hover:bg-primary-container/40">
-                                <span class="material-symbols-outlined text-[14px] leading-none">edit</span>
-                                Editar
-                            </a>
-                            <button wire:click="confirmDelete({{ $user->id }})"
-                                class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
-                                       px-3 py-1.5 text-[12px] font-semibold text-error/80
-                                       transition-all hover:border-error/20 hover:bg-error-container/40">
-                                <span class="material-symbols-outlined text-[14px] leading-none">delete</span>
-                                Eliminar
-                            </button>
+
+                            {{-- SOLO empleados pueden editar/eliminar --}}
+
+                            @if ($user->hasRole('empleado'))
+                                <a href="{{ route('users.edit', $user) }}"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
+                  px-3 py-1.5 text-[12px] font-semibold text-primary/80
+                  transition-all hover:border-primary/20 hover:bg-primary-container/40">
+
+                                    <span class="material-symbols-outlined text-[14px] leading-none">edit</span>
+                                    Editar
+                                </a>
+
+                                <button wire:click="confirmDelete({{ $user->id }})"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
+                   px-3 py-1.5 text-[12px] font-semibold text-error/80
+                   transition-all hover:border-error/20 hover:bg-error-container/40">
+
+                                    <span class="material-symbols-outlined text-[14px] leading-none">delete</span>
+                                    Eliminar
+                                </button>
+                            @endif
                         @endif
+
                     </div>
+
                 </div>
 
             </article>
@@ -378,48 +394,62 @@
                             {{-- Acciones --}}
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center justify-end gap-1">
+
                                     @if ($user->trashed())
                                         <button wire:click="restoreUser({{ $user->id }})"
                                             wire:loading.attr="disabled"
                                             class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
-                                                   px-3 py-1.5 text-[12px] font-semibold text-green-700
-                                                   transition-all hover:border-green-200/70 hover:bg-green-50 disabled:opacity-50">
+                       px-3 py-1.5 text-[12px] font-semibold text-green-700
+                       transition-all hover:border-green-200/70 hover:bg-green-50 disabled:opacity-50">
+
                                             <span wire:loading.remove wire:target="restoreUser({{ $user->id }})">
                                                 <span
                                                     class="material-symbols-outlined text-[14px] leading-none">restore</span>
                                             </span>
+
                                             <span wire:loading wire:target="restoreUser({{ $user->id }})">
                                                 <span
                                                     class="block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
                                             </span>
+
                                             Restaurar
                                         </button>
                                     @else
+                                        {{-- TODOS pueden ver --}}
                                         <a href="{{ route('users.show', $user) }}"
                                             class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
-                                                   px-3 py-1.5 text-[12px] font-semibold text-on-surface-variant
-                                                   transition-all hover:border-outline-variant/40 hover:bg-surface-container">
+                       px-3 py-1.5 text-[12px] font-semibold text-on-surface-variant
+                       transition-all hover:border-outline-variant/40 hover:bg-surface-container">
+
                                             <span
                                                 class="material-symbols-outlined text-[14px] leading-none">visibility</span>
                                             Ver
                                         </a>
-                                        <a href="{{ route('users.edit', $user) }}"
-                                            class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
-                                                   px-3 py-1.5 text-[12px] font-semibold text-primary/80
-                                                   transition-all hover:border-primary/20 hover:bg-primary-container/40">
-                                            <span
-                                                class="material-symbols-outlined text-[14px] leading-none">edit</span>
-                                            Editar
-                                        </a>
-                                        <button wire:click="confirmDelete({{ $user->id }})"
-                                            class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
-                                                   px-3 py-1.5 text-[12px] font-semibold text-error/80
-                                                   transition-all hover:border-error/20 hover:bg-error-container/40">
-                                            <span
-                                                class="material-symbols-outlined text-[14px] leading-none">delete</span>
-                                            Eliminar
-                                        </button>
+
+                                        {{-- SOLO empleados --}}
+                                        @if ($user->hasRole('empleado'))
+                                            <a href="{{ route('users.edit', $user) }}"
+                                                class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
+                           px-3 py-1.5 text-[12px] font-semibold text-primary/80
+                           transition-all hover:border-primary/20 hover:bg-primary-container/40">
+
+                                                <span
+                                                    class="material-symbols-outlined text-[14px] leading-none">edit</span>
+                                                Editar
+                                            </a>
+
+                                            <button wire:click="confirmDelete({{ $user->id }})"
+                                                class="inline-flex items-center gap-1.5 rounded-lg border border-transparent
+                           px-3 py-1.5 text-[12px] font-semibold text-error/80
+                           transition-all hover:border-error/20 hover:bg-error-container/40">
+
+                                                <span
+                                                    class="material-symbols-outlined text-[14px] leading-none">delete</span>
+                                                Eliminar
+                                            </button>
+                                        @endif
                                     @endif
+
                                 </div>
                             </td>
 
