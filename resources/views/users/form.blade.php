@@ -30,23 +30,6 @@
             <x-form.input name="email" id="email" type="email" :value="old('email', $user->email)" placeholder="ejemplo@email.com"
                 class="focus:ring-primary/10 focus:border-primary/40" />
         </x-form.field>
-
-        <x-form.field label="Rol del Usuario" for="roles_id">
-            <x-form.select name="role" id="role">
-                @forelse ($roles as $role)
-                    @if ($role->name != 'cliente' && $role->name != 'master')
-                        <option {{ old('role', $user->roles->first()?->name) === $role->name ? 'selected' : '' }}
-                            value="{{ $role->name }}">
-                            {{ ucfirst($role->name) }}
-                        </option>
-                    @endif
-                @empty
-                    <option value="">No hay ningún rol en el sistema</option>
-                @endforelse
-            </x-form.select>
-
-        </x-form.field>
-
     </div>
 
     <!-- CARD SEGURIDAD -->

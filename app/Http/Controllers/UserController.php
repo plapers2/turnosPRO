@@ -57,7 +57,6 @@ class UserController extends Controller
             'telefono' => 'required|string|min:8|max:20',
             'password' => ['required', Password::min(8), 'confirmed'],
             'archivo'  => 'required|image|mimes:jpg,png|max:10240',
-            'role'     => 'required|exists:roles,name',
             'services'     => 'required|array',
             'services.*'   => 'exists:services,id',
         ]);
@@ -108,7 +107,7 @@ class UserController extends Controller
         ]);
 
         // Asignar el rol del usuario
-        $user->assignRole($data['role']);
+        $user->assignRole('empleado');
 
         // Asignar la empresa al usuario
         $user->companies()->attach($companyId);
@@ -171,7 +170,6 @@ class UserController extends Controller
             'telefono' => 'required|string|min:8|max:20',
             'password' => ['nullable', Password::min(8), 'confirmed'],
             'archivo' => 'nullable|image|mimes:jpg,png|max:10240',
-            'role'     => 'required|exists:roles,name',
             'services'     => 'required|array',
             'services.*'   => 'exists:services,id',
         ]);
@@ -229,7 +227,7 @@ class UserController extends Controller
         }
 
         // Sincronizar roles — sync() añade los nuevos y elimina los que se quitaron
-        $user->syncRoles([$data['role']]);
+        $user->syncRoles('empleado');
 
         // Sincronizar servicios — sync() añade los nuevos y elimina los que se quitaron
         $user->services()->sync($data['services'] ?? []);
