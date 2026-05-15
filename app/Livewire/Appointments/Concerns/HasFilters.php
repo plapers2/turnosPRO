@@ -2,14 +2,27 @@
 
 namespace App\Livewire\Appointments\Concerns;
 
+use Livewire\Attributes\Url;
+
 trait HasFilters
 {
+    #[Url(as: 'q', keep: false)]
     public string $search             = '';
+
+    #[Url(as: 'professional', keep: false)]
     public ?int   $filterProfessional = null;
+
+    #[Url(as: 'status', keep: false)]
     public string $filterStatus       = '';
+
+    #[Url(as: 'from', keep: false)]
     public string $filterDateFrom     = '';
+
+    #[Url(as: 'to', keep: false)]
     public string $filterDateTo       = '';
-    public ?int $filterService        = null;
+
+    #[Url(as: 'service', keep: false)]
+    public ?int   $filterService      = null;
 
     public function updatedSearch(): void
     {
@@ -60,6 +73,7 @@ trait HasFilters
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
+
     public function updatedFilterService(): void
     {
         $this->resetPage();
