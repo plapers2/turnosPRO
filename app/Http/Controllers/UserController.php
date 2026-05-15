@@ -37,7 +37,7 @@ class UserController extends Controller
         $user = new User();
         $roles = Role::all();
         $services = Service::where("company_id", $companyId)->get();
-        $horariosEmpresa = OpeningHour::where("company_id", $companyId)->where('deleted_at', true)
+        $horariosEmpresa = OpeningHour::where("company_id", $companyId)->whereNull('deleted_at')
             ->get()
             ->keyBy('day_of_week');
 
@@ -147,7 +147,7 @@ class UserController extends Controller
         $user = User::find($id);
         $roles = Role::all();
         $services = Service::where("company_id", $companyId)->get();
-        $horariosEmpresa = OpeningHour::where("company_id", $companyId)->where('deleted_at', true)
+        $horariosEmpresa = OpeningHour::where("company_id", $companyId)->whereNull('deleted_at')
             ->get()
             ->keyBy('day_of_week');
 
