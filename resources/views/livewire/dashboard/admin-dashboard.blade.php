@@ -58,7 +58,7 @@
                     <div class="h-[72px] rounded-xl bg-surface-container"></div>
                 </div>
                 <div x-show="!loading">
-                    <livewire:dashboard.kpi-cards :period="$period" />
+                    @livewire('dashboard.kpi-cards', ['period' => $period, 'userId' => $userId ?? null])
                 </div>
             </div>
 
@@ -72,12 +72,12 @@
                         x-on:chart-data-updated.window="loading = false">
                         <div x-show="loading" class="h-[340px] rounded-2xl bg-surface-container animate-pulse"></div>
                         <div x-show="!loading">
-                            <livewire:dashboard.ocupacion-chart :period="$period" :chartType="$chartType" />
+                            @livewire('dashboard.ocupacion-chart', ['period' => $period, 'chartType' => $chartType, 'userId' => $userId ?? null])
                         </div>
                     </div>
 
                     {{-- PRÓXIMAS CITAS — no depende del período --}}
-                    <livewire:dashboard.proximas-citas />
+                    @livewire('dashboard.proximas-citas', ['userId' => $userId ?? null])
 
                 </div>
 
@@ -89,7 +89,7 @@
                         x-on:tasa-updated.window="loading = false">
                         <div x-show="loading" class="h-40 rounded-2xl bg-surface-container animate-pulse"></div>
                         <div x-show="!loading">
-                            <livewire:dashboard.tasa-asistencia :period="$period" />
+                            @livewire('dashboard.tasa-asistencia', ['period' => $period, 'userId' => $userId ?? null])
                         </div>
                     </div>
 
@@ -98,7 +98,7 @@
                         x-on:servicios-updated.window="loading = false">
                         <div x-show="loading" class="h-48 rounded-2xl bg-surface-container animate-pulse"></div>
                         <div x-show="!loading">
-                            <livewire:dashboard.servicios-solicitados :period="$period" />
+                            @livewire('dashboard.servicios-solicitados', ['period' => $period, 'userId' => $userId ?? null])
                         </div>
                     </div>
 

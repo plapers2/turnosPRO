@@ -9,7 +9,7 @@ use Carbon\Carbon;
 trait HasDashboardData
 {
     // ─────────────────────────────────────────────────────────
-    // QUERY BASE — EmpleadoDashboard sobreescribe este método
+    // QUERY BASE — filtra por empresa, y por usuario si $userId está definido
     // ─────────────────────────────────────────────────────────
     protected function baseQuery()
     {
@@ -18,7 +18,14 @@ trait HasDashboardData
 
         abort_if(is_null($companyId), 403, 'No tienes una empresa asignada.');
 
-        return Appointment::forCompany($companyId);
+        $query = Appointment::forCompany($companyId);
+
+        // Si el componente tiene $userId (pasado como parámetro), filtra por empleado
+        if (! empty($this->userId)) {
+            $query->where('user_id', $this->userId);
+        }
+
+        return $query;
     }
 
     // ─────────────────────────────────────────────────────────
@@ -41,7 +48,9 @@ trait HasDashboardData
         $companyId = session('active_company_id')
             ?? auth()->user()->companies()->first()?->id;
 
-        return "dashboard_{$suffix}_{$companyId}_{$this->period}_" . auth()->id();
+        $userSegment = ! empty($this->userId) ? $this->userId : 'all';
+
+        return "dashboard_{$suffix}_{$companyId}_{$this->period}_{$userSegment}";
     }
 
     // ─────────────────────────────────────────────────────────
@@ -94,7 +103,7 @@ trait HasDashboardData
         return cache()->remember($this->cacheKey('chart'), now()->addMinutes(2), function () {
             [$start, $end] = $this->periodRange();
 
-            $rows = $this->baseQuery()
+            $rows = (clone $this->baseQuery())
                 ->whereBetween('start_time', [$start, $end])
                 ->selectRaw("DATE(start_time) as day, status, COUNT(*) as total")
                 ->groupByRaw("DATE(start_time), status")
@@ -166,7 +175,7 @@ trait HasDashboardData
     // ─────────────────────────────────────────────────────────
     protected function buildAppointments(): array
     {
-        return $this->baseQuery()
+        return (clone $this->baseQuery())
             ->with(['customer', 'services', 'user'])
             ->where('start_time', '>=', now())
             ->where('status', '!=', Appointment::STATUS_CANCELLED)
@@ -209,8 +218,9 @@ trait HasDashboardData
                 ->where('appointments.status', '!=', Appointment::STATUS_CANCELLED)
                 ->whereBetween('appointments.start_time', [$start, $end]);
 
-            if ($this->applyUserFilter()) {
-                $query->where('appointments.user_id', auth()->id());
+            // Si el componente tiene $userId, filtra por empleado
+            if (! empty($this->userId)) {
+                $query->where('appointments.user_id', $this->userId);
             }
 
             return $query
@@ -222,13 +232,5 @@ trait HasDashboardData
                 ->map(fn($s) => ['name' => $s->name, 'count' => (int) $s->count])
                 ->toArray();
         });
-    }
-
-    // ─────────────────────────────────────────────────────────
-    // Hook: Admin → false, Empleado → true
-    // ─────────────────────────────────────────────────────────
-    protected function applyUserFilter(): bool
-    {
-        return false;
     }
 }

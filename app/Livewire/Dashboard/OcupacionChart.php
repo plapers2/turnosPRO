@@ -15,10 +15,14 @@ class OcupacionChart extends Component
     public string $period    = 'hoy';
     public string $chartType = 'barras';
 
-    public function mount(string $period = 'hoy', string $chartType = 'barras'): void
+    // Opcional: filtra por empleado cuando se pasa
+    public ?int $userId = null;
+
+    public function mount(string $period = 'hoy', string $chartType = 'barras', ?int $userId = null): void
     {
         $this->period    = $period;
         $this->chartType = $chartType;
+        $this->userId    = $userId;
     }
 
     #[On('period-changed')]

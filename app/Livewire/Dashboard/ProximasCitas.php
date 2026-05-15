@@ -9,8 +9,15 @@ class ProximasCitas extends Component
 {
     use HasDashboardData;
 
-    // No depende del período — siempre muestra las próximas desde ahora
     public string $period = 'hoy';
+
+    // Opcional: filtra por empleado cuando se pasa
+    public ?int $userId = null;
+
+    public function mount(?int $userId = null): void
+    {
+        $this->userId = $userId;
+    }
 
     public function render()
     {

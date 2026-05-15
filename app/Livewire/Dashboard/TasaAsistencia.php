@@ -14,9 +14,13 @@ class TasaAsistencia extends Component
 
     public string $period = 'hoy';
 
-    public function mount(string $period = 'hoy'): void
+    // Opcional: filtra por empleado cuando se pasa
+    public ?int $userId = null;
+
+    public function mount(string $period = 'hoy', ?int $userId = null): void
     {
         $this->period = $period;
+        $this->userId = $userId;
     }
 
     #[On('period-changed')]
