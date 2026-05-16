@@ -17,13 +17,14 @@ class ProfileSettingsController extends Controller
 
     public function update(UpdateProfileRequest $request)
     {
+        $validated = $request->validated(); // guardar el retorno
         $cliente = auth()->user();
 
         if ($request->filled('new_password')) {
             if (!Hash::check($request->current_password, $cliente->password)) {
                 return back()->withErrors(['current_password' => 'La contraseña actual no es correcta.']);
             }
-            $cliente->password = Hash::make($request->new_password);
+            $cliente->password = Hash::make($validated['new_password']);
         }
 
         if ($request->hasFile('image')) {
@@ -33,8 +34,9 @@ class ProfileSettingsController extends Controller
             $cliente->image = $request->file('image')->store('users', 'public');
         }
 
-        $cliente->name  = $request->name;
-        $cliente->phone = $request->phone;
+        $cliente->name  = $validated['name'];
+        $cliente->phone = $validated['phone'];
+        $cliente->email = $validated['email'];
         $cliente->save();
 
         return redirect(session('profile_return_url', route('dashboard')))

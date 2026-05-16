@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Override;
 
@@ -15,12 +16,26 @@ class UpdateProfileRequest extends FormRequest
 
     public function rules(): array
     {
+        // Obtiene el ID
+        $userId = auth()->id();
+
         $rules = [
             'name'  => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'min:8', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
             'image' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:10240'],
-            'new_password' => [
+            'email' => [
                 'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($userId, 'id')
+            ],
+        ];
+
+        if ($this->filled('new_password')) {
+            $rules['current_password'] = ['required'];
+            $rules['new_password']     = [
+                'required',
+                'confirmed',
                 'confirmed',
                 'string',
                 Password::min(8)
@@ -28,13 +43,7 @@ class UpdateProfileRequest extends FormRequest
                     ->letters()
                     ->numbers()
                     ->symbols()
-                    ->uncompromised()
-            ]
-        ];
-
-        if ($this->filled('new_password')) {
-            $rules['current_password'] = ['required'];
-            $rules['new_password']     = ['required', Password::min(8), 'confirmed'];
+            ];
         }
 
         return $rules;

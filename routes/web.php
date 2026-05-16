@@ -53,10 +53,6 @@ Route::middleware('auth')->group(function () {
 // ─────────────────────────────────────────────
 Route::middleware(['auth', 'password.changed'])->group(function () {
 
-    // // Doble autenticacion
-    // Route::get('/profile/two-factor', [TwoFactorSetupController::class, 'index'])
-    //     ->name('two-factor.setup');
-
     // Horarios de empresa
     Route::resource('/opening-hours', OpeningHourController::class)->except('index')->middleware('role:admin');
     Route::post('/opening-hours/{id}/restore', [OpeningHourController::class, 'restore'])->middleware('role:admin');
