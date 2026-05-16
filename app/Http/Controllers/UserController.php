@@ -16,6 +16,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Storage;
 use App\Rules\DentroHorarioEmpresa;
+use App\Rules\HoraFinPosteriorAInicio;
 use App\Rules\SinSolapamientoEnSlots;
 
 class UserController extends Controller
@@ -60,6 +61,17 @@ class UserController extends Controller
         abort_if(!$companyId, 403, 'No hay empresa activa en sesión.');
 
         $slotRules = [];
+
+        // Arreglo con nombres
+        $diasNombres = [
+            'Monday'    => 'lunes',
+            'Tuesday'   => 'martes',
+            'Wednesday' => 'miércoles',
+            'Thursday'  => 'jueves',
+            'Friday'    => 'viernes',
+            'Saturday'  => 'sábado',
+            'Sunday'    => 'domingo',
+        ];
         // Verificar que todos los campos cumplan con lo requerido
         foreach ($slots as $i => $slot) {
             $dia = $slot['dia_semana'] ?? '';
@@ -78,7 +90,7 @@ class UserController extends Controller
             $slotRules["disponibilidad.{$i}.hora_fin"] = [
                 'required',
                 'date_format:H:i',
-                "after:disponibilidad.{$i}.hora_inicio",
+                new HoraFinPosteriorAInicio($slot['hora_inicio'] ?? null, $diasNombres[$dia] ?? $dia),
                 new DentroHorarioEmpresa($dia, $companyId, validarDia: false),
             ];
         }
