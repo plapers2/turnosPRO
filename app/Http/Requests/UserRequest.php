@@ -70,6 +70,7 @@ class UserRequest extends FormRequest
     #[Override]
     public function attributes()
     {
+
         return [
             'password' => 'contraseña',
             'phone' => 'telefono',
