@@ -24,7 +24,7 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(): View
     {
         return view('users.index');
     }
@@ -161,22 +161,9 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UserRequest $request, User $user)
     {
-        $data = $request->validate([
-            'nombre'   => 'required|string|max:255',
-            'email'    => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($user->id, 'id'),
-            ],
-            'telefono' => 'required|string|min:8|max:20',
-            'password' => ['nullable', Password::min(8), 'confirmed'],
-            'archivo' => 'nullable|image|mimes:jpg,png|max:10240',
-            'services'     => 'required|array',
-            'services.*'   => 'exists:services,id',
-        ]);
+        $data = $request->validated();
 
         $slots     = $request->input('disponibilidad', []);
         $companyId = session('active_company_id');
@@ -211,18 +198,18 @@ class UserController extends Controller
         }
 
         // Manejo de imagen
-        if ($request->hasFile('archivo')) {
+        if ($request->hasFile('image')) {
             if ($user->image) {
                 Storage::disk('public')->delete($user->image);
             }
-            $data['archivo'] = $request->file('archivo')->store('users', 'public');
+            $data['image'] = $request->file('image')->store('users', 'public');
         }
 
         $user->update([
-            'name'  => $data['nombre'],
+            'name'  => $data['name'],
             'email' => $data['email'],
-            'phone' => $data['telefono'],
-            'image' => $data['archivo'] ?? $user->image,
+            'phone' => $data['phone'],
+            'image' => $data['image'] ?? $user->image,
         ]);
 
         if (!empty($data['password'])) {

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Override;
 
@@ -23,26 +24,33 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules =
-            [
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|max:255|unique:users,email',
-                'image' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:10240'],
-                'phone' => ['required', 'string', 'min:7', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
-                'services'     => 'required|array',
-                'services.*'   => 'exists:services,id',
-                'password' => [
-                    'required',
-                    'confirmed',
-                    'string',
-                    Password::min(8)
-                        ->mixedCase()
-                        ->letters()
-                        ->numbers()
-                        ->symbols()
-                        ->uncompromised()
-                ]
-            ];
+        // Obtiene el ID según si la ruta pasa el modelo o solo el ID
+        $userId = $this->route('user') instanceof \App\Models\User
+            ? $this->route('user')->id
+            : $this->route('user');
+
+        $isEditing = !is_null($userId);
+
+        $rules = [
+            'name'  => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'max:255',
+                $isEditing
+                    ? Rule::unique('users', 'email')->ignore($userId, 'id')
+                    : Rule::unique('users', 'email'),
+            ],
+            // La imagen solo es obligatoria al crear
+            'image'    => [$isEditing ? 'nullable' : 'required', 'image', 'mimes:png,jpg,jpeg', 'max:10240'],
+            'phone'    => ['required', 'string', 'min:7', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
+            'services'   => 'required|array',
+            'services.*' => 'exists:services,id',
+            'password'   => $isEditing
+                ? ['nullable', 'string', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()]
+                : ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
+        ];
+
         if ($this->filled('new_password')) {
             $rules['current_password'] = ['required'];
             $rules['new_password']     = ['required', Password::min(8), 'confirmed'];
@@ -75,7 +83,7 @@ class UserRequest extends FormRequest
             'password' => 'contraseña',
             'phone' => 'telefono',
             'services' => 'servicios',
-            'image' => 'imagen'
+            'image' => 'imagen',
 
         ];
     }

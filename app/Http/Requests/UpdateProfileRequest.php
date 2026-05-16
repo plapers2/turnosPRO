@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Override;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -18,6 +19,17 @@ class UpdateProfileRequest extends FormRequest
             'name'  => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'min:8', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
             'image' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:10240'],
+            'new_password' => [
+                'required',
+                'confirmed',
+                'string',
+                Password::min(8)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
+            ]
         ];
 
         if ($this->filled('new_password')) {
@@ -43,6 +55,14 @@ class UpdateProfileRequest extends FormRequest
             'current_password.required' => 'Debes ingresar tu contraseña actual.',
             'new_password.required'     => 'La nueva contraseña es obligatoria.',
             'new_password.confirmed'    => 'Las contraseñas no coinciden.',
+        ];
+    }
+
+    #[Override]
+    public function attributes()
+    {
+        return [
+            'new_password' => "nueva contraseña"
         ];
     }
 }

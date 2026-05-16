@@ -33,7 +33,7 @@
     </div>
 
     <!-- CARD SEGURIDAD -->
-    @if (!$user->password || $errors->hasAny(['password', 'password_confirmation']))
+    @if (!isset($user->id) || !$user->password || $errors->hasAny(['password', 'password_confirmation']))
         <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/20 shadow-sm space-y-6">
 
             <div>
@@ -42,6 +42,15 @@
                     Mínimo 8 caracteres, mayúscula, minúscula, número y símbolo especial
                 </p>
             </div>
+
+            {{-- Aviso explicativo cuando hay error --}}
+            @if ($errors->hasAny(['password', 'password_confirmation']))
+                <div
+                    class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-700">
+                    <span class="material-symbols-outlined text-base mt-0.5 flex-shrink-0">lock_reset</span>
+                    <span>Por seguridad, debes volver a ingresar tu contraseña.</span>
+                </div>
+            @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
