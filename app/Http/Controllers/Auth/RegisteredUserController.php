@@ -31,6 +31,13 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Nombres amigables de los atributos
+        $customAttributes = [
+            'password' => 'contraseña',
+        ];
+
+        $messages = [];
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
@@ -41,7 +48,7 @@ class RegisteredUserController extends Controller
                 ->symbols()
                 ->uncompromised()],
             'phone' => ['required', 'string', 'max:20'],
-        ]);
+        ], $messages, $customAttributes);
 
         $user = User::create([
             'name' => $request->name,
