@@ -114,7 +114,9 @@
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="flex flex-col gap-1.5">
+
+                                <!-- Nueva contraseña -->
+                                <div class="space-y-2">
                                     <label for="new_password" class="text-sm font-medium text-on-surface">Nueva
                                         contraseña</label>
                                     <div class="relative">
@@ -128,12 +130,66 @@
                                             <span class="material-symbols-outlined text-[18px]">visibility</span>
                                         </button>
                                     </div>
+
+                                    <!-- Barras de fortaleza -->
+                                    <div class="flex gap-1.5">
+                                        <div id="bar-1"
+                                            class="h-1 flex-1 rounded-full bg-outline-variant/30 transition-all duration-300">
+                                        </div>
+                                        <div id="bar-2"
+                                            class="h-1 flex-1 rounded-full bg-outline-variant/30 transition-all duration-300">
+                                        </div>
+                                        <div id="bar-3"
+                                            class="h-1 flex-1 rounded-full bg-outline-variant/30 transition-all duration-300">
+                                        </div>
+                                        <div id="bar-4"
+                                            class="h-1 flex-1 rounded-full bg-outline-variant/30 transition-all duration-300">
+                                        </div>
+                                    </div>
+                                    <p id="strength-label" class="text-xs font-semibold text-on-surface-variant hidden">
+                                    </p>
+
+                                    <!-- Checklist de requisitos -->
+                                    <div class="grid grid-cols-2 gap-y-2 gap-x-3 pt-1">
+                                        <div id="req-len"
+                                            class="flex items-center gap-1.5 text-xs text-on-surface-variant transition-colors">
+                                            <span
+                                                class="req-dot w-4 h-4 rounded-full border border-outline-variant/40 flex items-center justify-center flex-shrink-0"></span>
+                                            <span>8 caracteres mínimo</span>
+                                        </div>
+                                        <div id="req-upper"
+                                            class="flex items-center gap-1.5 text-xs text-on-surface-variant transition-colors">
+                                            <span
+                                                class="req-dot w-4 h-4 rounded-full border border-outline-variant/40 flex items-center justify-center flex-shrink-0"></span>
+                                            <span>Mayúscula (A-Z)</span>
+                                        </div>
+                                        <div id="req-lower"
+                                            class="flex items-center gap-1.5 text-xs text-on-surface-variant transition-colors">
+                                            <span
+                                                class="req-dot w-4 h-4 rounded-full border border-outline-variant/40 flex items-center justify-center flex-shrink-0"></span>
+                                            <span>Minúscula (a-z)</span>
+                                        </div>
+                                        <div id="req-num"
+                                            class="flex items-center gap-1.5 text-xs text-on-surface-variant transition-colors">
+                                            <span
+                                                class="req-dot w-4 h-4 rounded-full border border-outline-variant/40 flex items-center justify-center flex-shrink-0"></span>
+                                            <span>Número (0-9)</span>
+                                        </div>
+                                        <div id="req-sym"
+                                            class="flex items-center gap-1.5 text-xs text-on-surface-variant transition-colors">
+                                            <span
+                                                class="req-dot w-4 h-4 rounded-full border border-outline-variant/40 flex items-center justify-center flex-shrink-0"></span>
+                                            <span>Símbolo (!@#...)</span>
+                                        </div>
+                                    </div>
+
                                     @error('new_password')
                                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
 
-                                <div class="flex flex-col gap-1.5">
+                                <!-- Confirmar contraseña -->
+                                <div class="space-y-2">
                                     <label for="new_password_confirmation"
                                         class="text-sm font-medium text-on-surface">Confirmar nueva contraseña</label>
                                     <div class="relative">
@@ -148,10 +204,21 @@
                                             <span class="material-symbols-outlined text-[18px]">visibility</span>
                                         </button>
                                     </div>
+                                    <p id="match-msg" class="text-xs font-medium hidden"></p>
+
                                     @error('new_password_confirmation')
                                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
+
+                            </div>
+
+                            <!-- Alerta política -->
+                            <div id="policy-alert"
+                                class="hidden flex items-start gap-3 bg-error/5 border border-error/20 rounded-lg px-4 py-3 text-sm text-error">
+                                <span class="material-symbols-outlined text-base mt-0.5 flex-shrink-0">info</span>
+                                <span>La contraseña no cumple con la política de seguridad. Completa todos los
+                                    requisitos antes de guardar.</span>
                             </div>
                         </div>
 
@@ -302,4 +369,133 @@
             icon.textContent = 'visibility';
         }
     }
+
+
+    // Password strength & match (nueva contraseña)
+    (function() {
+        const pwInput = document.getElementById('new_password');
+        const confirmInput = document.getElementById('new_password_confirmation');
+        if (!pwInput) return;
+
+        const bars = [1, 2, 3, 4].map(i => document.getElementById('bar-' + i));
+        const label = document.getElementById('strength-label');
+        const matchMsg = document.getElementById('match-msg');
+        const alert = document.getElementById('policy-alert');
+
+        const rules = [{
+                id: 'req-len',
+                test: v => v.length >= 8
+            },
+            {
+                id: 'req-upper',
+                test: v => /[A-Z]/.test(v)
+            },
+            {
+                id: 'req-lower',
+                test: v => /[a-z]/.test(v)
+            },
+            {
+                id: 'req-num',
+                test: v => /[0-9]/.test(v)
+            },
+            {
+                id: 'req-sym',
+                test: v => /[^A-Za-z0-9]/.test(v)
+            },
+        ];
+
+        const levels = [{
+                label: 'Muy débil',
+                color: 'text-error',
+                barColor: 'bg-error'
+            },
+            {
+                label: 'Débil',
+                color: 'text-warning',
+                barColor: 'bg-yellow-500'
+            },
+            {
+                label: 'Moderada',
+                color: 'text-yellow-500',
+                barColor: 'bg-yellow-500'
+            },
+            {
+                label: 'Moderada',
+                color: 'text-yellow-500',
+                barColor: 'bg-yellow-500'
+            },
+            {
+                label: 'Segura',
+                color: 'text-green-500',
+                barColor: 'bg-green-500'
+            },
+        ];
+
+        function evaluate() {
+            const val = pwInput.value;
+            let met = 0;
+
+            rules.forEach(rule => {
+                const ok = val.length > 0 && rule.test(val);
+                if (ok) met++;
+                const el = document.getElementById(rule.id);
+                const dot = el.querySelector('.req-dot');
+                if (ok) {
+                    el.classList.replace('text-on-surface-variant', 'text-green-500');
+                    dot.classList.add('bg-green-500', 'border-green-500');
+                    dot.innerHTML =
+                        '<span class="material-symbols-outlined text-white" style="font-size:10px;line-height:1">check</span>';
+                } else {
+                    el.classList.replace('text-green-500', 'text-on-surface-variant');
+                    dot.classList.remove('bg-green-500', 'border-green-500');
+                    dot.innerHTML = '';
+                }
+            });
+
+            bars.forEach(b => {
+                b.className = 'h-1 flex-1 rounded-full bg-outline-variant/30 transition-all duration-300';
+            });
+
+            if (val.length === 0) {
+                label.classList.add('hidden');
+                alert.classList.add('hidden');
+                return;
+            }
+
+            const lvl = levels[met - 1];
+            const barsToFill = Math.min(met, 4);
+            for (let i = 0; i < barsToFill; i++) {
+                bars[i].classList.replace('bg-outline-variant/30', lvl.barColor);
+            }
+
+            label.classList.remove('hidden');
+            label.className = 'text-xs font-semibold ' + lvl.color;
+            label.textContent = lvl.label;
+
+            alert.classList.toggle('hidden', met === 5);
+        }
+
+        function checkMatch() {
+            const a = pwInput.value,
+                b = confirmInput.value;
+            if (!b) {
+                matchMsg.classList.add('hidden');
+                return;
+            }
+            matchMsg.classList.remove('hidden');
+            if (a === b) {
+                matchMsg.className = 'text-xs font-medium text-green-500';
+                matchMsg.textContent = '✓ Las contraseñas coinciden';
+            } else {
+                matchMsg.className = 'text-xs font-medium text-error';
+                matchMsg.textContent = '✗ Las contraseñas no coinciden';
+            }
+        }
+
+        pwInput.addEventListener('input', () => {
+            evaluate();
+            checkMatch();
+        });
+        confirmInput.addEventListener('input', checkMatch);
+    })();
 </script>
