@@ -16,12 +16,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <x-form.field label="Nombre" for="name">
-                <x-form.input name="nombre" id="nombre" type="text" :value="old('nombre', $user->name ?? '')" placeholder="Ej. Juan Pérez"
+                <x-form.input name="name" id="name" type="text" :value="old('name', $user->name ?? '')" placeholder="Ej. Juan Pérez"
                     class="focus:ring-primary/10 focus:border-primary/40" />
             </x-form.field>
 
             <x-form.field label="Teléfono" for="phone">
-                <x-form.input name="telefono" id="telefono" type="number" :value="old('telefono', $user->phone)"
+                <x-form.input name="phone" id="phone" type="number" :value="old('phone', $user->phone)"
                     placeholder="Ej. 3001234567" class="focus:ring-primary/10 focus:border-primary/40" />
             </x-form.field>
         </div>
@@ -127,12 +127,12 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-            <label for="archivo" class="text-xs font-medium text-on-surface-variant">PNG o JPG hasta 10MB</label>
-            <input type="file" id="archivo" name="archivo" accept="image/png,image/jpg,image/jpeg"
+            <label for="image" class="text-xs font-medium text-on-surface-variant">PNG o JPG hasta 10MB</label>
+            <input type="file" id="image" name="image" accept="image/png,image/jpg,image/jpeg"
                 class="w-full text-sm text-on-surface-variant file:mr-3 file:py-1.5 file:px-3
             file:rounded-lg file:border-0 file:text-xs file:font-semibold cursor-pointer
             file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition" />
-            @error('archivo')
+            @error('image')
                 <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
             @enderror
         </div>
@@ -171,7 +171,7 @@
 
 </div>
 <script>
-    document.getElementById('archivo').addEventListener('change', function(e) {
+    document.getElementById('image').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();

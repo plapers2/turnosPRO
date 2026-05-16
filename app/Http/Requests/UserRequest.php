@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Override;
 
 class UserRequest extends FormRequest
 {
@@ -24,10 +25,23 @@ class UserRequest extends FormRequest
     {
         $rules =
             [
-                'name' => 'required|string',
-                'email' => 'required|string',
-                'image' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:10240'],
-                'phone' => ['nullable', 'string', 'min:7', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|max:255|unique:users,email',
+                'image' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:10240'],
+                'phone' => ['required', 'string', 'min:7', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
+                'services'     => 'required|array',
+                'services.*'   => 'exists:services,id',
+                'password' => [
+                    'required',
+                    'confirmed',
+                    'string',
+                    Password::min(8)
+                        ->mixedCase()
+                        ->letters()
+                        ->numbers()
+                        ->symbols()
+                        ->uncompromised()
+                ]
             ];
         if ($this->filled('new_password')) {
             $rules['current_password'] = ['required'];
@@ -50,6 +64,18 @@ class UserRequest extends FormRequest
             'current_password.required' => 'Debes ingresar tu contraseña actual.',
             'new_password.required'     => 'La nueva contraseña es obligatoria.',
             'new_password.confirmed'    => 'Las contraseñas no coinciden.',
+        ];
+    }
+
+    #[Override]
+    public function attributes()
+    {
+        return [
+            'password' => 'contraseña',
+            'phone' => 'telefono',
+            'services' => 'servicios',
+            'image' => 'imagen'
+
         ];
     }
 }

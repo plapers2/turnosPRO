@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\Models\OpeningHour;
 use App\Models\Service;
 use App\Models\User;
@@ -47,19 +48,10 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(UserRequest $request): RedirectResponse
     {
         // Validación base del usuario
-        // ! FALTA CORREGIR LA VALIDACION DEL EMAIL CON ESTADO
-        $data = $request->validate([
-            'nombre'   => 'required|string|max:255',
-            'email'    => 'required|string|max:255|unique:users,email',
-            'telefono' => 'required|string|min:8|max:20',
-            'password' => ['required', Password::min(8), 'confirmed'],
-            'archivo'  => 'required|image|mimes:jpg,png|max:10240',
-            'services'     => 'required|array',
-            'services.*'   => 'exists:services,id',
-        ]);
+        $data = $request->validated();
 
         // Disponibilidad
         $slots = $request->input('disponibilidad', []);
@@ -96,12 +88,12 @@ class UserController extends Controller
         }
 
         // Imagen
-        $imagePath = $request->file('archivo')->store('users', 'public');
+        $imagePath = $request->file('image')->store('users', 'public');
 
         $user = User::create([
-            'name'     => $data['nombre'],
+            'name'     => $data['name'],
             'email'    => $data['email'],
-            'phone'    => $data['telefono'],
+            'phone'    => $data['phone'],
             'password' => Hash::make($data['password']),
             'image'    => $imagePath,
         ]);
