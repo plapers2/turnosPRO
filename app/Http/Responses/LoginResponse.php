@@ -11,7 +11,7 @@ class LoginResponse implements LoginResponseContract
         $user = auth()->user();
 
         if ($user->hasRole('admin') || $user->hasRole('empleado')) {
-            if ($user->companies->count() > 1) {
+            if ($user->companies()->count() > 1) {
                 return redirect('/select-company');
             }
 
