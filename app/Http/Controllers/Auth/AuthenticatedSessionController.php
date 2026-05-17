@@ -29,6 +29,11 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user() ?? Auth::user();
 
+        // Si tiene contraseña temporal, redirige a cambiarla antes de todo
+        if ($user->must_change_password) {
+            return redirect()->route('password.change');
+        }
+
         // Si el usuario tiene 2FA activo, redirigir al desafío
         if ($user && in_array(TwoFactorAuthenticatable::class, class_uses_recursive($user))) {
             if ($user->two_factor_confirmed_at && !session('auth.two_factor_confirmed')) {

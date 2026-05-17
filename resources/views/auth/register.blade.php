@@ -62,7 +62,7 @@
                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                     </button>
                 </div>
-                <x-input-error :messages="$errors->get('password')" class="px-1" />
+                <x-input-error :messages="$errors->get('password') ? [$errors->get('password')[0]] : []" class="mt-1" />
 
 
                 <!-- Confirmar contraseña -->
@@ -87,9 +87,9 @@
 
             <!-- Barras de fortaleza -->
             <div class="mt-3">
-               <div>
-                <h2 class="my-3">Requisitos para la contraseña</h2>
-               </div>
+                <div>
+                    <h2 class="my-3">Requisitos para la contraseña</h2>
+                </div>
                 <div class="flex gap-1.5">
                     <div id="bar-1"
                         class="h-1 flex-1 rounded-full bg-outline-variant/30 transition-all duration-300">

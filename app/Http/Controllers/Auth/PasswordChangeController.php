@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class PasswordChangeController extends Controller
@@ -18,11 +19,22 @@ class PasswordChangeController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $request->validate([
-            'password'              => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
+            ],
             'password_confirmation' => 'required',
         ], [
             'password.min'       => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
+        ], [
+            'password' => 'contraseña'
         ]);
 
         $user = $request->user();
