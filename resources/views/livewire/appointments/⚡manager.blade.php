@@ -1,10 +1,11 @@
 {{-- resources/views/livewire/appointments/manager.blade.php --}}
 @php
-    $company_id = session('active_company_id')
+    $company_id = session('active_company_id');
 @endphp
-<div x-data="appointmentsManager({{$company_id }})" class="appt-manager">
-    @include('livewire.appointments.partials.toast')
+<div x-data="appointmentsManager({{ $company_id }})" class="appt-manager">
     @include('livewire.appointments.partials.header', ['total' => $stats['total']])
+    @include('livewire.appointments.partials.appointements-for-confirmed')
+
     @include('livewire.appointments.partials.stats-row', ['stats' => $stats])
     @include('livewire.appointments.partials.filters-bar', ['professionals' => $professionals])
 

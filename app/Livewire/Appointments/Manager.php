@@ -9,6 +9,7 @@ use App\Livewire\Appointments\Concerns\HasDetailModal;
 use App\Livewire\Appointments\Concerns\HasFilters;
 use App\Models\Appointment;
 use App\Models\User;
+use Carbon\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -23,6 +24,8 @@ class Manager extends Component
     use HasAppointmentActions;
 
     public string $view = 'list';
+    public bool $showPendingBanner = true;
+
 
     public function updatedView(string $value): void
     {
@@ -105,6 +108,26 @@ class Manager extends Component
             ->get();
     }
 
+    public function showConfirmAppointmentsForCompleted()
+    {
+        return $this->scopeCompany(
+            Appointment::with([
+                'customer' => fn($q) => $q->withTrashed(),
+                'user'     => fn($q) => $q->withTrashed(),
+            ])
+        )
+            ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))
+            ->where('status', 'confirmed')
+            ->whereDate('start_time', today())
+            ->whereTime('start_time', '<', now())
+            ->get();
+    }
+
+    public function dismissBanner(): void
+    {
+        $this->showPendingBanner = false;
+    }
+
     public function render()
     {
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
@@ -115,6 +138,7 @@ class Manager extends Component
             'services'       => $this->services(),
             'calendarEvents' => $this->calendarEvents(),
             'isAdmin'        => $this->isAdmin,
+            'appointmentsForConfirmed' => $this->showConfirmAppointmentsForCompleted()
         ]);
     }
 }

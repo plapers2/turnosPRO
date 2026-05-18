@@ -19,6 +19,8 @@ trait HasAppointmentActions
     // -- Modal completar
     public bool $showCompleteConfirm = false;
     public ?int $completeTargetId    = null;
+    public bool $hasAppointmentsForConfirmed = true;
+    public array $appointmentForConfirmed = [];
 
     // -- Confirmar
     public function openConfirmModal(int $id): void
