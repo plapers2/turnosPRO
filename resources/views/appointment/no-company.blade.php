@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center gap-6">
         <div class="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-            <span class="material-symbols-outlined text-[36px]">store_off</span>
+            <span class="material-symbols-outlined text-[36px]">block</span>
         </div>
         <div class="flex flex-col gap-2 max-w-sm">
             <h2 class="text-lg font-semibold text-on-surface">No tienes empresas asignadas</h2>
@@ -16,15 +16,22 @@
                 </p>
             </div>
             <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 flex flex-col gap-3 text-left">
-                <span class="material-symbols-outlined text-primary text-[28px]">workspace_premium</span>
+                <span class="material-symbols-outlined text-amber-500 text-[28px]">workspace_premium</span>
                 <h3 class="text-sm font-semibold text-on-surface">Plan Premium</h3>
                 <p class="text-xs text-on-surface-variant leading-relaxed">
                     Accede a todo el catálogo de empresas del sistema sin necesitar invitación.
                 </p>
-                <a href="#" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition self-start">
-                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-                    Ver planes
-                </a>
+                <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200">
+                    <span class="material-symbols-outlined text-amber-500 text-[16px] shrink-0">mail</span>
+                    <p class="text-xs text-amber-800 leading-relaxed">
+                        Escríbenos a
+                        <a href="mailto:suscripciones@turnospro.com"
+                            class="font-semibold underline underline-offset-2 hover:text-amber-900 transition">
+                            suscripciones@turnospro.com
+                        </a>
+                        para activar tu plan.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
