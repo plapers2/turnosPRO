@@ -74,6 +74,9 @@ Route::middleware(['auth', 'password.changed'])->group(function () {
     Route::get('/appointments/{id}/voucher', [BookingController::class, 'voucher'])
         ->name('appointment.voucher')
         ->middleware(['auth']);
+
+    Route::get('/booking/citas-ocupadas', [BookingController::class, 'citasOcupadas'])
+        ->middleware('role:cliente|admin|empleado');
 });
 
 
@@ -105,7 +108,6 @@ Route::middleware(['auth', 'password.changed', 'role:master'])->prefix('master')
 // Rutas para clientes
 // ─────────────────────────────────────────────
 Route::middleware(['auth', 'password.changed', 'role:cliente'])->group(function () {
-    Route::get('/booking/citas-ocupadas', [BookingController::class, 'citasOcupadas']);
     Route::get('/booking/horarios-empresa', [BookingController::class, 'horariosEmpresa']);
     Route::get('/appointments', [BookingController::class, 'selectCompany'])->name('appointment.index');
     Route::get('/booking/{company}/services', [BookingController::class, 'selectServices'])->name('appointments.selectServices');
@@ -153,7 +155,6 @@ Route::middleware(['auth', 'password.changed', 'role:admin|empleado'])->group(fu
     Route::get('/appointments/new-for-client', function () {
         return view('employee.appointment-create');
     })->name('employee.appointment.create');
-    Route::get('/booking/citas-ocupadas', [BookingController::class, 'citasOcupadas']);
 });
 
 
