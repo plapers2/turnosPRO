@@ -116,9 +116,9 @@ trait HasProfessionalReassignment
         AppointmentStatusLog::create([
             'appointment_id' => $appointment->id,
             'changed_by'     => auth()->id(),
-            'from_status'    => $appointment->status,
+            'from_status'    => 'reassigned',   // valor especial
             'to_status'      => $appointment->status,
-            'reason'         => 'Profesional reasignado. ' . $this->reasignarRazon,
+            'reason'         => 'Profesional reasignado' . ($this->reasignarRazon ? ': ' . $this->reasignarRazon : '.'),
         ]);
 
         if (property_exists($this, 'appt')) {
