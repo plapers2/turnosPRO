@@ -383,6 +383,44 @@ class DemoSeeder extends Seeder
             ]);
         }
 
+        // ── 11. Citas completables (confirmed + hora pasada) ───────────────
+        $citasCompletables = [
+            ['prof' => 0, 'servicio' => $sManicure,  'cliente' => 0, 'horas_atras' => 2],
+            ['prof' => 1, 'servicio' => $sCorte,     'cliente' => 1, 'horas_atras' => 3],
+            ['prof' => 2, 'servicio' => $sTinte,     'cliente' => 2, 'horas_atras' => 4],
+            ['prof' => 0, 'servicio' => $sMasaje,    'cliente' => 2, 'horas_atras' => 5],
+            ['prof' => 1, 'servicio' => $sManicure,  'cliente' => 0, 'horas_atras' => 6],
+        ];
+
+        foreach ($citasCompletables as $cita) {
+            $prof     = $profCreados[$cita['prof']];
+            $servicio = $cita['servicio'];
+            $inicio   = Carbon::now()->subHours($cita['horas_atras']);
+            $fin      = $inicio->copy()->addMinutes($servicio->duration);
+
+            $apptId = DB::table('appointments')->insertGetId([
+                'start_time'              => $inicio,
+                'end_time'                => $fin,
+                'status'                  => 'confirmed',
+                'notes'                   => null,
+                'cancel_token'            => Str::random(40),
+                'cancel_token_expires_at' => Carbon::now()->addDays(7),
+                'customer_id'             => $clientesCreados[$cita['cliente']],
+                'user_id'                 => $prof['user']->id,
+                'company_id'              => $empresa->id,
+                'booking_group'           => Str::uuid(),
+                'created_at'              => now(),
+                'updated_at'              => now(),
+            ]);
+
+            DB::table('appointment_service')->insert([
+                'appointment_id' => $apptId,
+                'service_id'     => $servicio->id,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ]);
+        }
+
         $this->command->info(' DemoSeeder ejecutado correctamente.');
         $this->command->info(' Empresa: Salón Pura Perfeccion');
         $this->command->info(' Master:');

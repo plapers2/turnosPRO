@@ -294,7 +294,7 @@ class BookingController extends Controller
                         'company_id'   => $companyId,
                         'notes'        => $request->notas,
                         'booking_group' => $bookingGroup,
-                        'status'        => 'pending',
+                        'status'        => 'confirmed',
                         'cancel_token'  => Str::random(40),
                         'cancel_token_expires_at' => now()->addDays(7)
                     ]);
@@ -686,10 +686,10 @@ class BookingController extends Controller
     {
         $user     = auth()->user();
         $customerIds = Customer::where('user_id', $user->id)->pluck('id');
-        \Log::info('Customer encontrado', [
-            'user_email' => $user->email,
-            'customerIds' => $customerIds?->toArray(),
-        ]);
+        // \Log::info('Customer encontrado', [
+        //     'user_email' => $user->email,
+        //     'customerIds' => $customerIds?->toArray(),
+        // ]);
 
         if (!$customerIds) {
             return view('appointment.history', [
@@ -709,7 +709,7 @@ class BookingController extends Controller
             ->get();
 
         $proximas = Appointment::whereIn('customer_id', $customerIds)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', ['confirmed'])
             ->where('start_time', '>=', now())
             ->with(['services', 'user', 'company'])
             ->orderBy('start_time')
