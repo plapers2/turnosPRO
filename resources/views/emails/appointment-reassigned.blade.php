@@ -17,7 +17,7 @@
                     <!-- HEADER -->
                     <tr>
                         <td
-                            style="background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+                            style="background:linear-gradient(135deg,#92400e,#b45309);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
                             @if ($appointment->company->logo)
                                 <div style="margin:0 auto 16px;width:56px;height:56px;">
                                     <img src="{{ asset('storage/' . $appointment->company->logo) }}"
@@ -46,7 +46,7 @@
                             <!-- Badge -->
                             <div style="text-align:center;margin-bottom:24px;">
                                 <span
-                                    style="display:inline-block;background:#dbeafe;color:#1e3a5f;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #93c5fd;letter-spacing:0.3px;">
+                                    style="display:inline-block;background:#fef3c7;color:#92400e;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #fcd34d;letter-spacing:0.3px;">
                                     🔄 CITA REASIGNADA
                                 </span>
                             </div>
@@ -57,18 +57,18 @@
                             </h2>
 
                             <p style="margin:0 0 28px;color:#6b7280;font-size:14px;line-height:1.6;">
-                                Te informamos que tu cita ha sido <strong style="color:#1e3a5f;">reasignada a un nuevo
+                                Te informamos que tu cita ha sido <strong style="color:#92400e;">reasignada a un nuevo
                                     profesional</strong> por un administrador.
                                 La fecha y hora se mantienen igual, solo cambia quien te atenderá.
                             </p>
 
                             <!-- Bloque de cambio de profesional -->
                             <table width="100%" cellpadding="0" cellspacing="0"
-                                style="background:#eff6ff;border-radius:12px;border:1px solid #bfdbfe;overflow:hidden;margin-bottom:28px;">
+                                style="background:#fef9f0;border-radius:12px;border:1px solid #fcd34d;overflow:hidden;margin-bottom:28px;">
                                 <tr>
                                     <td style="padding:20px 24px;">
                                         <p
-                                            style="margin:0 0 14px;font-size:11px;font-weight:700;color:#2563eb;letter-spacing:0.5px;">
+                                            style="margin:0 0 14px;font-size:11px;font-weight:700;color:#b45309;letter-spacing:0.5px;">
                                             CAMBIO DE PROFESIONAL</p>
                                         <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
@@ -88,15 +88,15 @@
                                                 <!-- Flecha -->
                                                 <td
                                                     style="width:16%;text-align:center;vertical-align:middle;padding-top:18px;">
-                                                    <span style="font-size:18px;color:#2563eb;">→</span>
+                                                    <span style="font-size:18px;color:#b45309;">→</span>
                                                 </td>
                                                 <!-- Nuevo profesional -->
                                                 <td style="width:42%;vertical-align:top;">
                                                     <p
-                                                        style="margin:0 0 4px;font-size:10px;color:#1e3a5f;font-weight:600;letter-spacing:0.3px;">
+                                                        style="margin:0 0 4px;font-size:10px;color:#92400e;font-weight:600;letter-spacing:0.3px;">
                                                         AHORA</p>
                                                     <div
-                                                        style="background:#2563eb;border-radius:8px;padding:10px 14px;">
+                                                        style="background:#b45309;border-radius:8px;padding:10px 14px;">
                                                         <p
                                                             style="margin:0;font-size:13px;font-weight:700;color:#ffffff;">
                                                             {{ $appointment->user?->name }}
@@ -111,7 +111,7 @@
 
                             <!-- Card detalles -->
                             <table width="100%" cellpadding="0" cellspacing="0"
-                                style="background:#fafafa;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:28px;">
+                                style="background:#fdf8f0;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:28px;">
 
                                 <!-- Empresa -->
                                 <tr>
@@ -120,7 +120,9 @@
                                             <tr>
                                                 <td style="width:32px;">🏢</td>
                                                 <td>
-                                                    <p style="margin:0;font-size:11px;color:#9ca3af;">EMPRESA</p>
+                                                    <p
+                                                        style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                                                        Empresa</p>
                                                     <p
                                                         style="margin:2px 0 0;font-size:14px;font-weight:600;color:#1c1b1f;">
                                                         {{ $appointment->company?->name }}
@@ -138,7 +140,9 @@
                                             <tr>
                                                 <td style="width:32px;">🛎️</td>
                                                 <td>
-                                                    <p style="margin:0;font-size:11px;color:#9ca3af;">SERVICIO(S)</p>
+                                                    <p
+                                                        style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                                                        Servicio(s)</p>
                                                     <p
                                                         style="margin:2px 0 0;font-size:14px;font-weight:600;color:#1c1b1f;">
                                                         {{ $appointment->services?->pluck('name')->join(', ') }}
@@ -156,10 +160,11 @@
                                             <tr>
                                                 <td style="width:32px;">👤</td>
                                                 <td>
-                                                    <p style="margin:0;font-size:11px;color:#9ca3af;">NUEVO PROFESIONAL
-                                                    </p>
                                                     <p
-                                                        style="margin:2px 0 0;font-size:14px;font-weight:600;color:#2563eb;">
+                                                        style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                                                        Nuevo profesional</p>
+                                                    <p
+                                                        style="margin:2px 0 0;font-size:14px;font-weight:600;color:#b45309;">
                                                         {{ $appointment->user?->name }}
                                                     </p>
                                                 </td>
@@ -175,13 +180,16 @@
                                             <tr>
                                                 <td style="width:32px;">🕐</td>
                                                 <td>
-                                                    <p style="margin:0;font-size:11px;color:#9ca3af;">FECHA Y HORA <span
+                                                    <p
+                                                        style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                                                        Fecha y hora <span
                                                             style="background:#dcfce7;color:#166534;font-size:10px;padding:1px 6px;border-radius:99px;margin-left:4px;">Sin
                                                             cambios</span></p>
                                                     <p
                                                         style="margin:2px 0 0;font-size:14px;font-weight:600;color:#1c1b1f;">
                                                         {{ $appointment->start_time->format('d/m/Y') }}
-                                                        · {{ $appointment->start_time->format('H:i') }} –
+                                                        &nbsp;·&nbsp;
+                                                        {{ $appointment->start_time->format('H:i') }} –
                                                         {{ $appointment->end_time->format('H:i') }}
                                                     </p>
                                                 </td>
@@ -194,7 +202,7 @@
                             <!-- CTA -->
                             <div style="text-align:center;margin-bottom:28px;">
                                 <a href="{{ url('/appointments/cancel/' . $appointment->cancel_token) }}"
-                                    style="display:inline-block;background:#1e3a5f;color:#fff;padding:12px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;">
+                                    style="display:inline-block;background:#b45309;color:#ffffff;font-size:14px;font-weight:600;padding:12px 32px;border-radius:10px;text-decoration:none;letter-spacing:0.2px;">
                                     Cancelar cita
                                 </a>
                             </div>
@@ -212,12 +220,12 @@
                     <!-- FOOTER -->
                     <tr>
                         <td
-                            style="background:#f0f6ff;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
-                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#1e3a5f;">
+                            style="background:#fdf8f0;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#92400e;">
                                 {{ $appointment->company?->name }} · TurnosPRO
                             </p>
                             <p style="margin:0;font-size:12px;color:#9ca3af;">
-                                © {{ date('Y') }} TurnosPRO
+                                © {{ date('Y') }} TurnosPRO · Todos los derechos reservados
                             </p>
                         </td>
                     </tr>
