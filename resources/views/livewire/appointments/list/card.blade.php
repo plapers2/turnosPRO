@@ -1,9 +1,8 @@
 {{-- resources/views/livewire/appointments/list/card.blade.php --}}
 @php
     $canComplete = $appt->status === 'confirmed' && now()->gte($appt->end_time);
-    $canConfirm = $appt->status === 'pending';
     $canCancel = in_array($appt->status, ['pending', 'confirmed']);
-    $actionCount = (int) $canConfirm + (int) $canComplete + (int) $canCancel;
+    $actionCount = (int) $canComplete + (int) $canCancel;
     $gridCols = match (true) {
         $actionCount === 0 => 'grid-cols-1',
         $actionCount === 1 => 'grid-cols-2',
@@ -113,21 +112,6 @@
             Ver
         </button>
 
-        @if ($canConfirm)
-            <button wire:click="openConfirmModal({{ $appt->id }})"
-                class="flex items-center justify-center gap-1 py-2 px-2 rounded-xl
-                       text-[11px] font-semibold text-[#0F6E56]
-                       bg-[#E1F5EE] border border-[#9FE1CB]
-                       hover:bg-[#1D9E75] hover:text-white hover:border-[#1D9E75]
-                       transition-colors duration-150">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M1.5 6l3 3 6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-                Confirmar
-            </button>
-        @endif
-
         @if ($canComplete)
             <button wire:click="openCompleteModal({{ $appt->id }})"
                 class="flex items-center justify-center gap-1 py-2 px-2 rounded-xl
@@ -145,19 +129,21 @@
             </button>
         @endif
 
-        @if ($canCancel)
-            <button wire:click="openCancelModal({{ $appt->id }})"
-                class="flex items-center justify-center gap-1 py-2 px-2 rounded-xl
+        @role('admin')
+            @if ($canCancel)
+                <button wire:click="openCancelModal({{ $appt->id }})"
+                    class="flex items-center justify-center gap-1 py-2 px-2 rounded-xl
                        text-[11px] font-semibold text-[#A32D2D]
                        bg-[#FCEBEB] border border-[#F7C1C1]
                        hover:bg-[#E24B4A] hover:text-white hover:border-[#E24B4A]
                        transition-colors duration-150">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-                </svg>
-                Cancelar
-            </button>
-        @endif
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+                    </svg>
+                    Cancelar
+                </button>
+            @endif
+        @endrole
 
     </div>
 </article>
