@@ -158,6 +158,9 @@ Route::get('/register/{token}', [RegisteredUserController::class, 'create'])->mi
 // Aceptar invitación estando autenticado
 Route::get('/invitations/{token}/accept', [InvitationController::class, 'accept'])->middleware('auth')->name('invitations.accept');
 
+// Registro libre (sin invitación)
+Route::get('/register', [RegisteredUserController::class, 'create'])->middleware('guest')->name('register');
+
 // Prueba todos los emails de una vez
 Route::get('/test-all-mails', function () {
     $appointment = \App\Models\Appointment::with(['customer', 'user', 'company', 'services'])->latest()->first();

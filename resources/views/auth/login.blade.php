@@ -4,6 +4,11 @@
         {{ session('error') }}
     </div>
     @endif
+    @if(session('info'))
+    <div class="alert-info mb-4">
+        {{ session('info') }}
+    </div>
+    @endif
     <x-auth-session-status class="mb-2" :status="session('status')" />
 
     <form class="flex flex-col gap-5" method="POST" action="{{ route('login') }}">

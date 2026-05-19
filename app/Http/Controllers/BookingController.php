@@ -56,6 +56,10 @@ class BookingController extends Controller
             ->filter(fn($tipo) => $tipo->companies->isNotEmpty())
             ->values();
 
+        if (!$user->isPremium() && $user->companies()->doesntExist()) {
+            return view('appointment.no-company');
+        }
+
         return view('appointment.index', compact('tiposNegocio'));
     }
 

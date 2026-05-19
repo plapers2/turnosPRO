@@ -23,19 +23,28 @@ class RegisteredUserController extends Controller
     public function create(Request $request): View|RedirectResponse
     {
         $token = $request->route('token');
-
-        // Si ya está logueado, redirigir a accept directamente
-        if (auth()->check() && $token) {
-            return redirect()->route('invitations.accept', $token);
-        }
-
         $invitation = null;
+
         if ($token) {
             $invitation = CompanyInvitation::where('token', $token)->first();
             abort_if(!$invitation || !$invitation->isUsable(), 410, 'Este enlace no es válido o ha expirado.');
-        }
 
-        if ($token) {
+            // Caso 1.1.3: Ya está logueado → asignar empresa y redirigir
+            if (auth()->check()) {
+                $user = auth()->user();
+                $user->companies()->syncWithoutDetaching([$invitation->company_id]);
+                $invitation->update(['status' => 'registered']);
+                return redirect()->route('appointment.index')
+                    ->with('success', '¡Empresa asignada correctamente!');
+            }
+
+            // Caso 1.1.2: Email ya registrado pero no logueado → redirigir a login
+            if ($invitation->email && User::where('email', $invitation->email)->exists()) {
+                session(['invitation_token' => $token]);
+                return redirect()->route('login')
+                    ->with('info', 'Ya tienes una cuenta. Inicia sesión para vincular tu nueva empresa.');
+            }
+
             session(['invitation_token' => $token]);
         }
 
@@ -49,14 +58,14 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $customAttributes = [
-            'password' => 'contraseña',
-        ];
+        $customAttributes = ['password' => 'contraseña'];
 
-        // 1. Validar invitación PRIMERO, antes de crear nada
+        // Validar invitación primero
         $invitation = null;
-        if ($request->invitation_token) {
-            $invitation = CompanyInvitation::where('token', $request->invitation_token)
+        $token = $request->invitation_token ?? session('invitation_token');
+
+        if ($token) {
+            $invitation = CompanyInvitation::where('token', $token)
                 ->whereNull('deleted_at')
                 ->where('expires_at', '>', now())
                 ->first();
@@ -64,35 +73,35 @@ class RegisteredUserController extends Controller
             if (!$invitation || !$invitation->isUsable()) {
                 abort(403, 'La invitación no es válida o ha expirado.');
             }
+
+            // Validar que el correo coincida
+            if ($invitation->email && $request->email !== $invitation->email) {
+                throw ValidationException::withMessages([
+                    'email' => 'El correo no coincide con el de la invitación.',
+                ]);
+            }
         }
-        $existingUser = User::where('email', $request->email)->first();
-        if ($existingUser && $invitation) {
-            $existingUser->companies()->syncWithoutDetaching([$invitation->company_id]);
-            $invitation->update(['status' => 'registered']);
-            Auth::login($existingUser);
-            return redirect(route('dashboard', absolute: false));
-        }
-        // 2. Validar campos del formulario
+
+        // Validar formulario
         $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Password::min(8)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()],
-            'phone'    => ['required', 'string', 'max:20'],
-        ], [], $customAttributes);
+                ->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
+            'phone'    => ['required', 'string', 'min:8', 'max:20', 'regex:/^\+?[\d\s\-\(\)]+$/'],
+        ], [
+            'name.required'    => 'El nombre es obligatorio.',
+            'email.required'   => 'El correo electrónico es obligatorio.',
+            'email.email'      => 'El correo no tiene un formato válido.',
+            'email.unique'     => 'Ya existe un usuario con ese correo.',
+            'phone.required'   => 'El teléfono es obligatorio.',
+            'phone.min'        => 'El teléfono debe tener al menos 8 dígitos.',
+            'phone.max'        => 'El teléfono no puede tener más de 20 caracteres.',
+            'phone.regex'      => 'El teléfono solo puede contener números, +, -, espacios y paréntesis.',
+            'password.required' => 'La contraseña es obligatoria.',
+        ]);
 
-        // 3. Validar que el correo coincida con el de la invitación
-        if ($invitation && $invitation->email && $request->email !== $invitation->email) {
-            throw ValidationException::withMessages([
-                'email' => 'El correo no coincide con el de la invitación.',
-            ]);
-        }
-
-        // 4. Crear usuario
+        // Crear usuario
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
@@ -102,15 +111,16 @@ class RegisteredUserController extends Controller
 
         $user->assignRole('cliente');
 
-        // 5. Vincular empresa y marcar invitación como usada
+        // Vincular empresa si viene de invitación
         if ($invitation) {
             $user->companies()->attach($invitation->company_id);
             $invitation->update(['status' => 'registered']);
+            session()->forget('invitation_token');
         }
 
         event(new Registered($user));
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('dashboard');
     }
 }

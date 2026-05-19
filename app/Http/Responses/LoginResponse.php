@@ -10,7 +10,6 @@ class LoginResponse implements LoginResponseContract
     {
         $user = auth()->user();
 
-        // Si tiene contraseña temporal, redirige a cambiarla antes de todo
         if ($user->must_change_password) {
             return redirect()->route('password.change');
         }
@@ -19,7 +18,6 @@ class LoginResponse implements LoginResponseContract
             if ($user->companies()->count() > 1) {
                 return redirect('/select-company');
             }
-
             $company = $user->companies()->first();
             session(['active_company_id' => $company->id]);
             return redirect('/dashboard');
@@ -30,15 +28,23 @@ class LoginResponse implements LoginResponseContract
         }
 
         if ($user->hasRole('cliente')) {
-            // Si llegó aquí tras registrarse/loguearse con un link de invitación
-            if (session('invitation_token')) {
-                $token = session()->pull('invitation_token');
-                return redirect()->route('invitations.accept', $token);
+            $token = session()->pull('invitation_token');
+
+            if ($token) {
+                $invitation = \App\Models\CompanyInvitation::where('token', $token)
+                    ->whereNull('deleted_at')
+                    ->where('expires_at', '>', now())
+                    ->first();
+
+                if ($invitation && $invitation->isUsable()) {
+                    $user->companies()->syncWithoutDetaching([$invitation->company_id]);
+                    $invitation->update(['status' => 'registered']);
+                }
             }
 
             return redirect('/dashboard');
         }
 
-        return redirect('/no-company');
+        return redirect('/dashboard');
     }
 }
