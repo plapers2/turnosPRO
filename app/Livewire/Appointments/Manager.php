@@ -7,6 +7,7 @@ use App\Livewire\Appointments\Concerns\HasAuthorization;
 use App\Livewire\Appointments\Concerns\HasCalendar;
 use App\Livewire\Appointments\Concerns\HasDetailModal;
 use App\Livewire\Appointments\Concerns\HasFilters;
+use App\Livewire\Appointments\Concerns\HasProfessionalReassignment;
 use App\Models\Appointment;
 use App\Models\User;
 use Carbon\Carbon;
@@ -22,6 +23,7 @@ class Manager extends Component
     use HasDetailModal;
     use HasCalendar;
     use HasAppointmentActions;
+    use HasProfessionalReassignment;
 
     public string $view = 'list';
     public bool $showPendingBanner = true;

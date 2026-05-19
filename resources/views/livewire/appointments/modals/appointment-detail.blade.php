@@ -200,6 +200,7 @@
                         </p>
                     </div>
                 @endif
+
                 {{-- Historial de transiciones --}}
                 @if ($appt->statusLogs->isNotEmpty())
                     <div class="col-span-2 flex flex-col gap-2">
@@ -218,7 +219,7 @@
                                 @endphp
                                 <div
                                     class="flex items-start justify-between gap-2 px-3 py-2 rounded-xl border
-                            bg-surface-container border-outline-variant/20 text-[11.5px]">
+                                           bg-surface-container border-outline-variant/20 text-[11.5px]">
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         @if ($log->from_status)
                                             <span class="font-medium text-on-surface-variant">
@@ -245,12 +246,126 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- Panel de reasignación --}}
+                @role('admin')
+                    @if (in_array($appt->status, ['confirmed', 'pending']) && $reasignarAppointmentId === $appt->id)
+                        <div
+                            class="col-span-2 flex flex-col gap-3 p-4 rounded-xl bg-surface-container border border-outline-variant/30">
+                            <p class="text-[10.5px] font-semibold text-on-surface-variant uppercase tracking-wider">
+                                Cambiar profesional
+                            </p>
+
+                            @if ($loadingProfesionales)
+                                <div class="flex items-center gap-2 py-3">
+                                    <svg class="animate-spin w-4 h-4 text-primary" viewBox="0 0 14 14" fill="none">
+                                        <circle cx="7" cy="7" r="5.5" stroke="currentColor"
+                                            stroke-width="1.5" stroke-dasharray="20" stroke-dashoffset="10"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    <span class="text-[12px] text-on-surface-variant">Buscando disponibilidad...</span>
+                                </div>
+                            @elseif (empty($profesionalesDisponibles))
+                                <div class="flex items-center gap-2 py-2 text-[12px] text-[#A32D2D]">
+                                    <span class="material-symbols-outlined text-[16px]">event_busy</span>
+                                    No hay profesionales disponibles para este horario y servicio.
+                                </div>
+                            @else
+                                {{-- Cards de profesionales --}}
+                                <div class="flex flex-col gap-2">
+                                    @foreach ($profesionalesDisponibles as $prof)
+                                        @php $esActual = $appt->user_id == $prof['id']; @endphp
+                                        <label
+                                            class="flex items-center gap-3 p-3 rounded-xl border-2 transition-all
+                                                   {{ (int) $nuevoProfesionalId === (int) $prof['id'] ? 'border-primary bg-primary/5' : 'border-outline-variant/20 hover:border-primary/40' }}
+                                                   {{ $esActual ? 'opacity-50 pointer-events-none' : 'cursor-pointer' }}">
+
+                                            {{-- FIX: wire:model.live para sincronización inmediata en Livewire 3 --}}
+                                            <input type="radio" wire:model.live="nuevoProfesionalId"
+                                                value="{{ $prof['id'] }}" class="sr-only"
+                                                @disabled($esActual) />
+
+                                            <div
+                                                class="w-9 h-9 rounded-full flex-shrink-0 bg-primary/10
+                                                       flex items-center justify-center border border-outline-variant/20 overflow-hidden">
+                                                @if (!empty($prof['image']))
+                                                    <img src="/storage/{{ $prof['image'] }}"
+                                                        class="w-full h-full object-cover" />
+                                                @else
+                                                    <span class="text-xs font-bold text-primary/60">
+                                                        {{ strtoupper(substr($prof['name'], 0, 2)) }}
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-[13px] font-semibold text-on-surface">
+                                                    {{ $prof['name'] }}
+                                                    @if ($esActual)
+                                                        <span
+                                                            class="text-[10px] text-on-surface-variant font-normal ml-1">(actual)</span>
+                                                    @endif
+                                                </p>
+                                                <p class="text-[11px] text-on-surface-variant">{{ $prof['email'] }}</p>
+                                            </div>
+
+                                            @if ((int) $nuevoProfesionalId === (int) $prof['id'])
+                                                <span
+                                                    class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                                            @endif
+                                        </label>
+                                    @endforeach
+                                </div>
+
+                                {{-- Motivo opcional --}}
+                                <textarea wire:model="reasignarRazon" rows="2" placeholder="Motivo del cambio (opcional)..."
+                                    class="w-full px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/30
+                                           text-[12px] text-on-surface placeholder:text-on-surface-variant/50
+                                           focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary
+                                           transition resize-none"></textarea>
+
+                                @error('nuevoProfesionalId')
+                                    <p class="text-[11px] text-[#A32D2D]">{{ $message }}</p>
+                                @enderror
+                            @endif
+
+                            {{-- Acciones del panel --}}
+                            <div class="flex gap-2 mt-1">
+                                @unless (empty($profesionalesDisponibles) || $loadingProfesionales)
+                                    <button wire:click="confirmarReasignacion" wire:loading.attr="disabled"
+                                        wire:target="confirmarReasignacion" @disabled(!$nuevoProfesionalId || (int) $nuevoProfesionalId === (int) $appt->user_id)
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold
+                                               bg-primary text-white hover:bg-primary/90 disabled:opacity-40
+                                               disabled:cursor-not-allowed transition-colors">
+                                        <span wire:loading.remove wire:target="confirmarReasignacion">Confirmar cambio</span>
+                                        <span wire:loading wire:target="confirmarReasignacion"
+                                            class="inline-flex items-center gap-1.5">
+                                            <svg class="animate-spin w-3 h-3" viewBox="0 0 14 14" fill="none">
+                                                <circle cx="7" cy="7" r="5.5" stroke="currentColor"
+                                                    stroke-width="1.5" stroke-dasharray="20" stroke-dashoffset="10"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                            Guardando...
+                                        </span>
+                                    </button>
+                                @endunless
+
+                                <button wire:click="cancelarReasignacion"
+                                    class="inline-flex items-center px-3 py-1.5 rounded-lg text-[12px] font-semibold
+                                           bg-surface-container border border-outline-variant/20 text-on-surface-variant
+                                           hover:bg-surface-container-high transition-colors">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+                @endrole
+
             </div>
         </div>
 
         {{-- Footer --}}
         <div class="flex items-center justify-end gap-2 px-5 py-4 border-t border-outline-variant/20">
-
 
             @if ($appt->status === 'confirmed' && now()->gte($appt->end_time))
                 <button wire:click="openCompleteAndClose({{ $appt->id }})" wire:loading.attr="disabled"
@@ -283,9 +398,9 @@
                     <button wire:click="openCancelAndClose({{ $appt->id }})" wire:loading.attr="disabled"
                         wire:target="openCancelAndClose({{ $appt->id }})"
                         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold
-                           bg-[#FCEBEB] text-[#A32D2D] border border-[#F7C1C1]
-                           hover:bg-[#E24B4A] hover:text-white hover:border-[#E24B4A]
-                           disabled:opacity-50 transition-colors duration-150">
+                               bg-[#FCEBEB] text-[#A32D2D] border border-[#F7C1C1]
+                               hover:bg-[#E24B4A] hover:text-white hover:border-[#E24B4A]
+                               disabled:opacity-50 transition-colors duration-150">
                         <span wire:loading.remove wire:target="openCancelAndClose({{ $appt->id }})">Cancelar
                             cita</span>
                         <span wire:loading wire:target="openCancelAndClose({{ $appt->id }})"
@@ -300,17 +415,41 @@
                 @endif
             @endrole
 
+            @role('admin')
+                @if (in_array($appt->status, ['confirmed', 'pending']) && $reasignarAppointmentId !== $appt->id)
+                    <button wire:click="cargarProfesionalesReasignar({{ $appt->id }})" wire:loading.attr="disabled"
+                        wire:target="cargarProfesionalesReasignar({{ $appt->id }})"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold
+                               bg-surface-container border border-outline-variant/20 text-on-surface-variant
+                               hover:bg-surface-container-high transition-colors duration-150">
+                        <span wire:loading.remove wire:target="cargarProfesionalesReasignar({{ $appt->id }})">
+                            <span class="material-symbols-outlined text-[15px] align-middle">swap_horiz</span>
+                            Cambiar profesional
+                        </span>
+                        <span wire:loading wire:target="cargarProfesionalesReasignar({{ $appt->id }})"
+                            class="inline-flex items-center gap-1.5">
+                            <svg class="animate-spin w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
+                                <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"
+                                    stroke-dasharray="20" stroke-dashoffset="10" stroke-linecap="round" />
+                            </svg>
+                            Cargando...
+                        </span>
+                    </button>
+                @endif
+            @endrole
+
             <button wire:click="closeModal"
                 class="inline-flex items-center px-4 py-2 rounded-xl text-[13px] font-semibold
                        bg-surface-container border border-outline-variant/20 text-on-surface-variant
                        hover:bg-surface-container-high transition-colors duration-150">
                 Cerrar
             </button>
+
             {{-- Comprobante PDF --}}
             <a href="{{ route('appointment.voucher', $appt->id) }}" target="_blank"
                 class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold
-           bg-surface-container border border-outline-variant/20 text-on-surface-variant
-           hover:bg-surface-container-high transition-colors duration-150">
+                       bg-surface-container border border-outline-variant/20 text-on-surface-variant
+                       hover:bg-surface-container-high transition-colors duration-150">
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
                     <path d="M4 1h6l3 3v9H1V1h3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                     <path d="M4 8h6M4 10.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
