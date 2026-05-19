@@ -576,7 +576,8 @@
             // ── Estado del picker ────────────────────────────────────────────
             let currentYear = new Date().getFullYear();
             let currentMonth = new Date().getMonth(); // 0-indexed
-            let availability = {}; // { 'YYYY-MM-DD': 'available'|'low'|'full'|'past' }
+            let availability = {};
+            let slotsCache = {}; // { 'YYYY-MM-DD': [{fecha, inicio, fin, disponibles}] }
             let selectedDate = null;
             let companyId = null;
             let serviceIds = [];
@@ -629,12 +630,17 @@
                     // días con slots disponibles
                     (data.disponibles || []).forEach(d => {
                         const key = d.fecha;
-                        if (!availability[key]) availability[key] = 'available';
-                        if (d.disponibles === 1) {
-                            // solo si aún no está marcado como 'available' con más slots
-                            availability[key] = availability[key] === 'available' ? 'low' : availability[key];
+                        const ahora = new Date();
+                        const slotDateTime = new Date(`${d.fecha}T${d.inicio}`);
+                        if (slotDateTime <= ahora) return;
+
+                        // Guardar en cache para reusar al hacer clic en el día
+                        if (!slotsCache[key]) slotsCache[key] = [];
+                        slotsCache[key].push(d);
+
+                        if (!availability[key]) {
+                            availability[key] = (d.disponibles === 1 && serviceIds.length === 1) ? 'low' : 'available';
                         }
-                        // Si hay múltiples slots disponibles en el día, al menos uno con >1 → available
                         if (d.disponibles > 1) availability[key] = 'available';
                     });
 
@@ -797,14 +803,27 @@
                 serviceIds.forEach(id => params.append('services[]', id));
 
                 try {
-                    const res = await fetch(`/booking/citas-ocupadas?${params}`);
-                    const data = await res.json();
+                    let disponibles;
 
-                    const slotsDisponibles = (data.disponibles || [])
-                        .filter(s => s.fecha === dateKey && s.disponibles > 0)
+                    if (slotsCache[dateKey]) {
+                        // Reusar datos ya cargados — sin request al servidor
+                        disponibles = slotsCache[dateKey];
+                        loading.classList.add('hidden');
+                    } else {
+                        // Solo si no está en cache (caso raro: día fuera del rango pre-cargado)
+                        const res = await fetch(`/booking/citas-ocupadas?${params}`);
+                        const data = await res.json();
+                        disponibles = (data.disponibles || []);
+                        loading.classList.add('hidden');
+                    }
+
+                    const ahora = new Date();
+                    const slotsDisponibles = disponibles
+                        .filter(s => {
+                            if (s.fecha !== dateKey || s.disponibles === 0) return false;
+                            return new Date(`${s.fecha}T${s.inicio}`) > ahora;
+                        })
                         .sort((a, b) => a.inicio.localeCompare(b.inicio));
-
-                    loading.classList.add('hidden');
 
                     if (slotsDisponibles.length === 0) {
                         empty.classList.remove('hidden');
@@ -818,8 +837,7 @@
                         pill.textContent = slot.inicio;
                         pill.dataset.hora = slot.inicio;
 
-                        if (slot.disponibles === 1) {
-                            pill.className += ' ';
+                        if (slot.disponibles === 1 && serviceIds.length === 1) {
                             pill.insertAdjacentHTML('beforeend', '<span class="ml-1.5 text-[10px] text-orange-500 font-bold">·último</span>');
                         }
 
@@ -885,6 +903,7 @@
                 currentMonth = now.getMonth();
                 selectedDate = null;
                 availability = {};
+                slotsCache = {};
 
                 // Ocultar slots panel
                 const wrapper = document.getElementById('dp-slots-wrapper');
