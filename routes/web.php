@@ -149,12 +149,14 @@ Route::middleware(['auth', 'password.changed', 'role:admin|empleado'])->group(fu
 // Rutas publicas
 // ─────────────────────────────────────────────
 
-// Cancelar cita desde email (pública con token)
+// Cancelar cita desde email
 Route::get('/appointments/cancel/{token}', [BookingController::class, 'cancelByToken'])->name('appointments.cancel');
 
-Route::get('/register/{token}', [RegisteredUserController::class, 'create'])
-    ->middleware('guest')
-    ->name('register.invite');
+// Registro con invitación
+Route::get('/register/{token}', [RegisteredUserController::class, 'create'])->middleware('guest')->name('register.invite');
+
+// Aceptar invitación estando autenticado
+Route::get('/invitations/{token}/accept', [InvitationController::class, 'accept'])->middleware('auth')->name('invitations.accept');
 
 // Prueba todos los emails de una vez
 Route::get('/test-all-mails', function () {

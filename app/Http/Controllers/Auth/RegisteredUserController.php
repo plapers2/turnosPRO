@@ -24,18 +24,18 @@ class RegisteredUserController extends Controller
     {
         $token = $request->route('token');
 
-        // Si ya está autenticado y trae token, ir directo a vincular empresa
+        // Si ya está logueado, redirigir a accept directamente
         if (auth()->check() && $token) {
             return redirect()->route('invitations.accept', $token);
         }
 
         $invitation = null;
-
         if ($token) {
             $invitation = CompanyInvitation::where('token', $token)->first();
             abort_if(!$invitation || !$invitation->isUsable(), 410, 'Este enlace no es válido o ha expirado.');
+        }
 
-            // Guardar en sesión por si el usuario prefiere loguearse en vez de registrarse
+        if ($token) {
             session(['invitation_token' => $token]);
         }
 

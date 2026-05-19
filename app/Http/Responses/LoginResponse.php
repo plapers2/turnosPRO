@@ -30,6 +30,12 @@ class LoginResponse implements LoginResponseContract
         }
 
         if ($user->hasRole('cliente')) {
+            // Si llegó aquí tras registrarse/loguearse con un link de invitación
+            if (session('invitation_token')) {
+                $token = session()->pull('invitation_token');
+                return redirect()->route('invitations.accept', $token);
+            }
+
             return redirect('/dashboard');
         }
 

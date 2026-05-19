@@ -70,4 +70,24 @@ class InvitationController extends Controller
 
         return back()->with('success', 'Invitación restaurada.');
     }
+    public function accept(string $token)
+    {
+        $invitation = CompanyInvitation::where('token', $token)
+            ->whereNull('deleted_at')
+            ->first();
+
+        abort_if(!$invitation || !$invitation->isUsable(), 410, 'Este enlace no es válido o ha expirado.');
+
+        $user = auth()->user();
+
+        // Evitar duplicados
+        if (!$user->companies()->where('company_id', $invitation->company_id)->exists()) {
+            $user->companies()->attach($invitation->company_id);
+        }
+
+        $invitation->update(['status' => 'registered']);
+
+        return redirect()->route('appointment.index')
+            ->with('success', 'Empresa vinculada a tu cuenta correctamente.');
+    }
 }
