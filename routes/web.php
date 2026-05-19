@@ -18,6 +18,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TwoFactorSetupController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\ClientesMasterController;
 use App\Livewire\Dashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -95,6 +96,8 @@ Route::middleware(['auth', 'password.changed', 'role:master'])->prefix('master')
     Route::post('/admins', [AdminController::class, 'store'])->name('admins.store');
     Route::delete('/admins/{admin}', [AdminController::class, 'destroy'])->name('admins.destroy');
     Route::post('/admins/{id}/restore', [AdminController::class, 'restore'])->name('admins.restore');
+    Route::get('/clientes', [ClientesMasterController::class, 'index'])->name('clientes.index');
+    Route::patch('/clientes/{user}/toggle-plan', [ClientesMasterController::class, 'togglePlan'])->name('clientes.toggle-plan');
 });
 
 
