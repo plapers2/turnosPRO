@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('confirmed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('previous_user')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('cancelled_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('completed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('company_id')->constrained();

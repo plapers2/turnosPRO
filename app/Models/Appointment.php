@@ -54,6 +54,7 @@ class Appointment extends Model
         'cancelled_by',
         'confirmed_by',
         'completed_by',
+        'previous_user',
         'completed_at',
         'company_id',
         'status',
@@ -133,6 +134,13 @@ class Appointment extends Model
     {
         return $this->belongsTo(User::class, 'completed_by');
     }
+
+    public function previousUser()
+    {
+        return $this->belongsTo(User::class, 'previous_user');
+    }
+
+
     public function statusLogs()
     {
         return $this->hasMany(AppointmentStatusLog::class)->orderBy('created_at');

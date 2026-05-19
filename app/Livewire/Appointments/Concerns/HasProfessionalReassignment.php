@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\AppointmentStatusLog;
 use App\Models\ProfessionalAvailability;
 use App\Models\User;
+use App\Services\AppointmentNotifier;
 use Illuminate\Support\Facades\DB;
 
 trait HasProfessionalReassignment
@@ -23,7 +24,7 @@ trait HasProfessionalReassignment
 
     public function cargarProfesionalesReasignar(int $appointmentId): void
     {
-        $appointment = Appointment::with(['services'])->findOrFail($appointmentId);
+        $appointment = Appointment::with(['services', 'customer', 'company'])->findOrFail($appointmentId);
 
         if ($appointment->start_time->diffInMinutes(now(), false) > -300) {
             $this->dispatch('notify', type: 'error', message: 'No es posible reasignar un profesional con menos de 2 horas de antelacion.');
@@ -120,7 +121,16 @@ trait HasProfessionalReassignment
             return;
         }
 
-        $appointment->update(['user_id' => $this->nuevoProfesionalId]);
+        $appointment->update(['previous_user' => $appointment->user_id, 'user_id' => $this->nuevoProfesionalId]);
+
+        $appointment->refresh()->load([
+            'company',
+            'customer',
+            'user',
+            'services'
+        ]);
+
+        app(AppointmentNotifier::class)->send('reassigned', $appointment);
 
         AppointmentStatusLog::create([
             'appointment_id' => $appointment->id,
