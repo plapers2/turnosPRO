@@ -748,25 +748,21 @@ class BookingController extends Controller
         $request->validate([
             'desde' => 'nullable|date',
             'hasta' => 'nullable|date|after_or_equal:desde',
+            'modo'  => 'nullable|in:color,bw',
         ], [
             'hasta.after_or_equal' => 'La fecha "Hasta" no puede ser anterior a la fecha "Desde".',
         ]);
 
         $companyId = session('active_company_id');
         $company   = \App\Models\Company::findOrFail($companyId);
+        $modo      = $request->input('modo', 'color');
 
         $query = \App\Models\Appointment::with(['customer', 'user', 'services'])
             ->where('company_id', $companyId);
 
-        if ($request->filled('desde')) {
-            $query->whereDate('start_time', '>=', $request->desde);
-        }
-        if ($request->filled('hasta')) {
-            $query->whereDate('start_time', '<=', $request->hasta);
-        }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        if ($request->filled('desde')) $query->whereDate('start_time', '>=', $request->desde);
+        if ($request->filled('hasta')) $query->whereDate('start_time', '<=', $request->hasta);
+        if ($request->filled('status')) $query->where('status', $request->status);
 
         $appointments = $query->orderBy('start_time')->get();
 
@@ -776,6 +772,7 @@ class BookingController extends Controller
             'desde'        => $request->desde,
             'hasta'        => $request->hasta,
             'generado_en'  => now()->format('d/m/Y H:i'),
+            'modo'         => $modo,
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('citas-' . now()->format('Y-m-d') . '.pdf');

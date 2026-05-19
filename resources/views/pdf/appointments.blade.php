@@ -3,9 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Citas</title>
     <style>
+        @page {
+            margin: 40px 30px 20px 30px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -19,118 +22,9 @@
             background: #fff;
         }
 
-        /* HEADER */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 30px;
-            border-bottom: 3px solid #ba7517;
-            margin-bottom: 20px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .header-left img {
-            height: 48px;
-            width: auto;
-        }
-
-        .header-left .company-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1c1b1f;
-        }
-
-        .header-left .company-sub {
-            font-size: 10px;
-            color: #847467;
-            margin-top: 2px;
-        }
-
-        .header-right {
-            text-align: right;
-        }
-
-        .header-right .report-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #ba7517;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .header-right .report-meta {
-            font-size: 9px;
-            color: #847467;
-            margin-top: 4px;
-        }
-
-        /* FILTROS APLICADOS */
-        .filters-bar {
-            background: #fdf6ec;
-            border: 1px solid #f0d9b0;
-            border-radius: 6px;
-            padding: 8px 16px;
-            margin: 0 30px 16px;
-            font-size: 9px;
-            color: #847467;
-        }
-
-        .filters-bar span {
-            color: #ba7517;
-            font-weight: 600;
-        }
-
-        /* STATS */
-        .stats-row {
-            margin: 0 30px 16px;
-            width: calc(100% - 60px);
-        }
-
-        .stat-box {
-            display: inline-block;
-            width: 16.6%;
-            margin-right: 1%;
-            background: #fdf6ec;
-            border: 1px solid #f0d9b0;
-            border-radius: 6px;
-            padding: 8px 10px;
-            text-align: center;
-            vertical-align: top;
-        }
-
-        .stat-box .stat-number {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ba7517;
-        }
-
-        .stat-box .stat-label {
-            font-size: 8px;
-            color: #847467;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
-
-        /* TABLA */
-        .table-wrapper {
-            margin: 0 30px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
-        }
-
-        thead tr {
-            background: #ba7517;
-            color: #fff;
         }
 
         thead th {
@@ -140,23 +34,16 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #f0ebe4;
-        }
-
-        tbody tr:nth-child(even) {
-            background: #fdf9f5;
-        }
-
-        tbody tr:last-child {
-            border-bottom: none;
+            color: #fff;
         }
 
         tbody td {
             padding: 8px 10px;
             vertical-align: middle;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .badge {
@@ -166,37 +53,6 @@
             font-size: 8px;
             font-weight: 700;
             text-transform: uppercase;
-        }
-
-        .badge-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-confirmed {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-completed {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge-cancelled {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* FOOTER */
-        .footer {
-            margin-top: 24px;
-            padding: 12px 30px;
-            border-top: 1px solid #f0ebe4;
-            display: flex;
-            justify-content: space-between;
-            font-size: 8px;
-            color: #847467;
         }
 
         .empty-state {
@@ -210,69 +66,74 @@
 
 <body>
 
-    <!-- HEADER -->
-    <div class="header">
-        <div class="header-left">
-            <img src="{{ public_path('logo-turnos-pro.png') }}" alt="Logo">
+    @php
+    $isColor = $modo === 'color';
+    $accent = $isColor ? '#ba7517' : '#1c1b1f';
+    $muted = $isColor ? '#847467' : '#555';
+    $statBg = $isColor ? '#fdf6ec' : '#f5f5f5';
+    $statBorder = $isColor ? '#f0d9b0' : '#ccc';
+    $rowEven = $isColor ? '#fdf9f5' : '#f9f9f9';
+    $rowBorder = $isColor ? '#f0ebe4' : '#ddd';
+
+    $total = $appointments->count();
+    $completadas = $appointments->where('status', 'completed')->count();
+    $confirmadas = $appointments->where('status', 'confirmed')->count();
+    $canceladas = $appointments->where('status', 'cancelled')->count();
+    @endphp
+
+    {{-- HEADER --}}
+    <div style="display:flex; align-items:center; justify-content:space-between;
+            padding:20px 30px; border-bottom:3px solid {{ $accent }}; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:14px;">
+            <img src="{{ public_path('logo-turnos-pro.png') }}" alt="Logo" style="height:48px; width:auto;">
             <div>
-                <div class="company-name">{{ $company->name }}</div>
-                <div class="company-sub">{{ $company->email }} · {{ $company->phone }}</div>
+                <div style="font-size:18px; font-weight:700; color:#1c1b1f;">{{ $company->name }}</div>
+                <div style="font-size:10px; color:{{ $muted }}; margin-top:2px;">{{ $company->email }} · {{ $company->phone }}</div>
             </div>
         </div>
-        <div class="header-right">
-            <div class="report-title">Reporte de Citas</div>
-            <div class="report-meta">Generado el {{ $generado_en }}</div>
+        <div style="text-align:right;">
+            <div style="font-size:14px; font-weight:700; color:{{ $accent }}; text-transform:uppercase; letter-spacing:1px;">Reporte de Citas</div>
+            <div style="font-size:9px; color:{{ $muted }}; margin-top:4px;">Generado el {{ $generado_en }}</div>
             @if ($desde || $hasta)
-            <div class="report-meta">
-                Período:
-                {{ $desde ? \Carbon\Carbon::parse($desde)->format('d/m/Y') : '—' }}
-                al
-                {{ $hasta ? \Carbon\Carbon::parse($hasta)->format('d/m/Y') : '—' }}
+            <div style="font-size:9px; color:{{ $muted }}; margin-top:2px;">
+                Período: {{ $desde ? \Carbon\Carbon::parse($desde)->format('d/m/Y') : '—' }}
+                al {{ $hasta ? \Carbon\Carbon::parse($hasta)->format('d/m/Y') : '—' }}
             </div>
             @endif
         </div>
     </div>
 
-    <!-- STATS -->
-    @php
-    $total = $appointments->count();
-    $completadas = $appointments->where('status', 'completed')->count();
-    $confirmadas = $appointments->where('status', 'confirmed')->count();
-    $pendientes = $appointments->where('status', 'pending')->count();
-    $canceladas = $appointments->where('status', 'cancelled')->count();
-    @endphp
+    {{-- STATS --}}
+    <table style="width:calc(100% - 60px); margin:0 30px 16px; border-collapse:separate; border-spacing:6px 0;">
+        <tr>
+            @foreach ([
+            ['label' => 'Total citas', 'value' => $total],
+            ['label' => 'Completadas', 'value' => $completadas],
+            ['label' => 'Confirmadas', 'value' => $confirmadas],
+            ['label' => 'Canceladas', 'value' => $canceladas],
+            ] as $stat)
+            <td style="background:{{ $statBg }}; border:1px solid {{ $statBorder }};
+                   border-radius:6px; padding:8px 10px; text-align:center; width:25%;">
+                <div style="font-size:20px; font-weight:700; color:{{ $accent }};">{{ $stat['value'] }}</div>
+                <div style="font-size:8px; color:{{ $muted }}; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">{{ $stat['label'] }}</div>
+            </td>
+            @endforeach
+        </tr>
+    </table>
 
-    <div class="stats-row">
-        <div class="stat-box">
-            <div class="stat-number">{{ $total }}</div>
-            <div class="stat-label">Total citas</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-number">{{ $completadas }}</div>
-            <div class="stat-label">Completadas</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-number">{{ $confirmadas }}</div>
-            <div class="stat-label">Confirmadas</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-number">{{ $pendientes }}</div>
-            <div class="stat-label">Pendientes</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-number">{{ $canceladas }}</div>
-            <div class="stat-label">Canceladas</div>
-        </div>
-    </div>
+    {{-- TABLA --}}
+    @php $chunks = $appointments->chunk(20); @endphp
 
-    <!-- TABLA -->
-    <div class="table-wrapper">
-        @if ($appointments->isEmpty())
-        <div class="empty-state">No hay citas para el período seleccionado.</div>
-        @else
+    @foreach ($chunks as $chunkIndex => $chunk)
+
+    @if ($chunkIndex > 0)
+    <div style="page-break-before: always; padding-top: 30px;"></div>
+    @endif
+
+    <div style="margin:0 30px;">
         <table>
             <thead>
-                <tr>
+                <tr style="background:{{ $accent }};">
                     <th>#</th>
                     <th>Cliente</th>
                     <th>Servicio(s)</th>
@@ -283,47 +144,52 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($appointments as $i => $appt)
+                @foreach ($chunk as $i => $appt)
                 @php
-                $badgeClass = match($appt->status) {
-                'pending' => 'badge-pending',
-                'confirmed' => 'badge-confirmed',
-                'completed' => 'badge-completed',
-                'cancelled' => 'badge-cancelled',
-                default => '',
+                $globalIndex = $chunkIndex * 20 + $i + 1;
+                $isEven = $i % 2 === 1;
+                $rowBg = $isEven ? $rowEven : '#fff';
+
+                if ($isColor) {
+                $badgeStyle = match($appt->status) {
+                'confirmed' => 'background:#d1fae5;color:#065f46;',
+                'completed' => 'background:#dbeafe;color:#1e40af;',
+                'cancelled' => 'background:#fee2e2;color:#991b1b;',
+                default => 'background:#f5f5f5;color:#555;',
                 };
+                } else {
+                $badgeStyle = 'background:#e8e8e8;color:#1c1b1f;border:1px solid #aaa;';
+                }
+
                 $statusLabel = match($appt->status) {
-                'pending' => 'Pendiente',
                 'confirmed' => 'Confirmada',
                 'completed' => 'Completada',
                 'cancelled' => 'Cancelada',
                 default => $appt->status,
                 };
                 @endphp
-                <tr>
-                    <td style="color:#847467;">{{ $i + 1 }}</td>
+                <tr style="background:{{ $rowBg }}; border-bottom:1px solid {{ $rowBorder }};">
+                    <td style="color:{{ $muted }};">{{ $globalIndex }}</td>
                     <td>
                         <strong>{{ $appt->customer->name }}</strong><br>
-                        <span style="color:#847467;font-size:9px;">{{ $appt->customer->email }}</span>
+                        <span style="color:{{ $muted }};font-size:9px;">{{ $appt->customer->email }}</span>
                     </td>
                     <td>{{ $appt->services->pluck('name')->join(', ') }}</td>
                     <td>{{ $appt->user->name }}</td>
                     <td>{{ \Carbon\Carbon::parse($appt->start_time)->format('d/m/Y') }}</td>
-                    <td>
-                        {{ \Carbon\Carbon::parse($appt->start_time)->format('H:i') }}
-                        –
-                        {{ \Carbon\Carbon::parse($appt->end_time)->format('H:i') }}
-                    </td>
-                    <td><span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span></td>
+                    <td>{{ \Carbon\Carbon::parse($appt->start_time)->format('H:i') }} – {{ \Carbon\Carbon::parse($appt->end_time)->format('H:i') }}</td>
+                    <td><span class="badge" style="{{ $badgeStyle }}">{{ $statusLabel }}</span></td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-        @endif
     </div>
 
-    <!-- FOOTER -->
-    <div class="footer">
+    @endforeach
+
+    {{-- FOOTER --}}
+    <div style="margin-top:24px; padding:12px 30px; border-top:1px solid {{ $rowBorder }};
+            display:flex; justify-content:space-between; font-size:8px; color:{{ $muted }};">
         <span>TurnosPRO · Reporte generado automáticamente</span>
         <span>{{ $generado_en }}</span>
     </div>
