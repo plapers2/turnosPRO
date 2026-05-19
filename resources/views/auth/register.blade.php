@@ -45,8 +45,16 @@
             <div class="relative group">
                 <span
                     class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[20px] text-outline-variant group-focus-within:text-primary transition-colors">mail</span>
-                <x-text-input placeholder="usuario@correo.com" id="email" class="block w-full" type="email"
-                    name="email" :value="old('email')" required autocomplete="username" />
+                <x-text-input
+                    placeholder="usuario@correo.com"
+                    id="email"
+                    type="email"
+                    name="email"
+                    :value="old('email', $invitation?->email ?? '')"
+                    required
+                    autocomplete="username"
+                    :class="(isset($invitation) && $invitation->email) ? 'block w-full opacity-60 cursor-not-allowed' : 'block w-full'"
+                    :readonly="isset($invitation) && $invitation->email !== null" />
             </div>
             <x-input-error :messages="$errors->get('email')" class="px-1" />
         </div>

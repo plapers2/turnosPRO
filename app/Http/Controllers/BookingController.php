@@ -28,29 +28,15 @@ class BookingController extends Controller
         $user  = auth()->user();
         $hasta = now()->addMonths(2);
 
-        $filtroEmpresas = function ($q) use ($hasta) {
+        $filtroEmpresas = function ($q) {
             $q->whereHas(
                 'services',
                 fn($s) =>
                 $s->whereHas(
                     'users',
                     fn($u) =>
-                    $u->whereHas(
-                        'roles',
-                        fn($r) =>
-                        $r->where('name', 'empleado')
-                    )
-                        ->whereHas(
-                            'professionalAvailabilities',
-                            fn($a) =>
-                            $a->whereDoesntHave('appointments')
-                                ->orWhereHas(
-                                    'appointments',
-                                    fn($ap) =>
-                                    $ap->where('start_time', '<=', $hasta)
-                                        ->where('status', '<>', 'cancelled')
-                                )
-                        )
+                    $u->whereHas('roles', fn($r) => $r->where('name', 'empleado'))
+                        ->whereHas('professionalAvailabilities') // solo que tenga horario configurado
                 )
             );
         };

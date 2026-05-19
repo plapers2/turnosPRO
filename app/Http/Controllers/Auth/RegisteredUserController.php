@@ -53,6 +53,26 @@ class RegisteredUserController extends Controller
             'password' => 'contraseña',
         ];
 
+        // 1. Validar invitación PRIMERO, antes de crear nada
+        $invitation = null;
+        if ($request->invitation_token) {
+            $invitation = CompanyInvitation::where('token', $request->invitation_token)
+                ->whereNull('deleted_at')
+                ->where('expires_at', '>', now())
+                ->first();
+
+            if (!$invitation || !$invitation->isUsable()) {
+                abort(403, 'La invitación no es válida o ha expirado.');
+            }
+        }
+        $existingUser = User::where('email', $request->email)->first();
+        if ($existingUser && $invitation) {
+            $existingUser->companies()->syncWithoutDetaching([$invitation->company_id]);
+            $invitation->update(['status' => 'registered']);
+            Auth::login($existingUser);
+            return redirect(route('dashboard', absolute: false));
+        }
+        // 2. Validar campos del formulario
         $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
@@ -65,6 +85,14 @@ class RegisteredUserController extends Controller
             'phone'    => ['required', 'string', 'max:20'],
         ], [], $customAttributes);
 
+        // 3. Validar que el correo coincida con el de la invitación
+        if ($invitation && $invitation->email && $request->email !== $invitation->email) {
+            throw ValidationException::withMessages([
+                'email' => 'El correo no coincide con el de la invitación.',
+            ]);
+        }
+
+        // 4. Crear usuario
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
@@ -74,18 +102,10 @@ class RegisteredUserController extends Controller
 
         $user->assignRole('cliente');
 
-        // Vincular empresa si viene de invitación
-        $token = $request->input('invitation_token') ?? session()->pull('invitation_token');
-
-        if ($token) {
-            $invitation = CompanyInvitation::where('token', $token)
-                ->whereNull('deleted_at')
-                ->first();
-
-            if ($invitation && $invitation->isUsable()) {
-                $user->companies()->attach($invitation->company_id);
-                $invitation->update(['status' => 'registered']);
-            }
+        // 5. Vincular empresa y marcar invitación como usada
+        if ($invitation) {
+            $user->companies()->attach($invitation->company_id);
+            $invitation->update(['status' => 'registered']);
         }
 
         event(new Registered($user));
