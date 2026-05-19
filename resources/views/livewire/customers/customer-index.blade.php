@@ -44,9 +44,17 @@
 
             <div class="px-6 py-4 border-b border-outline-variant/20 flex items-center justify-between">
                 <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide">Clientes</h3>
-                <span class="text-xs text-on-surface-variant">
-                    {{ $customers->total() }} {{ $customers->total() === 1 ? 'cliente' : 'clientes' }}
-                </span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-on-surface-variant">
+                        {{ $customers->total() }} {{ $customers->total() === 1 ? 'cliente' : 'clientes' }}
+                    </span>
+                    <button wire:click="openInvitationModal"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white
+                   text-xs font-semibold hover:bg-primary/90 transition-colors duration-150">
+                        <span class="material-symbols-outlined text-[15px]">person_add</span>
+                        Invitar cliente
+                    </button>
+                </div>
             </div>
 
             {{-- DESKTOP --}}
@@ -167,4 +175,105 @@
             </div>
         </div>
     </div>
+    {{-- MODAL INVITACIÓN --}}
+    @if($showInvitationModal)
+    <div wire:click.self="closeInvitationModal"
+        class="fixed inset-0 z-[70] flex items-center justify-center
+           bg-black/40 backdrop-blur-[2px] p-4">
+        <div role="dialog" aria-modal="true"
+            class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30
+               shadow-[0_8px_32px_rgba(0,0,0,0.12)] w-full max-w-sm flex flex-col overflow-hidden">
+
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-outline-variant/20">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-primary/10 text-primary
+                            flex items-center justify-center border border-primary/20">
+                        <span class="material-symbols-outlined text-[16px]">person_add</span>
+                    </div>
+                    <h2 class="text-[15px] font-semibold text-on-surface">Invitar cliente</h2>
+                </div>
+                <button wire:click="closeInvitationModal" aria-label="Cerrar"
+                    class="w-7 h-7 flex items-center justify-center rounded-lg
+                       bg-surface-container border border-outline-variant/20
+                       text-on-surface-variant hover:bg-surface-container-high
+                       transition-colors duration-150">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Body --}}
+            <div class="p-5 flex flex-col gap-4">
+
+                {{-- Enlace generado --}}
+                @if($generatedLink)
+                <div class="flex flex-col gap-2">
+                    <p class="text-[12px] font-semibold text-on-surface-variant">Enlace generado — válido por 7 días</p>
+                    <div class="flex items-center gap-2 bg-surface-container border border-outline-variant/30 rounded-xl px-3 py-2.5">
+                        <code class="text-xs text-on-surface break-all flex-1 select-all">{{ $generatedLink }}</code>
+                        <button
+                            x-data
+                            x-on:click="navigator.clipboard.writeText('{{ $generatedLink }}').then(() => window.dispatchEvent(new CustomEvent('notify', { detail: { message: 'Enlace copiado al portapapeles', type: 'success' } })))"
+                            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-white
+                               text-xs font-semibold hover:bg-primary/90 transition shrink-0">
+                            <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                            Copiar
+                        </button>
+                    </div>
+                </div>
+                <hr class="border-outline-variant/20">
+                @endif
+
+                {{-- Formulario --}}
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[11.5px] font-semibold text-on-surface-variant">
+                        Correo del cliente <span class="text-error">*</span>
+                    </label>
+                    <input wire:model="invitationEmail" type="email"
+                        placeholder="cliente@ejemplo.com"
+                        class="w-full bg-surface-container border rounded-xl px-3 py-2.5
+                           text-[13px] text-on-surface placeholder:text-on-surface-variant/50
+                           outline-none transition-all duration-150
+                           {{ $errors->has('invitationEmail')
+                               ? 'border-error/60 focus:ring-2 focus:ring-error/20'
+                               : 'border-outline-variant/30 focus:ring-2 focus:ring-primary/20' }}" />
+                    @error('invitationEmail')
+                    <p class="text-[11.5px] text-error">{{ $message }}</p>
+                    @enderror
+                    <p class="text-[11px] text-on-surface-variant/60 leading-snug">
+                        El correo quedará registrado en el historial de invitaciones.
+                    </p>
+                </div>
+            </div>
+
+            {{-- Footer --}}
+            <div class="flex items-center justify-end gap-2 px-5 py-4 border-t border-outline-variant/20">
+                <button wire:click="closeInvitationModal"
+                    class="inline-flex items-center px-4 py-2 rounded-xl text-[13px] font-semibold
+                       bg-surface-container border border-outline-variant/20 text-on-surface-variant
+                       hover:bg-surface-container-high transition-colors duration-150">
+                    Cerrar
+                </button>
+                <button wire:click="generateInvitation" wire:loading.attr="disabled" wire:target="generateInvitation"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold
+                       bg-primary text-white hover:bg-primary/90
+                       disabled:opacity-50 transition-colors duration-150">
+                    <span wire:loading.remove wire:target="generateInvitation" class="inline-flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[15px]">link</span>
+                        Generar enlace
+                    </span>
+                    <span wire:loading wire:target="generateInvitation" class="inline-flex items-center gap-1.5">
+                        <svg class="animate-spin w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
+                            <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"
+                                stroke-dasharray="20" stroke-dashoffset="10" stroke-linecap="round" />
+                        </svg>
+                        Generando…
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>

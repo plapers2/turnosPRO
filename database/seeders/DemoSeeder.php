@@ -271,7 +271,24 @@ class DemoSeeder extends Seeder
             ]);
 
             $clientesCreados->push($customerId);
+
+            DB::table('company_user')->insert([
+                'company_id' => $empresa->id,
+                'user_id'    => $userCliente->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
+
+        $clientePremium = User::create([
+            'name'              => 'Cliente Premium',
+            'email'             => 'premium.demo@gmail.com',
+            'password'          => Hash::make('12345'),
+            'phone'             => '3109990000',
+            'subscription_tier' => 'premium',
+            'image'             => null,
+        ]);
+        $clientePremium->assignRole('cliente');
 
         // ── 8. Citas de hoy (para dashboard) ────────────────
         $horasHoy = [8, 9, 10, 11, 12, 14, 15, 16, 17];
@@ -438,5 +455,7 @@ class DemoSeeder extends Seeder
         $this->command->info('   ana.cliente@gmail.com   / 12345');
         $this->command->info('   pedro.cliente@gmail.com / 12345');
         $this->command->info('   maria.cliente@gmail.com / 12345');
+        $this->command->info(' Cliente Premium (ve todas las empresas):');
+        $this->command->info('   premium.demo@gmail.com  / 12345');
     }
 }

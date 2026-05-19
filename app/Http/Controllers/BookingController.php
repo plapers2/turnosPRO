@@ -25,24 +25,40 @@ class BookingController extends Controller
     // ─── PASO 1: Seleccionar empresa ────────────────────────────────────
     public function selectCompany(): View
     {
-        $tiposNegocio = TypeCompany::with(['companies' => function ($q) {
-            // Solo empresas que tienen al menos un servicio con un profesional (empleado)
-            // asignado a ESE servicio Y con disponibilidad semanal configurada
+        $user  = auth()->user();
+        $hasta = now()->addMonths(2);
+
+        $filtroEmpresas = function ($q) {
             $q->whereHas(
                 'services',
                 fn($s) =>
                 $s->whereHas(
                     'users',
                     fn($u) =>
-                    $u->whereHas(
-                        'roles',
-                        fn($r) =>
-                        $r->where('name', 'empleado')
-                    )
-                        ->whereHas('professionalAvailabilities')
+                    $u->whereHas('roles', fn($r) => $r->where('name', 'empleado'))
+                        ->whereHas('professionalAvailabilities') // solo que tenga horario configurado
                 )
             );
-        }])->get();
+        };
+
+        if ($user->isPremium()) {
+            $tiposNegocio = TypeCompany::with(['companies' => $filtroEmpresas])->get();
+        } else {
+            $companyIds = $user->companies()->pluck('companies.id');
+
+            $tiposNegocio = TypeCompany::with(['companies' => function ($q) use ($filtroEmpresas, $companyIds) {
+                $filtroEmpresas($q);
+                $q->whereIn('companies.id', $companyIds);
+            }])->get();
+        }
+
+        $tiposNegocio = $tiposNegocio
+            ->filter(fn($tipo) => $tipo->companies->isNotEmpty())
+            ->values();
+
+        if (!$user->isPremium() && $user->companies()->doesntExist()) {
+            return view('appointment.no-company');
+        }
 
         return view('appointment.index', compact('tiposNegocio'));
     }
@@ -201,7 +217,7 @@ class BookingController extends Controller
         ]);
     }
 
-    // ─── PASO 3 STORE: Guardar cita ─────────────────────────────────────
+    // ─── PASO 4 STORE: Guardar cita ─────────────────────────────────────
     public function store(Request $request): RedirectResponse
     {
         // \Log::info('Store iniciado', $request->all());
