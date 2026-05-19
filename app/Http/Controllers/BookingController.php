@@ -884,4 +884,24 @@ class BookingController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Cita cancelada correctamente.']);
     }
+    public function voucher(int $id)
+    {
+        $user        = auth()->user();
+        $appointment = Appointment::with(['customer', 'user', 'company', 'services'])
+            ->findOrFail($id);
+
+        $customerIds = Customer::where('user_id', $user->id)->pluck('id');
+        $esCliente   = $customerIds->contains($appointment->customer_id);
+        $esAdmin     = $user->hasRole('admin') && $user->companies()->where('companies.id', $appointment->company_id)->exists();
+        $esEmpleado  = $user->hasRole('empleado') && $appointment->user_id === $user->id;
+
+        abort_unless($esCliente || $esAdmin || $esEmpleado, 403);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.appointment-voucher', [
+            'appt'        => $appointment,
+            'generado_en' => now()->format('d/m/Y H:i'),
+        ])->setPaper([0, 0, 400, 600], 'portrait');
+
+        return $pdf->stream('comprobante-cita-' . $appointment->id . '.pdf');
+    }
 }

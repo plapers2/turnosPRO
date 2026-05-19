@@ -66,6 +66,11 @@ Route::middleware(['auth', 'password.changed'])->group(function () {
     // Perfil
     Route::get('/settings', [ProfileSettingsController::class, 'edit'])->name('profile.settings');
     Route::put('/settings', [ProfileSettingsController::class, 'update'])->name('profile.settings.update');
+
+    // Comprobante PDF de cita
+    Route::get('/appointments/{id}/voucher', [BookingController::class, 'voucher'])
+        ->name('appointment.voucher')
+        ->middleware(['auth']);
 });
 
 

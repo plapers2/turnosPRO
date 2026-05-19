@@ -320,6 +320,17 @@
                        hover:bg-surface-container-high transition-colors duration-150">
                 Cerrar
             </button>
+            {{-- Comprobante PDF --}}
+            <a href="{{ route('appointment.voucher', $appt->id) }}" target="_blank"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold
+           bg-surface-container border border-outline-variant/20 text-on-surface-variant
+           hover:bg-surface-container-high transition-colors duration-150">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                    <path d="M4 1h6l3 3v9H1V1h3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                    <path d="M4 8h6M4 10.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                Comprobante
+            </a>
         </div>
     </div>
 </div>
