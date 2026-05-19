@@ -279,6 +279,10 @@
                                 <p id="dp-month-left" class="text-sm font-bold text-on-surface text-center"></p>
                                 <p id="dp-month-right" class="text-sm font-bold text-on-surface text-center hidden md:block"></p>
                             </div>
+                            {{-- Spinner de carga --}}
+                            <div id="dp-loading" class="hidden w-8 h-8 items-center justify-center">
+                                <span class="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></span>
+                            </div>
                             <button id="dp-next"
                                 class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-container transition text-on-surface-variant hover:text-primary">
                                 <span class="material-symbols-outlined text-[18px]">chevron_right</span>
@@ -609,6 +613,8 @@
                 if (loadingRange) return;
                 loadingRange = true;
 
+                document.getElementById('dp-loading')?.classList.remove('hidden');
+
                 const start = new Date();
                 const end = new Date();
                 end.setDate(end.getDate() + DAYS_AHEAD);
@@ -654,6 +660,7 @@
                     console.error('Error cargando disponibilidad', e);
                 } finally {
                     loadingRange = false;
+                    document.getElementById('dp-loading')?.classList.add('hidden');
                 }
             }
 
