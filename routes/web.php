@@ -18,6 +18,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TwoFactorSetupController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\ClientesMasterController;
 use App\Livewire\Dashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -95,6 +96,8 @@ Route::middleware(['auth', 'password.changed', 'role:master'])->prefix('master')
     Route::post('/admins', [AdminController::class, 'store'])->name('admins.store');
     Route::delete('/admins/{admin}', [AdminController::class, 'destroy'])->name('admins.destroy');
     Route::post('/admins/{id}/restore', [AdminController::class, 'restore'])->name('admins.restore');
+    Route::get('/clientes', [ClientesMasterController::class, 'index'])->name('clientes.index');
+    Route::patch('/clientes/{user}/toggle-plan', [ClientesMasterController::class, 'togglePlan'])->name('clientes.toggle-plan');
 });
 
 
@@ -112,6 +115,11 @@ Route::middleware(['auth', 'password.changed', 'role:cliente'])->group(function 
     Route::get('/my-appointments', [BookingController::class, 'misCitas'])->name('appointment.history');
     Route::post('/my-appointments/cancel/{id}', [BookingController::class, 'cancelFromPanel'])->name('appointments.cancelFromPanel');
     Route::get('/booking/validar-combinacion', [BookingController::class, 'validarCombinacion']);
+    Route::get('/appointments/new', [BookingController::class, 'unified'])->name('appointment.create');
+    Route::get('/booking/servicios-empresa', [BookingController::class, 'serviciosEmpresa'])->name('booking.serviciosEmpresa');
+    Route::get('/appointments/create', function () {
+        return view('appointment.create');
+    })->name('appointment.create');
 });
 
 
