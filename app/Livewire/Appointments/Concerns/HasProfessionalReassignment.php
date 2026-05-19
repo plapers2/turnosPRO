@@ -4,7 +4,9 @@ namespace App\Livewire\Appointments\Concerns;
 
 use App\Models\Appointment;
 use App\Models\AppointmentStatusLog;
+use App\Models\ProfessionalAvailability;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 trait HasProfessionalReassignment
 {
@@ -14,9 +16,6 @@ trait HasProfessionalReassignment
     public bool $loadingProfesionales = false;
     public string $reasignarRazon = '';
 
-    /**
-     * Fuerza el cast a int cuando Livewire recibe el valor del radio button (llega como string).
-     */
     public function updatedNuevoProfesionalId($value): void
     {
         $this->nuevoProfesionalId = $value !== null && $value !== '' ? (int) $value : null;
@@ -24,19 +23,19 @@ trait HasProfessionalReassignment
 
     public function cargarProfesionalesReasignar(int $appointmentId): void
     {
-        $this->reasignarAppointmentId = $appointmentId;
-        $this->nuevoProfesionalId     = null;
-        $this->reasignarRazon         = '';
-        $this->loadingProfesionales   = true;
+        $this->reasignarAppointmentId   = $appointmentId;
+        $this->nuevoProfesionalId       = null;
+        $this->reasignarRazon           = '';
+        $this->loadingProfesionales     = true;
         $this->profesionalesDisponibles = [];
 
         $appointment = Appointment::with(['services'])->findOrFail($appointmentId);
 
-        $serviceId  = $appointment->services()->first()?->id;
-        $companyId  = $appointment->company_id;
-        $inicio     = $appointment->start_time;
-        $fin        = $appointment->end_time;
-        $dayOfWeek  = $inicio->format('l');
+        $serviceId = $appointment->services()->first()?->id;
+        $companyId = $appointment->company_id;
+        $inicio    = $appointment->start_time->setTimezone(config('app.timezone'));
+        $fin       = $appointment->end_time->setTimezone(config('app.timezone'));
+        $dayOfWeek = $inicio->format('l');
 
         $this->profesionalesDisponibles = User::whereHas('companies', fn($q) =>
         $q->where('companies.id', $companyId))
@@ -66,9 +65,40 @@ trait HasProfessionalReassignment
             'reasignarRazon'     => 'nullable|string|max:500',
         ]);
 
-        $appointment = Appointment::findOrFail($this->reasignarAppointmentId);
+        $appointment = Appointment::with('services')->findOrFail($this->reasignarAppointmentId);
 
-        // Verificar conflicto en tiempo real (race condition)
+        $inicio    = $appointment->start_time->setTimezone(config('app.timezone'));
+        $fin       = $appointment->end_time->setTimezone(config('app.timezone'));
+        $dayOfWeek = $inicio->format('l');
+        $serviceId = $appointment->services()->first()?->id;
+
+        // ── 1. Validar disponibilidad horaria ────────────────────────────────
+        $tieneDisponibilidad = ProfessionalAvailability::where('user_id', $this->nuevoProfesionalId)
+            ->where('day_of_week', $dayOfWeek)
+            ->where('start_time', '<=', $inicio->format('H:i:s'))
+            ->where('end_time',   '>=', $fin->format('H:i:s'))
+            ->whereNull('deleted_at')
+            ->exists();
+
+        if (! $tieneDisponibilidad) {
+            $this->addError('nuevoProfesionalId', 'Este profesional no tiene disponibilidad para ese día y horario.');
+            return;
+        }
+
+        // ── 2. Validar que atiende el servicio ───────────────────────────────
+        if ($serviceId) {
+            $atiendeSrvicio = DB::table('service_user')
+                ->where('user_id', $this->nuevoProfesionalId)
+                ->where('service_id', $serviceId)
+                ->exists();
+
+            if (! $atiendeSrvicio) {
+                $this->addError('nuevoProfesionalId', 'Este profesional no está asignado al servicio de la cita.');
+                return;
+            }
+        }
+
+        // ── 3. Validar conflicto de citas (race condition) ───────────────────
         $conflicto = Appointment::where('user_id', $this->nuevoProfesionalId)
             ->where('id', '<>', $appointment->id)
             ->where('start_time', '<', $appointment->end_time)
@@ -91,7 +121,6 @@ trait HasProfessionalReassignment
             'reason'         => 'Profesional reasignado. ' . $this->reasignarRazon,
         ]);
 
-        // Refrescar el appt en el modal de detalle si el trait lo tiene
         if (property_exists($this, 'appt')) {
             $this->appt = $appointment->fresh(['customer', 'user', 'company', 'services', 'statusLogs']);
         }
