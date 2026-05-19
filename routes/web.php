@@ -115,6 +115,11 @@ Route::middleware(['auth', 'password.changed', 'role:cliente'])->group(function 
     Route::get('/my-appointments', [BookingController::class, 'misCitas'])->name('appointment.history');
     Route::post('/my-appointments/cancel/{id}', [BookingController::class, 'cancelFromPanel'])->name('appointments.cancelFromPanel');
     Route::get('/booking/validar-combinacion', [BookingController::class, 'validarCombinacion']);
+    Route::get('/appointments/new', [BookingController::class, 'unified'])->name('appointment.create');
+    Route::get('/booking/servicios-empresa', [BookingController::class, 'serviciosEmpresa'])->name('booking.serviciosEmpresa');
+    Route::get('/appointments/create', function () {
+        return view('appointment.create');
+    })->name('appointment.create');
 });
 
 

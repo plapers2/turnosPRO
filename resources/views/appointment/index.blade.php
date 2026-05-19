@@ -77,7 +77,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach ($tipo->companies as $company)
                     <a
-                        href="{{ route('appointments.selectServices', $company->id) }}"
+                        href="{{ route('appointment.create', ['company' => $company->id]) }}"
                         data-name="{{ strtolower($company->name) }}"
                         class="company-card group bg-surface-container-lowest rounded-xl flex flex-col shadow-[0_4px_20px_rgba(95,94,90,0.07)] hover:shadow-[0_8px_30px_rgba(95,94,90,0.13)] transition-all duration-300 hover:-translate-y-1 border border-outline-variant/10 hover:border-primary/30 cursor-pointer overflow-hidden">
                         <!-- Logo / Banner -->

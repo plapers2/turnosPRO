@@ -12,6 +12,7 @@ use App\Models\Customer;
 use App\Models\TypeCompany;
 use App\Models\Appointment;
 use App\Models\NotificationLog;
+use App\Traits\BookingChainTrait;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +23,7 @@ use Carbon\Carbon;
 
 class BookingController extends Controller
 {
+    use BookingChainTrait;
     // ─── PASO 1: Seleccionar empresa ────────────────────────────────────
     public function selectCompany(): View
     {
@@ -916,5 +918,102 @@ class BookingController extends Controller
         ])->setPaper([0, 0, 400, 600], 'portrait');
 
         return $pdf->stream('comprobante-cita-' . $appointment->id . '.pdf');
+    } 
+    // ─── Vista unificada ────────────────────────────────────────────────
+    public function unified(Request $request): View
+    {
+        $user = auth()->user();
+
+        if (!$user->isPremium() && $user->companies()->doesntExist()) {
+            return view('appointment.no-company');
+        }
+
+        if ($user->isPremium()) {
+            $tiposNegocio = TypeCompany::with(['companies' => function ($q) {
+                $q->whereHas(
+                    'services',
+                    fn($s) =>
+                    $s->whereHas(
+                        'users',
+                        fn($u) =>
+                        $u->whereHas('roles', fn($r) => $r->where('name', 'empleado'))
+                            ->whereHas('professionalAvailabilities')
+                    )
+                );
+            }])->get();
+        } else {
+            $companyIds = $user->companies()->pluck('companies.id');
+            $tiposNegocio = TypeCompany::with(['companies' => function ($q) use ($companyIds) {
+                $q->whereIn('companies.id', $companyIds)
+                    ->whereHas(
+                        'services',
+                        fn($s) =>
+                        $s->whereHas(
+                            'users',
+                            fn($u) =>
+                            $u->whereHas('roles', fn($r) => $r->where('name', 'empleado'))
+                                ->whereHas('professionalAvailabilities')
+                        )
+                    );
+            }])->get();
+        }
+
+        $tiposNegocio = $tiposNegocio
+            ->filter(fn($tipo) => $tipo->companies->isNotEmpty())
+            ->values();
+
+        // Citas próximas del cliente
+        $customerIds = \App\Models\Customer::where('user_id', $user->id)->pluck('id');
+        $proximas = Appointment::whereIn('customer_id', $customerIds)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where('start_time', '>=', now())
+            ->with(['services', 'user', 'company'])
+            ->orderBy('start_time')
+            ->take(4)
+            ->get();
+
+        $selectedCompany = null;
+        if ($request->company) {
+            $selectedCompany = Company::find($request->company);
+        }
+
+        return view('appointment.create', compact('tiposNegocio', 'proximas', 'selectedCompany'));
+    }
+
+    // ─── AJAX: Servicios de una empresa ─────────────────────────────────
+    public function serviciosEmpresa(Request $request): JsonResponse
+    {
+        $company = Company::findOrFail($request->company_id);
+
+        $services = $company->services()
+            ->whereHas(
+                'users',
+                fn($q) =>
+                $q->whereHas('roles', fn($r) => $r->where('name', 'empleado'))
+                    ->whereHas('professionalAvailabilities')
+            )
+            ->get(['id', 'name', 'description', 'duration', 'price', 'image']);
+
+        $availabilities = \DB::table('professional_availabilities')
+            ->whereIn('user_id', $company->users()->pluck('users.id'))
+            ->selectRaw('MIN(start_time) as hora_inicio, MAX(end_time) as hora_fin')
+            ->first();
+
+        return response()->json([
+            'services'    => $services,
+            'hora_inicio' => $availabilities->hora_inicio
+                ? Carbon::parse($availabilities->hora_inicio)->format('H:i')
+                : '08:00',
+            'hora_fin'    => $availabilities->hora_fin
+                ? Carbon::parse($availabilities->hora_fin)->format('H:i')
+                : '20:00',
+            'company'     => [
+                'id'      => $company->id,
+                'name'    => $company->name,
+                'address' => $company->address,
+                'phone'   => $company->phone,
+                'logo'    => $company->logo ? asset('storage/' . $company->logo) : null,
+            ],
+        ]);
     }
 }
