@@ -46,8 +46,6 @@ class DemoSeeder extends Seeder
             ['name' => 'Barbería El Navajero', 'email' => 'barberia@demo.com', 'phone' => '3022222222', 'address' => 'Calle 12 #8-45, Pereira', 'type' => $tipoBarberia],
         ];
 
-        $statuses = ['completed', 'completed', 'completed', 'confirmed', 'cancelled', 'pending'];
-
         foreach ($empresasExtra as $e) {
             $empresaExtra = Company::create([
                 'name'            => $e['name'],
@@ -105,13 +103,14 @@ class DemoSeeder extends Seeder
             }
 
             // 200 citas
+            $statusesPasadosExtra = ['completed', 'completed', 'completed', 'cancelled'];
             $horas = [9, 10, 11, 14, 15, 16];
             for ($i = 0; $i < 200; $i++) {
                 $servicio = $svcExtra->random();
                 $prof     = $profsExtra->random();
-                $inicio   = Carbon::now()->subDays(rand(0, 60))->setTime($horas[array_rand($horas)], 0);
+                $inicio  = Carbon::now()->subDays(rand(1, 60))->setTime($horas[array_rand($horas)], 0);
                 $fin      = $inicio->copy()->addMinutes($servicio->duration);
-                $status   = $statuses[array_rand($statuses)];
+                $status  = $statusesPasadosExtra[array_rand($statusesPasadosExtra)];
 
                 $apptId = DB::table('appointments')->insertGetId([
                     'start_time'              => $inicio,
@@ -283,9 +282,9 @@ class DemoSeeder extends Seeder
             ['status' => 'confirmed', 'prof' => 2, 'servicio' => $sTinte,    'cliente' => 0],
             ['status' => 'confirmed', 'prof' => 0, 'servicio' => $sManicure, 'cliente' => 1],
             ['status' => 'cancelled', 'prof' => 1, 'servicio' => $sCorte,    'cliente' => 2],
-            ['status' => 'pending',   'prof' => 0, 'servicio' => $sTinte,    'cliente' => 2],
-            ['status' => 'pending',   'prof' => 2, 'servicio' => $sMasaje,   'cliente' => 0],
-            ['status' => 'pending',   'prof' => 1, 'servicio' => $sCorte,    'cliente' => 1],
+            ['status' => 'confirmed', 'prof' => 0, 'servicio' => $sTinte,    'cliente' => 2],
+            ['status' => 'cancelled', 'prof' => 2, 'servicio' => $sMasaje,   'cliente' => 0],
+            ['status' => 'cancelled', 'prof' => 1, 'servicio' => $sCorte,    'cliente' => 1],
         ];
 
         foreach ($citasHoy as $idx => $cita) {
@@ -317,15 +316,16 @@ class DemoSeeder extends Seeder
             ]);
         }
         // ── 9. 300 CITAS ALEATORIAS — Salón Pura Perfección ─────────
+        $statusesPasados = ['completed', 'completed', 'completed', 'cancelled'];
         $serviciosPrincipales = collect([$sCorte, $sManicure, $sTinte, $sMasaje]);
         $horas = [9, 10, 11, 14, 15, 16];
 
         for ($i = 0; $i < 300; $i++) {
             $profRandom     = $profCreados->random();
             $servicioRandom = $serviciosPrincipales->random();
-            $inicio         = Carbon::now()->subDays(rand(0, 60))->setTime($horas[array_rand($horas)], 0);
+            $inicio         = Carbon::now()->subDays(rand(1, 60))->setTime($horas[array_rand($horas)], 0);
             $fin            = $inicio->copy()->addMinutes($servicioRandom->duration);
-            $status         = $statuses[array_rand($statuses)];
+            $status         = $statusesPasados[array_rand($statusesPasados)];
 
             $apptId = DB::table('appointments')->insertGetId([
                 'start_time'              => $inicio,
@@ -348,18 +348,17 @@ class DemoSeeder extends Seeder
                 'created_at'     => now(),
                 'updated_at'     => now(),
             ]);
-        } 
-        
+        }
+
         // ── 10. 70 Citas futuras (próximos 30 días) ─────────────────────────
-        $statusesFuturos = ['confirmed', 'confirmed', 'pending', 'pending', 'pending'];
         $serviciosPrincipales = collect([$sCorte, $sManicure, $sTinte, $sMasaje]);
 
         for ($i = 0; $i < 70; $i++) {
             $profRandom     = $profCreados->random();
             $servicioRandom = $serviciosPrincipales->random();
-            $inicio         = Carbon::now()->addDays(rand(1, 30))->setTime($horas[array_rand($horas)], 0);
+            $inicio = Carbon::now()->addDays(rand(1, 30))->setTime($horas[array_rand($horas)], 0);
             $fin            = $inicio->copy()->addMinutes($servicioRandom->duration);
-            $status         = $statusesFuturos[array_rand($statusesFuturos)];
+            $status         = 'confirmed';
 
             $apptId = DB::table('appointments')->insertGetId([
                 'start_time'              => $inicio,
