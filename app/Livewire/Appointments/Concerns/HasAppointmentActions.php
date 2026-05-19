@@ -4,6 +4,8 @@ namespace App\Livewire\Appointments\Concerns;
 
 use App\Models\Appointment;
 use App\Services\AppointmentNotifier;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
 
 trait HasAppointmentActions
 {
@@ -69,8 +71,9 @@ trait HasAppointmentActions
         $this->authorizeAppointmentAction($id);
 
         $appointment = Appointment::findOrFail($id);
+        $appointmentOutTime = Appointment::where('id', $id)->where('start_time', '<', now())->exists();
 
-        if ($appointment->start_time->diffInMinutes(now(), false) > -120) {
+        if ($appointment->start_time->diffInMinutes(now(), false) > -120 && !$appointmentOutTime) {
             $this->dispatch('notify', type: 'error', message: 'No es posible cancelar una cita con menos de 2 horas de antelacion.');
             return;
         }
