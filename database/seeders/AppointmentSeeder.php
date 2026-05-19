@@ -60,7 +60,7 @@ class AppointmentSeeder extends Seeder
                     'end_time'               => $endTime,
                     'cancellation_reason'    => null,
                     'payment_expires_at'     => '23:59:00',
-                    'status'                 => 'pending',
+                    'status'                 => 'confirmed',
                     'notes'                  => 'Cita de prueba generada por seeder',
                     'cancel_token'           => uniqid(),
                     'cancel_token_expires_at' => Carbon::now()->addDays(2),

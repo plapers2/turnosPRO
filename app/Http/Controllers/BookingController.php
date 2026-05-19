@@ -395,26 +395,33 @@ class BookingController extends Controller
         $start      = Carbon::parse($request->start);
         $end        = Carbon::parse($request->end);
         $serviceIds = (array) $request->services;
+        $empleadoId = $request->empleado_id;
 
         $cacheKey = 'disponibilidad_' . $companyId . '_' . implode('-', $serviceIds)
+            . '_' . ($empleadoId ?? 'all')
             . '_' . $start->format('Ymd') . '_' . $end->format('Ymd');
 
-        $data = Cache::remember($cacheKey, 120, function () use ($companyId, $serviceIds, $start, $end) {
+        $data = Cache::remember($cacheKey, 120, function () use ($companyId, $serviceIds, $start, $end, $empleadoId) {
             $services = Service::whereIn('id', $serviceIds)->orderBy('id')->get();
 
             if ($services->isEmpty() || $start >= $end) {
                 return ['citas' => [], 'disponibles' => [], 'totalProfesionales' => 0];
             }
 
-            $profesionales = User::whereHas('companies', fn($q) =>
+            $queryProfesionales = User::whereHas('companies', fn($q) =>
             $q->where('companies.id', $companyId))
-                ->whereHas('services', fn($q) =>
-                $q->whereIn('services.id', $serviceIds))
                 ->whereHas('roles', fn($q) =>
                 $q->where('name', 'empleado'))
-                ->with(['professionalAvailabilities', 'services'])
-                ->get();
+                ->with(['professionalAvailabilities', 'services']);
 
+            if ($empleadoId) {
+                $queryProfesionales->where('id', (int) $empleadoId);
+            } else {
+                $queryProfesionales->whereHas('services', fn($q) =>
+                $q->whereIn('services.id', $serviceIds));
+            }
+
+            $profesionales = $queryProfesionales->get();
             $horaMinGlobal = $profesionales->flatMap->professionalAvailabilities->min('start_time');
             $horaMaxGlobal = $profesionales->flatMap->professionalAvailabilities->max('end_time');
 
@@ -470,13 +477,46 @@ class BookingController extends Controller
                     $slotInicio = $cursor->copy();
                     $dayOfWeek  = $slotInicio->format('l');
 
-                    $combinaciones = $this->verificarCadenaConsecutiva(
-                        $services,
-                        $profesionales,
-                        $citasParseadas,
-                        $slotInicio,
-                        $dayOfWeek
-                    );
+                    if ($empleadoId && $profesionales->count() === 1) {
+                        $empleado = $profesionales->first();
+                        $cursor   = $slotInicio->copy();
+                        $puedeAtenderTodos = true;
+
+                        foreach ($services as $servicio) {
+                            $fin = $cursor->copy()->addMinutes($servicio->duration);
+
+                            $tieneServicio = $empleado->services->contains('id', $servicio->id);
+                            $tieneHorario  = $empleado->professionalAvailabilities->contains(
+                                fn($pa) =>
+                                $pa->day_of_week === $dayOfWeek
+                                    && $pa->start_time <= $cursor->format('H:i:s')
+                                    && $pa->end_time   >= $fin->format('H:i:s')
+                            );
+                            $tieneConflicto = $citasParseadas->contains(
+                                fn($c) =>
+                                $c['user_id'] === $empleado->id
+                                    && $c['start'] < $fin
+                                    && $c['end']   > $cursor
+                            );
+
+                            if (!$tieneServicio || !$tieneHorario || $tieneConflicto) {
+                                $puedeAtenderTodos = false;
+                                break;
+                            }
+
+                            $cursor = $fin;
+                        }
+
+                        $combinaciones = $puedeAtenderTodos ? 1 : 0;
+                    } else {
+                        $combinaciones = $this->verificarCadenaConsecutiva(
+                            $services,
+                            $profesionales,
+                            $citasParseadas,
+                            $slotInicio,
+                            $dayOfWeek
+                        );
+                    }
 
                     $slots[] = [
                         'fecha'       => $fecha,
@@ -907,7 +947,7 @@ class BookingController extends Controller
         ])->setPaper([0, 0, 400, 600], 'portrait');
 
         return $pdf->stream('comprobante-cita-' . $appointment->id . '.pdf');
-    } 
+    }
     // ─── Vista unificada ────────────────────────────────────────────────
     public function unified(Request $request): View
     {

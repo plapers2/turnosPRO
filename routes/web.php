@@ -150,6 +150,10 @@ Route::middleware(['auth', 'password.changed', 'role:admin|empleado'])->group(fu
         return view('appointment-manager.index');
     })->name('appointment-manager.index');
     Route::get('/professional-availability', [ProfessionalAvailabilityController::class, 'index'])->name('professional-availability.index');
+    Route::get('/appointments/new-for-client', function () {
+        return view('employee.appointment-create');
+    })->name('employee.appointment.create');
+    Route::get('/booking/citas-ocupadas', [BookingController::class, 'citasOcupadas']);
 });
 
 

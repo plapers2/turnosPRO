@@ -62,6 +62,12 @@
             </svg>
             <span>Calendario</span>
         </button>
+        <a href="{{ route('employee.appointment.create') }}"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition">
+            <span class="material-symbols-outlined text-[16px]">add</span>
+            Nueva cita
+        </a>
     </div>
+
 
 </header>
