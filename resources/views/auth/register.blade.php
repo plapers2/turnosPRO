@@ -2,6 +2,12 @@
     <form class="flex flex-col gap-5" method="POST" action="{{ route('register') }}">
         @csrf
 
+        {{-- Si es registro por invitación --}}
+        @if($token ?? null)
+        <input type="hidden" name="invitation_token" value="{{ $token }}">
+        <p class="alert-info">Estás registrándote por invitación. Solo tendrás acceso a los servicios de esta empresa.</p>
+        @endif
+
         {{-- Título --}}
         <div>
             <h2 class="text-lg font-semibold text-on-surface">Crear una cuenta</h2>

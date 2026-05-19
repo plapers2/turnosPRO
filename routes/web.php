@@ -16,6 +16,8 @@ use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\ProfessionalAvailabilityController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TwoFactorSetupController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\InvitationController;
 use App\Livewire\Dashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -123,6 +125,10 @@ Route::middleware(['auth', 'password.changed', 'role:admin'])->group(function ()
     Route::get('/appointments/export', [BookingController::class, 'exportView'])->name('appointments.export');
     Route::get('/appointments/export-pdf', [BookingController::class, 'exportPdf'])->name('appointments.export-pdf');
     Route::get('/notification-logs', [NotificationLogController::class, 'index'])->name('notification-logs.index');
+    Route::get('/invitations', [InvitationController::class, 'index'])->name('invitations.index');
+    Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
+    Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
+    Route::post('/invitations/{id}/restore', [InvitationController::class, 'restore'])->name('invitations.restore');
 });
 
 
@@ -139,8 +145,16 @@ Route::middleware(['auth', 'password.changed', 'role:admin|empleado'])->group(fu
 });
 
 
+// ─────────────────────────────────────────────
+// Rutas publicas
+// ─────────────────────────────────────────────
+
 // Cancelar cita desde email (pública con token)
 Route::get('/appointments/cancel/{token}', [BookingController::class, 'cancelByToken'])->name('appointments.cancel');
+
+Route::get('/register/{token}', [RegisteredUserController::class, 'create'])
+    ->middleware('guest')
+    ->name('register.invite');
 
 // Prueba todos los emails de una vez
 Route::get('/test-all-mails', function () {
