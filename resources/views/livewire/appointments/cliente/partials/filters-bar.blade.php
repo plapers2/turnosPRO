@@ -15,19 +15,16 @@
                    placeholder:text-on-surface-variant w-full" />
     </div>
 
-    {{-- Estado — opciones según tab --}}
+    {{-- Estado — solo visible en historial --}}
+    @if ($activeTab === 'historial')
     <select wire:model.live="filterStatus"
         class="h-9 bg-surface-container rounded-lg border border-outline-variant/20
-               px-3 text-sm text-on-surface outline-none cursor-pointer">
+           px-3 text-sm text-on-surface outline-none cursor-pointer">
         <option value="">Todos los estados</option>
-        @if ($activeTab === 'proximas')
-        <option value="pending">Pendiente</option>
-        <option value="confirmed">Confirmada</option>
-        @else
         <option value="completed">Completada</option>
         <option value="cancelled">Cancelada</option>
-        @endif
     </select>
+    @endif
 
     {{-- Rango de fechas --}}
     <div class="flex items-center gap-2">

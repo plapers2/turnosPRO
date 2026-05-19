@@ -13,15 +13,6 @@
                 'num' => 'text-primary',
             ],
             [
-                'label' => 'Pendientes',
-                'value' => $stats['pending'],
-                'icon' =>
-                    '<circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
-                'bg' => 'bg-[#FAEEDA]',
-                'text' => 'text-[#854F0B]',
-                'num' => 'text-[#854F0B]',
-            ],
-            [
                 'label' => 'Confirmadas',
                 'value' => $stats['confirmed'],
                 'icon' =>
