@@ -23,13 +23,20 @@ trait HasProfessionalReassignment
 
     public function cargarProfesionalesReasignar(int $appointmentId): void
     {
+        $appointment = Appointment::with(['services'])->findOrFail($appointmentId);
+
+        if ($appointment->start_time->diffInMinutes(now(), false) > -300) {
+            $this->dispatch('notify', type: 'error', message: 'No es posible reasignar un profesional con menos de 2 horas de antelacion.');
+            return;
+        }
+
         $this->reasignarAppointmentId   = $appointmentId;
         $this->nuevoProfesionalId       = null;
         $this->reasignarRazon           = '';
         $this->loadingProfesionales     = true;
         $this->profesionalesDisponibles = [];
 
-        $appointment = Appointment::with(['services'])->findOrFail($appointmentId);
+
 
         $serviceId = $appointment->services()->first()?->id;
         $companyId = $appointment->company_id;
@@ -60,12 +67,14 @@ trait HasProfessionalReassignment
 
     public function confirmarReasignacion(): void
     {
+
         $this->validate([
             'nuevoProfesionalId' => 'required|exists:users,id',
             'reasignarRazon'     => 'nullable|string|max:500',
         ]);
 
         $appointment = Appointment::with('services')->findOrFail($this->reasignarAppointmentId);
+
 
         $inicio    = $appointment->start_time->setTimezone(config('app.timezone'));
         $fin       = $appointment->end_time->setTimezone(config('app.timezone'));
