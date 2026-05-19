@@ -497,9 +497,11 @@ class AppointmentCreate extends Component
                 'hora'        => Carbon::parse($a->start_time)->format('h:i A'),
                 'hora_fin'    => Carbon::parse($a->end_time)->format('h:i A'),
                 'status'      => $a->status,
-                'cancellable' => $a->isCancellable() && now()->lt($a->start_time->subHours(2)),
-            ])
-            ->toArray();
+                'cancellable' => in_array($a->status, ['confirmed', 'pending'])
+                    && now()->lt($a->start_time->subHours(2)),
+                'direccion'   => $a->company->address ?? '',
+                'telefono'    => $a->company->phone ?? '',
+            ])->toArray();
     }
 
     private function resetFormulario(): void

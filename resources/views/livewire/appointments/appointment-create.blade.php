@@ -509,7 +509,7 @@
                                 </span>
                             </div>
 
-                            <div class="flex items-center gap-2 text-xs text-on-surface-variant mb-2">
+                            <div class="flex items-center gap-2 text-xs text-on-surface-variant mb-1">
                                 <span class="material-symbols-outlined text-[13px] text-primary/60">calendar_today</span>
                                 <span>{{ $cita['fecha'] }}</span>
                                 <span class="text-outline-variant">·</span>
@@ -517,10 +517,24 @@
                                 <span>{{ $cita['hora'] }}</span>
                             </div>
 
-                            <div class="flex items-center gap-2 text-xs text-on-surface-variant mb-3">
+                            <div class="flex items-center gap-2 text-xs text-on-surface-variant mb-1">
                                 <span class="material-symbols-outlined text-[13px] text-primary/60">person</span>
                                 <span>{{ $cita['profesional'] }}</span>
                             </div>
+
+                            @if(!empty($cita['direccion']))
+                            <div class="flex items-center gap-2 text-xs text-on-surface-variant mb-1">
+                                <span class="material-symbols-outlined text-[13px] text-primary/60">location_on</span>
+                                <span>{{ $cita['direccion'] }}</span>
+                            </div>
+                            @endif
+
+                            @if(!empty($cita['telefono']))
+                            <div class="flex items-center gap-2 text-xs text-on-surface-variant mb-3">
+                                <span class="material-symbols-outlined text-[13px] text-primary/60">call</span>
+                                <span>{{ $cita['telefono'] }}</span>
+                            </div>
+                            @endif
 
                             @if($cita['cancellable'])
                             <button

@@ -32,8 +32,22 @@
             && $appt->start_time->copy()->subHours(2)->gt(now());
             @endphp
             <tr class="border-b border-outline-variant/10 hover:bg-surface/40 transition-colors">
-                <td class="px-4 py-3 font-semibold text-primary text-[13px]">
-                    {{ $appt->company?->name }}
+                <td class="px-4 py-3">
+                    <p class="font-semibold text-primary text-[13px] leading-tight">
+                        {{ $appt->company?->name }}
+                    </p>
+                    @if($appt->company?->address)
+                    <p class="text-[11px] text-on-surface-variant mt-0.5 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[11px]">location_on</span>
+                        {{ $appt->company->address }}
+                    </p>
+                    @endif
+                    @if($appt->company?->phone)
+                    <p class="text-[11px] text-on-surface-variant flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[11px]">call</span>
+                        {{ $appt->company->phone }}
+                    </p>
+                    @endif
                 </td>
                 <td class="px-4 py-3">
                     <div class="flex flex-wrap gap-1">

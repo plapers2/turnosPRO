@@ -46,6 +46,12 @@
         <div class="flex flex-col gap-1 text-[12px] text-on-surface-variant">
             <span>📅 {{ $appt->start_time->isoFormat('ddd D MMM YYYY · H:mm') }}</span>
             <span>👤 {{ $appt->user?->name ?? 'Sin asignar' }}</span>
+            @if($appt->company?->address)
+            <span>📍 {{ $appt->company->address }}</span>
+            @endif
+            @if($appt->company?->phone)
+            <span>📞 {{ $appt->company->phone }}</span>
+            @endif
         </div>
 
         {{-- Acción --}}
