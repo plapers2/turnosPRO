@@ -2,6 +2,9 @@
 
 namespace App\Livewire\Appointments\Concerns;
 
+use App\Models\Service;
+use Illuminate\Support\Collection;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 
 trait HasFilters
@@ -22,7 +25,9 @@ trait HasFilters
     public string $filterDateTo       = '';
 
     #[Url(as: 'service', keep: false)]
-    public string  $filterService      = '';
+    public string $filterService      = '';
+
+    // ── Watchers ──────────────────────────────────────────────────────────────
 
     public function updatedSearch(): void
     {
@@ -54,6 +59,15 @@ trait HasFilters
             $this->filterProfessional = null;
         }
 
+        // Resetear servicio si el nuevo profesional no lo tiene
+        $this->filterService = '';
+
+        $this->resetPage();
+        $this->refreshCalendarEvents();
+    }
+
+    public function updatedFilterService(): void
+    {
         $this->resetPage();
         $this->refreshCalendarEvents();
     }
@@ -64,7 +78,7 @@ trait HasFilters
         $this->filterStatus   = '';
         $this->filterDateFrom = '';
         $this->filterDateTo   = '';
-        $this->filterService  = null;
+        $this->filterService  = '';
 
         if ($this->isAdmin) {
             $this->filterProfessional = null;
@@ -74,9 +88,26 @@ trait HasFilters
         $this->refreshCalendarEvents();
     }
 
-    public function updatedFilterService(): void
+    // ── Computed: servicios disponibles según profesional activo ─────────────
+    #[Computed]
+    public function filterableServices(): Collection
     {
-        $this->resetPage();
-        $this->refreshCalendarEvents();
+        $companyId = session('active_company_id');
+
+        $base = Service::query()
+            ->where('company_id', $companyId)
+            ->whereNull('deleted_at')
+            ->orderBy('name');
+
+        if ($this->isAdmin && ! empty($this->filterProfessional)) {
+            // Solo servicios del profesional seleccionado
+            $base->whereHas('users', fn($q) => $q->where('users.id', $this->filterProfessional));
+        } elseif (! $this->isAdmin) {
+            // Profesional no-admin → solo los suyos
+            $base->whereHas('users', fn($q) => $q->where('users.id', auth()->id()));
+        }
+        // Admin sin filtro → todos los de la empresa
+
+        return $base->get(['id', 'name', 'duration']);
     }
 }

@@ -27,13 +27,13 @@ class Manager extends Component
     use HasFilters,
         HasAvailabilitySlots {
         // ── filterService ──────────────────────────────────────────────────
-        HasFilters::updatedFilterService         insteadof HasAvailabilitySlots;
-        HasFilters::updatedFilterService         as updatedFilterServiceFilters;
+        HasFilters::updatedFilterService           insteadof HasAvailabilitySlots;
+        HasFilters::updatedFilterService           as updatedFilterServiceFilters;
         HasAvailabilitySlots::updatedFilterService as updatedFilterServiceAvailability;
 
         // ── filterProfessional ─────────────────────────────────────────────
-        HasFilters::updatedFilterProfessional         insteadof HasAvailabilitySlots;
-        HasFilters::updatedFilterProfessional         as updatedFilterProfessionalFilters;
+        HasFilters::updatedFilterProfessional           insteadof HasAvailabilitySlots;
+        HasFilters::updatedFilterProfessional           as updatedFilterProfessionalFilters;
         HasAvailabilitySlots::updatedFilterProfessional as updatedFilterProfessionalAvailability;
     }
 
@@ -47,7 +47,8 @@ class Manager extends Component
     }
 
     /**
-     * Ejecuta ambos watchers en secuencia al cambiar el servicio.
+     * Al cambiar servicio: resetear paginación + calendario (HasFilters)
+     * y sincronizar slotMinutes (HasAvailabilitySlots).
      */
     public function updatedFilterService($value): void
     {
@@ -56,8 +57,8 @@ class Manager extends Component
     }
 
     /**
-     * Ejecuta ambos watchers en secuencia al cambiar el profesional.
-     * HasAvailabilitySlots resetea filterService y slotMinutes.
+     * Al cambiar profesional: resetear paginación + calendario (HasFilters)
+     * y resetear servicio/slotMinutes (HasAvailabilitySlots).
      */
     public function updatedFilterProfessional($value): void
     {
@@ -176,6 +177,8 @@ class Manager extends Component
             'availabilityDays'         => $this->availabilityDays(),
             'availabilitySummary'      => $this->availabilitySummary(),
             'availableServices'        => $this->availableServices(),
+            // ── Usado por la filterbar de lista y calendario ──
+            'filterableServices'       => $this->filterableServices(),
         ]);
     }
 }
