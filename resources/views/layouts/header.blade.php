@@ -12,43 +12,46 @@
     {{-- Breadcrumb --}}
     <nav class="hidden md:flex items-center gap-1.5 flex-1">
         @php
-        $translations = [
-        'professional-availability' => 'Disponibilidad de Profesionales',
-        'settings' => 'Configuración',
-        'dashboard' => 'Dashboard',
-        'appointment-manager' => 'Citas',
-        'appointment' => 'Citas',
-        'appointments' => 'Citas',
-        'users' => 'Profesionales',
-        'services' => 'Servicios',
-        'customers' => 'Clientes',
-        'companies' => 'Empresa',
-        'type-companies' => 'Tipos de empresa',
-        'opening-hours' => 'Horarios de atención',
-        'notification-logs' => 'Notificaciones',
-        'profile' => 'Perfil',
+            $translations = [
+                'professional-availability' => 'Disponibilidad de Profesionales',
+                'settings' => 'Configuración',
+                'dashboard' => 'Dashboard',
+                'appointment-manager' => 'Citas',
+                'appointment' => 'Citas',
+                'appointments' => 'Citas',
+                'users' => 'Profesionales',
+                'services' => 'Servicios',
+                'customers' => 'Clientes',
+                'companies' => 'Empresa',
+                'type-companies' => 'Tipos de empresa',
+                'opening-hours' => 'Horarios de atención',
+                'notification-logs' => 'Notificaciones',
+                'profile' => 'Perfil',
+                'new-for-client' => 'Nueva cita para el cliente',
+                'new' => 'Nueva cita',
+                'my-appointments' => 'Mis citas',
 
-        // Acciones
-        'create' => 'Crear',
-        'edit' => 'Editar',
-        'show' => 'Detalle',
-        'index' => 'Listado',
-        ];
+                // Acciones
+                'create' => 'Crear',
+                'edit' => 'Editar',
+                'show' => 'Detalle',
+                'index' => 'Listado',
+            ];
 
-        $combinedTranslations = [
-        'appointment/index' => 'Reservar cita',
-        'appointment/history' => 'Historial de citas',
-        'appointments/export' => 'Exportar citas',
-        'profile/settings' => 'Configuración de perfil',
-        ];
+            $combinedTranslations = [
+                'appointment/index' => 'Reservar cita',
+                'appointment/history' => 'Historial de citas',
+                'appointments/export' => 'Exportar citas',
+                'profile/settings' => 'Configuración de perfil',
+            ];
 
-        $rawSegments = collect(request()->segments())->filter(fn($s) => !is_numeric($s));
+            $rawSegments = collect(request()->segments())->filter(fn($s) => !is_numeric($s));
 
-        $combined = $rawSegments->values()->take(2)->implode('/');
+            $combined = $rawSegments->values()->take(2)->implode('/');
 
-        $segments = isset($combinedTranslations[$combined])
-        ? collect([$combinedTranslations[$combined]])
-        : $rawSegments->map(fn($s) => $translations[$s] ?? ucfirst(str_replace('-', ' ', $s)));
+            $segments = isset($combinedTranslations[$combined])
+                ? collect([$combinedTranslations[$combined]])
+                : $rawSegments->map(fn($s) => $translations[$s] ?? ucfirst(str_replace('-', ' ', $s)));
         @endphp
 
         {{-- Home --}}
@@ -62,13 +65,13 @@
         </a>
 
         @foreach ($segments as $segment)
-        <span style="color: #d6c3b3; font-size: 13px; font-weight: 300;">/</span>
-        @if ($loop->last)
-        <span class="text-[12px] font-semibold px-[10px] py-[3px] rounded-full"
-            style="background: #f6f3ee; color: #2d1f15;">{{ $segment }}</span>
-        @else
-        <span class="text-[12.5px]" style="color: #a08070;">{{ $segment }}</span>
-        @endif
+            <span style="color: #d6c3b3; font-size: 13px; font-weight: 300;">/</span>
+            @if ($loop->last)
+                <span class="text-[12px] font-semibold px-[10px] py-[3px] rounded-full"
+                    style="background: #f6f3ee; color: #2d1f15;">{{ $segment }}</span>
+            @else
+                <span class="text-[12.5px]" style="color: #a08070;">{{ $segment }}</span>
+            @endif
         @endforeach
     </nav>
 
@@ -76,56 +79,56 @@
     <div class="flex items-center gap-2 ml-auto">
 
         @php
-        $nameParts = explode(' ', trim(auth()->user()->name));
-        $initials = strtoupper(substr($nameParts[0], 0, 1));
-        if (count($nameParts) > 1) {
-        $initials .= strtoupper(substr(end($nameParts), 0, 1));
-        }
-        $userRole = auth()->user()->getRoleNames()->first() ?? 'Usuario';
-        $companyId = session('active_company_id');
-        $activeCompany = $companyId ? \App\Models\Company::find($companyId) : null;
+            $nameParts = explode(' ', trim(auth()->user()->name));
+            $initials = strtoupper(substr($nameParts[0], 0, 1));
+            if (count($nameParts) > 1) {
+                $initials .= strtoupper(substr(end($nameParts), 0, 1));
+            }
+            $userRole = auth()->user()->getRoleNames()->first() ?? 'Usuario';
+            $companyId = session('active_company_id');
+            $activeCompany = $companyId ? \App\Models\Company::find($companyId) : null;
         @endphp
 
         {{-- Empresa activa --}}
         @if ($activeCompany)
-        <div class="hidden sm:flex items-center gap-2 pl-[5px] pr-3 py-[5px] rounded-[12px]
+            <div class="hidden sm:flex items-center gap-2 pl-[5px] pr-3 py-[5px] rounded-[12px]
                         border transition-all cursor-default"
-            style="background: #fff; border-color: #e8ddd5;"
-            onmouseover="this.style.background='#f6f3ee'; this.style.borderColor='#d6c3b3'"
-            onmouseout="this.style.background='#fff'; this.style.borderColor='#e8ddd5'">
-            @if ($activeCompany->logo)
-            <img src="{{ asset('storage/' . $activeCompany->logo) }}"
-                class="w-[26px] h-[26px] rounded-[7px] object-cover flex-shrink-0" />
-            @else
-            <div class="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center flex-shrink-0"
-                style="background: #ffdcbe;">
-                <span class="material-symbols-outlined text-[13px]" style="color: #663a00;">business</span>
+                style="background: #fff; border-color: #e8ddd5;"
+                onmouseover="this.style.background='#f6f3ee'; this.style.borderColor='#d6c3b3'"
+                onmouseout="this.style.background='#fff'; this.style.borderColor='#e8ddd5'">
+                @if ($activeCompany->logo)
+                    <img src="{{ asset('storage/' . $activeCompany->logo) }}"
+                        class="w-[26px] h-[26px] rounded-[7px] object-cover flex-shrink-0" />
+                @else
+                    <div class="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center flex-shrink-0"
+                        style="background: #ffdcbe;">
+                        <span class="material-symbols-outlined text-[13px]" style="color: #663a00;">business</span>
+                    </div>
+                @endif
+                <div class="flex flex-col leading-tight">
+                    <span class="text-[9px] font-bold uppercase tracking-widest" style="color: #a08070;">Empresa
+                        activa</span>
+                    <span class="text-[12px] font-semibold max-w-[110px] truncate" style="color: #2d1f15;">
+                        {{ $activeCompany->name }}
+                    </span>
+                </div>
             </div>
-            @endif
-            <div class="flex flex-col leading-tight">
-                <span class="text-[9px] font-bold uppercase tracking-widest" style="color: #a08070;">Empresa
-                    activa</span>
-                <span class="text-[12px] font-semibold max-w-[110px] truncate" style="color: #2d1f15;">
-                    {{ $activeCompany->name }}
-                </span>
-            </div>
-        </div>
 
-        <div class="hidden sm:block w-px h-5" style="background: #e8ddd5;"></div>
+            <div class="hidden sm:block w-px h-5" style="background: #e8ddd5;"></div>
         @endif
 
         {{-- Notificaciones --}}
         @can('ver historial de notificaciones')
-        <a href="{{ route('notification-logs.index') }}"
-            class="relative w-[34px] h-[34px] rounded-[10px] flex items-center justify-center
+            <a href="{{ route('notification-logs.index') }}"
+                class="relative w-[34px] h-[34px] rounded-[10px] flex items-center justify-center
                        border border-transparent transition-all"
-            style="color: #a08070;"
-            onmouseover="this.style.background='#f6f3ee'; this.style.borderColor='#e8ddd5'; this.style.color='#7a5a48'"
-            onmouseout="this.style.background='transparent'; this.style.borderColor='transparent'; this.style.color='#a08070'">
-            <span class="material-symbols-outlined text-[19px]">notifications</span>
-            <span class="absolute top-[7px] right-[7px] w-[7px] h-[7px] rounded-full"
-                style="background: #c0513a; border: 2px solid #fcf9f3;"></span>
-        </a>
+                style="color: #a08070;"
+                onmouseover="this.style.background='#f6f3ee'; this.style.borderColor='#e8ddd5'; this.style.color='#7a5a48'"
+                onmouseout="this.style.background='transparent'; this.style.borderColor='transparent'; this.style.color='#a08070'">
+                <span class="material-symbols-outlined text-[19px]">notifications</span>
+                <span class="absolute top-[7px] right-[7px] w-[7px] h-[7px] rounded-full"
+                    style="background: #c0513a; border: 2px solid #fcf9f3;"></span>
+            </a>
         @endcan
 
         {{-- Avatar + Dropdown --}}
@@ -142,14 +145,14 @@
 
                 {{-- Avatar --}}
                 @if (auth()->user()->image)
-                <img src="{{ asset('storage/' . auth()->user()->image) }}"
-                    class="w-[32px] h-[32px] rounded-[10px] object-cover flex-shrink-0" />
+                    <img src="{{ asset('storage/' . auth()->user()->image) }}"
+                        class="w-[32px] h-[32px] rounded-[10px] object-cover flex-shrink-0" />
                 @else
-                <div class="w-[32px] h-[32px] rounded-[10px] flex items-center justify-center
+                    <div class="w-[32px] h-[32px] rounded-[10px] flex items-center justify-center
                                 text-[12px] font-bold flex-shrink-0"
-                    style="background: #ffdcbe; color: #663a00; letter-spacing: 0.5px;">
-                    {{ $initials }}
-                </div>
+                        style="background: #ffdcbe; color: #663a00; letter-spacing: 0.5px;">
+                        {{ $initials }}
+                    </div>
                 @endif
 
                 <div class="hidden sm:flex flex-col leading-tight text-left">
@@ -178,14 +181,14 @@
                 <div class="px-4 py-[13px] flex items-center gap-3"
                     style="background: #faf7f4; border-bottom: 1px solid #f0e8e1;">
                     @if (auth()->user()->image)
-                    <img src="{{ asset('storage/' . auth()->user()->image) }}"
-                        class="w-[40px] h-[40px] rounded-[11px] object-cover flex-shrink-0" />
+                        <img src="{{ asset('storage/' . auth()->user()->image) }}"
+                            class="w-[40px] h-[40px] rounded-[11px] object-cover flex-shrink-0" />
                     @else
-                    <div class="w-[40px] h-[40px] rounded-[11px] flex items-center justify-center
+                        <div class="w-[40px] h-[40px] rounded-[11px] flex items-center justify-center
                                     text-[14px] font-bold flex-shrink-0"
-                        style="background: #ffdcbe; color: #663a00;">
-                        {{ $initials }}
-                    </div>
+                            style="background: #ffdcbe; color: #663a00;">
+                            {{ $initials }}
+                        </div>
                     @endif
                     <div class="flex flex-col min-w-0">
                         <p class="text-[13px] font-semibold truncate m-0" style="color: #2d1f15;">
@@ -206,28 +209,28 @@
 
                 {{-- Empresa activa --}}
                 @if ($activeCompany)
-                <div class="px-4 py-[10px] flex items-center gap-[10px]" style="border-bottom: 1px solid #f0e8e1;">
-                    @if ($activeCompany->logo)
-                    <img src="{{ asset('storage/' . $activeCompany->logo) }}"
-                        class="w-[32px] h-[32px] rounded-[9px] object-cover flex-shrink-0" />
-                    @else
-                    <div class="w-[32px] h-[32px] rounded-[9px] flex items-center justify-center flex-shrink-0"
-                        style="background: #ffdcbe;">
-                        <span class="material-symbols-outlined text-[14px]"
-                            style="color: #663a00;">business</span>
-                    </div>
-                    @endif
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-[9px] font-bold uppercase tracking-widest" style="color: #a08070;">Empresa
-                            activa</span>
-                        <span class="text-[12px] font-semibold truncate"
-                            style="color: #2d1f15;">{{ $activeCompany->name }}</span>
-                        @if ($activeCompany->typeCompany)
-                        <span class="text-[10.5px]"
-                            style="color: #a08070;">{{ $activeCompany->typeCompany->name }}</span>
+                    <div class="px-4 py-[10px] flex items-center gap-[10px]" style="border-bottom: 1px solid #f0e8e1;">
+                        @if ($activeCompany->logo)
+                            <img src="{{ asset('storage/' . $activeCompany->logo) }}"
+                                class="w-[32px] h-[32px] rounded-[9px] object-cover flex-shrink-0" />
+                        @else
+                            <div class="w-[32px] h-[32px] rounded-[9px] flex items-center justify-center flex-shrink-0"
+                                style="background: #ffdcbe;">
+                                <span class="material-symbols-outlined text-[14px]"
+                                    style="color: #663a00;">business</span>
+                            </div>
                         @endif
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-[9px] font-bold uppercase tracking-widest" style="color: #a08070;">Empresa
+                                activa</span>
+                            <span class="text-[12px] font-semibold truncate"
+                                style="color: #2d1f15;">{{ $activeCompany->name }}</span>
+                            @if ($activeCompany->typeCompany)
+                                <span class="text-[10.5px]"
+                                    style="color: #a08070;">{{ $activeCompany->typeCompany->name }}</span>
+                            @endif
+                        </div>
                     </div>
-                </div>
                 @endif
 
                 {{-- Links --}}

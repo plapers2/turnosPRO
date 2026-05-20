@@ -29,7 +29,7 @@ class ClienteDashboard extends Component
 
         // ── Citas próximas ──
         $upcoming = Appointment::whereIn('customer_id', $customerIds)
-            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED])
             ->where('start_time', '>=', $now)
             ->with(['services', 'user'])
             ->orderBy('start_time')
@@ -44,7 +44,6 @@ class ClienteDashboard extends Component
                 'status'   => $a->status,
                 'label'    => match ($a->status) {
                     Appointment::STATUS_CONFIRMED => 'Confirmada',
-                    Appointment::STATUS_PENDING   => 'Pendiente',
                     default                       => $a->status,
                 },
             ]);
@@ -76,7 +75,7 @@ class ClienteDashboard extends Component
         $completadas    = (clone $all)->where('status', Appointment::STATUS_COMPLETED)->count();
         $canceladas     = (clone $all)->where('status', Appointment::STATUS_CANCELLED)->count();
         $activas        = (clone $all)
-            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED])
             ->where('start_time', '>=', $now)
             ->count();
 
@@ -110,7 +109,7 @@ class ClienteDashboard extends Component
 
         // ── Próxima cita ──
         $nextAppointment = Appointment::whereIn('customer_id', $customerIds)
-            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED])
             ->where('start_time', '>=', $now)
             ->with('services')
             ->orderBy('start_time')

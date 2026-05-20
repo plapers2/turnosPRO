@@ -8,7 +8,7 @@
                     'wrap' => 'bg-primary-container text-on-primary-container',
                 ],
                 [
-                    'icon' => 'check_circle',
+                    'icon' => 'schedule',
                     'accent' => 'bg-[#0F6E56]',
                     'wrap' => 'bg-[#DDF4E8] text-[#0F6E56]',
                 ],
@@ -18,7 +18,7 @@
                     'wrap' => 'bg-error-container/60 text-on-error-container',
                 ],
                 [
-                    'icon' => 'schedule',
+                    'icon' => 'assignment_turned_in',
                     'accent' => 'bg-blue-600',
                     'wrap' => 'bg-blue-200 text-blue-700',
                 ],
