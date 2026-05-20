@@ -105,9 +105,6 @@ function appointmentsManager(companyId) {
 
         showRealtimeNotification(data) {
             const labels = {
-                pending: {
-                    text: "Nueva cita pendiente",
-                },
                 confirmed: { text: "Cita confirmada" },
                 cancelled: { text: "Cita cancelada" },
                 completed: { text: "Cita completada" },

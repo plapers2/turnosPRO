@@ -63,6 +63,13 @@
                                 {{ \Carbon\Carbon::parse($appt->end_time)->format('H:i') }}
                             </span>
                         </div>
+                        <div class="flex items-center gap-1.5 text-xs text-red-800">
+                            <span class="material-symbols-outlined text-red-500 text-sm">design_services</span>
+                            @foreach ($appt->services as $servicio)
+                                <span>{{ $servicio->name }}</span>
+                            @endforeach
+
+                        </div>
                     </div>
 
                 </div>

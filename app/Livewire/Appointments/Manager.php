@@ -83,7 +83,6 @@ class Manager extends Component
 
         return [
             'total'     => $counts->sum(),
-            'pending'   => $counts->get('pending',   0),
             'confirmed' => $counts->get('confirmed', 0),
             'cancelled' => $counts->get('cancelled', 0),
             'completed' => $counts->get('completed', 0),
@@ -118,6 +117,7 @@ class Manager extends Component
             Appointment::with([
                 'customer' => fn($q) => $q->withTrashed(),
                 'user'     => fn($q) => $q->withTrashed(),
+                'services' => fn($q) => $q->withTrashed()
             ])
         )
             ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))

@@ -77,13 +77,11 @@ class Appointment extends Model
 
     // ─── Status constants ─────────────────────────────────────────────────────
 
-    const STATUS_PENDING   = 'pending';
     const STATUS_CONFIRMED = 'confirmed';
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELLED = 'cancelled';
 
     const STATUSES = [
-        self::STATUS_PENDING,
         self::STATUS_CONFIRMED,
         self::STATUS_COMPLETED,
         self::STATUS_CANCELLED,
@@ -148,10 +146,6 @@ class Appointment extends Model
 
     // ─── Scopes ───────────────────────────────────────────────────────────────
 
-    public function scopePending($query)
-    {
-        return $query->where('status', self::STATUS_PENDING);
-    }
 
     public function scopeConfirmed($query)
     {
@@ -179,11 +173,6 @@ class Appointment extends Model
 
     public function isCancellable(): bool
     {
-        return in_array($this->status, [self::STATUS_PENDING, self::STATUS_CONFIRMED]);
-    }
-
-    public function isConfirmable(): bool
-    {
-        return $this->status === self::STATUS_PENDING;
+        return in_array($this->status, [self::STATUS_CONFIRMED]);
     }
 }
