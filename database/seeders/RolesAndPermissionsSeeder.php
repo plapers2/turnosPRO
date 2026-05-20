@@ -97,7 +97,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $customer->givePermissionTo([
             $verHistorialCitas,
             $reservarCitas,
-            $gestionarDashboard
         ]);
     }
 }
