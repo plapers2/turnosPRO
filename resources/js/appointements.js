@@ -11,13 +11,12 @@ function appointmentsManager(companyId) {
         init() {
             // Restaurar vista guardada
             const saved = localStorage.getItem("appt_view");
-            if (saved && ["list", "calendar"].includes(saved)) {
+            if (saved && ["list", "calendar", "availability"].includes(saved)) {
                 this.view = saved;
             }
 
             this.$watch("view", (val) => {
                 localStorage.setItem("appt_view", val);
-                // $wire puede no estar listo aún, usarlo de forma segura
                 if (typeof $wire !== "undefined") $wire.set("view", val);
                 if (val === "calendar") {
                     this.$nextTick(() =>
@@ -28,27 +27,29 @@ function appointmentsManager(companyId) {
                 }
             });
 
-            if (this.view === "calendar") {
-                this.$nextTick(() =>
-                    window.dispatchEvent(
-                        new CustomEvent("calendar-view-shown"),
-                    ),
-                );
-            }
-
-            // Sincronizar vista con Livewire una vez que esté listo
             document.addEventListener("livewire:initialized", () => {
-                // Sincronizar vista restaurada
+                // Sincronizar vista restaurada al inicio
                 const saved = localStorage.getItem("appt_view");
-                if (saved && ["list", "calendar"].includes(saved)) {
-                    Livewire.find(
-                        this.$el
-                            .closest("[wire\\:id]")
-                            ?.getAttribute("wire:id"),
-                    )?.set("view", saved);
+                if (
+                    saved &&
+                    ["list", "calendar", "availability"].includes(saved)
+                ) {
+                    const wireId = this.$el
+                        .closest("[wire\\:id]")
+                        ?.getAttribute("wire:id");
+                    Livewire.find(wireId)?.set("view", saved);
                 }
 
-                // Pasar eventos del calendario desde Livewire al JS
+                // sincronizar Alpine para que $watch se dispare y calendar-view-shown se emita
+                Livewire.hook("commit", ({ component, respond }) => {
+                    respond(() => {
+                        const newView = component.canonical?.view;
+                        if (newView && newView !== this.view) {
+                            this.view = newView;
+                        }
+                    });
+                });
+
                 Livewire.on("calendarEventsUpdated", ({ events }) => {
                     window.dispatchEvent(
                         new CustomEvent("calendar-events-updated", {
@@ -57,7 +58,6 @@ function appointmentsManager(companyId) {
                     );
                 });
 
-                // Suscribir a Reverb una vez que Livewire esté listo
                 this.subscribeToRealtime();
             });
         },

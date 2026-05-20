@@ -135,6 +135,7 @@ class Manager extends Component
     public function render()
     {
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
+
         return view('livewire.appointments.⚡manager', [
             'appointments'             => $this->appointments(),
             'stats'                    => $this->stats(),
@@ -143,8 +144,8 @@ class Manager extends Component
             'calendarEvents'           => $this->calendarEvents(),
             'isAdmin'                  => $this->isAdmin,
             'appointmentsForConfirmed' => $this->showConfirmAppointmentsForCompleted(),
-            'availabilityDays'         => $this->view === 'availability' ? $this->availabilityDays() : [],
-            'availabilitySummary'      => $this->view === 'availability' ? $this->availabilitySummary() : [],
+            'availabilityDays'         => $this->availabilityDays(),
+            'availabilitySummary'      => $this->availabilitySummary(),
         ]);
     }
 }

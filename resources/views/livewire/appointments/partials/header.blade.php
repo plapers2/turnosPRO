@@ -32,13 +32,13 @@
     <div
         class="flex items-center gap-1 rounded-xl border border-outline-variant/40
                 bg-surface-container p-1 shrink-0">
-        <button @click="view = 'list'"
-            :class="view === 'list'
-                ?
-                'bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/30' :
-                'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface border border-transparent'"
-            class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12.5px] font-semibold transition-all duration-150"
-            title="Vista lista">
+        <button wire:click="$set('view', 'list')" @class([
+            'flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12.5px] font-semibold transition-all duration-150',
+            'bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/30' =>
+                $view === 'list',
+            'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface border border-transparent' =>
+                $view !== 'list',
+        ]) title="Vista lista">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <rect x="1" y="3" width="14" height="2" rx="1" fill="currentColor" />
                 <rect x="1" y="7" width="14" height="2" rx="1" fill="currentColor" />
@@ -47,13 +47,13 @@
             <span>Lista</span>
         </button>
 
-        <button @click="view = 'calendar'"
-            :class="view === 'calendar'
-                ?
-                'bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/30' :
-                'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface border border-transparent'"
-            class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12.5px] font-semibold transition-all duration-150"
-            title="Vista calendario">
+        <button wire:click="$set('view', 'calendar')" @class([
+            'flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12.5px] font-semibold transition-all duration-150',
+            'bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/30' =>
+                $view === 'calendar',
+            'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface border border-transparent' =>
+                $view !== 'calendar',
+        ]) title="Vista calendario">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <rect x="1" y="2" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"
                     fill="none" />
@@ -65,7 +65,7 @@
 
         <button wire:click="$set('view', 'availability')" @class([
             'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-            'bg-indigo-600 text-white shadow-sm' => $view === 'availability',
+            'bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/30' => $view === 'availability',
             'text-gray-600 hover:bg-gray-100' => $view !== 'availability',
         ])>
             {{-- Ícono: cuadrícula con check --}}
