@@ -62,6 +62,27 @@
             </svg>
             <span>Calendario</span>
         </button>
+
+        <button wire:click="$set('view', 'availability')" @class([
+            'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+            'bg-indigo-600 text-white shadow-sm' => $view === 'availability',
+            'text-gray-600 hover:bg-gray-100' => $view !== 'availability',
+        ])>
+            {{-- Ícono: cuadrícula con check --}}
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2
+                 M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2
+                 m-6 9l2 2 4-4" />
+            </svg>
+            Disponibilidad
+            {{-- Badge verde si hay slots libres en la semana actual --}}
+            @if (isset($availabilitySummary['free_slots']) && $availabilitySummary['free_slots'] > 0)
+                <span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 rounded-full">
+                    {{ $availabilitySummary['free_slots'] }}
+                </span>
+            @endif
+        </button>
+
         <a href="{{ route('employee.appointment.create') }}"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition">
             <span class="material-symbols-outlined text-[16px]">add</span>

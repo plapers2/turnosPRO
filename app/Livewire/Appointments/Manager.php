@@ -4,6 +4,7 @@ namespace App\Livewire\Appointments;
 
 use App\Livewire\Appointments\Concerns\HasAppointmentActions;
 use App\Livewire\Appointments\Concerns\HasAuthorization;
+use App\Livewire\Appointments\Concerns\HasAvailabilitySlots; // ← RF-54
 use App\Livewire\Appointments\Concerns\HasCalendar;
 use App\Livewire\Appointments\Concerns\HasDetailModal;
 use App\Livewire\Appointments\Concerns\HasFilters;
@@ -24,10 +25,11 @@ class Manager extends Component
     use HasCalendar;
     use HasAppointmentActions;
     use HasProfessionalReassignment;
+    use HasAvailabilitySlots;
 
+    // 'list' | 'calendar' | 'availability'
     public string $view = 'list';
     public bool $showPendingBanner = true;
-
 
     public function updatedView(string $value): void
     {
@@ -134,13 +136,15 @@ class Manager extends Component
     {
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
         return view('livewire.appointments.⚡manager', [
-            'appointments'   => $this->appointments(),
-            'stats'          => $this->stats(),
-            'professionals'  => $this->professionals(),
-            'services'       => $this->services(),
-            'calendarEvents' => $this->calendarEvents(),
-            'isAdmin'        => $this->isAdmin,
-            'appointmentsForConfirmed' => $this->showConfirmAppointmentsForCompleted()
+            'appointments'             => $this->appointments(),
+            'stats'                    => $this->stats(),
+            'professionals'            => $this->professionals(),
+            'services'                 => $this->services(),
+            'calendarEvents'           => $this->calendarEvents(),
+            'isAdmin'                  => $this->isAdmin,
+            'appointmentsForConfirmed' => $this->showConfirmAppointmentsForCompleted(),
+            'availabilityDays'         => $this->view === 'availability' ? $this->availabilityDays() : [],
+            'availabilitySummary'      => $this->view === 'availability' ? $this->availabilitySummary() : [],
         ]);
     }
 }

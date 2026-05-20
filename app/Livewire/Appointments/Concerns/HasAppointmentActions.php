@@ -24,45 +24,12 @@ trait HasAppointmentActions
     public bool $hasAppointmentsForConfirmed = true;
     public array $appointmentForConfirmed = [];
 
-    // -- Confirmar
-    public function openConfirmModal(int $id): void
-    {
-        $this->authorizeAppointmentAction($id);
-        abort_if(Appointment::findOrFail($id)->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
 
-        $this->confirmTargetId    = $id;
-        $this->showConfirmConfirm = true;
-    }
 
     public function closeConfirmModal(): void
     {
         $this->showConfirmConfirm = false;
         $this->confirmTargetId   = null;
-    }
-
-    public function confirmAppointment(): void
-    {
-        if (! $this->confirmTargetId) return;
-        $this->authorizeAppointmentAction($this->confirmTargetId);
-
-        $appointment = Appointment::findOrFail($this->confirmTargetId);
-        abort_if($appointment->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
-
-        $appointment->update(['status' => 'confirmed', 'confirmed_by' => auth()->id()]);
-        $appointment->load(['customer' => fn($q) => $q->withTrashed(), 'user' => fn($q) => $q->withTrashed(), 'company', 'services' => fn($q) => $q->withTrashed()]);
-
-        app(AppointmentNotifier::class)->send('confirmed_by_employee', $appointment);
-
-        $this->closeConfirmModal();
-        $this->refreshSelectedAppt($appointment);
-        $this->refreshCalendarEvents();
-        $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
-    }
-
-    public function openConfirmAndClose(int $id): void
-    {
-        $this->openConfirmModal($id);
-        $this->closeModal();
     }
 
     // -- Cancelar
