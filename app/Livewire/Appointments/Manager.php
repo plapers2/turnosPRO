@@ -4,7 +4,7 @@ namespace App\Livewire\Appointments;
 
 use App\Livewire\Appointments\Concerns\HasAppointmentActions;
 use App\Livewire\Appointments\Concerns\HasAuthorization;
-use App\Livewire\Appointments\Concerns\HasAvailabilitySlots; // ← RF-54
+use App\Livewire\Appointments\Concerns\HasAvailabilitySlots;
 use App\Livewire\Appointments\Concerns\HasCalendar;
 use App\Livewire\Appointments\Concerns\HasDetailModal;
 use App\Livewire\Appointments\Concerns\HasFilters;
@@ -20,12 +20,22 @@ class Manager extends Component
 {
     use WithPagination;
     use HasAuthorization;
-    use HasFilters;
     use HasDetailModal;
     use HasCalendar;
     use HasAppointmentActions;
     use HasProfessionalReassignment;
-    use HasAvailabilitySlots;
+    use HasFilters,
+        HasAvailabilitySlots {
+        // ── filterService ──────────────────────────────────────────────────
+        HasFilters::updatedFilterService         insteadof HasAvailabilitySlots;
+        HasFilters::updatedFilterService         as updatedFilterServiceFilters;
+        HasAvailabilitySlots::updatedFilterService as updatedFilterServiceAvailability;
+
+        // ── filterProfessional ─────────────────────────────────────────────
+        HasFilters::updatedFilterProfessional         insteadof HasAvailabilitySlots;
+        HasFilters::updatedFilterProfessional         as updatedFilterProfessionalFilters;
+        HasAvailabilitySlots::updatedFilterProfessional as updatedFilterProfessionalAvailability;
+    }
 
     // 'list' | 'calendar' | 'availability'
     public string $view = 'list';
@@ -34,6 +44,25 @@ class Manager extends Component
     public function updatedView(string $value): void
     {
         $this->dispatch('viewChanged', view: $value);
+    }
+
+    /**
+     * Ejecuta ambos watchers en secuencia al cambiar el servicio.
+     */
+    public function updatedFilterService($value): void
+    {
+        $this->updatedFilterServiceFilters($value);
+        $this->updatedFilterServiceAvailability($value);
+    }
+
+    /**
+     * Ejecuta ambos watchers en secuencia al cambiar el profesional.
+     * HasAvailabilitySlots resetea filterService y slotMinutes.
+     */
+    public function updatedFilterProfessional($value): void
+    {
+        $this->updatedFilterProfessionalFilters($value);
+        $this->updatedFilterProfessionalAvailability($value);
     }
 
     private function baseQuery()
@@ -146,6 +175,7 @@ class Manager extends Component
             'appointmentsForConfirmed' => $this->showConfirmAppointmentsForCompleted(),
             'availabilityDays'         => $this->availabilityDays(),
             'availabilitySummary'      => $this->availabilitySummary(),
+            'availableServices'        => $this->availableServices(),
         ]);
     }
 }

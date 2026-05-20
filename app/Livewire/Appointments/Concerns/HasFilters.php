@@ -22,7 +22,7 @@ trait HasFilters
     public string $filterDateTo       = '';
 
     #[Url(as: 'service', keep: false)]
-    public ?int   $filterService      = null;
+    public string  $filterService      = '';
 
     public function updatedSearch(): void
     {

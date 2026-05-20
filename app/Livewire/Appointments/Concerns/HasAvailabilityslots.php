@@ -4,6 +4,8 @@ namespace App\Livewire\Appointments\Concerns;
 
 use App\Models\Appointment;
 use App\Models\OpeningHour;
+use App\Models\ProfessionalAvailability;
+use App\Models\Service;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Collection;
@@ -16,11 +18,12 @@ trait HasAvailabilitySlots
     /** 'week' | 'month' */
     public string $availabilityView = 'week';
 
-    /** Fecha base para calcular el rango (Y-m-d).  */
+    /** Fecha base para calcular el rango (Y-m-d). */
     public string $availabilityBaseDate = '';
 
-    /** Duración en minutos de cada slot a evaluar. */
+    /** Duración en minutos de cada slot. Se sincroniza desde el servicio seleccionado. */
     public int $slotMinutes = 30;
+
 
     // ── Boot ──────────────────────────────────────────────────────────────────
 
@@ -29,6 +32,33 @@ trait HasAvailabilitySlots
         if (empty($this->availabilityBaseDate)) {
             $this->availabilityBaseDate = now()->toDateString();
         }
+    }
+
+    // ── Watchers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Cuando el usuario elige un servicio, sincronizamos slotMinutes
+     * con la duración definida en el modelo Service.
+     */
+    public function updatedFilterService($value): void
+    {
+        if (!empty($value)) {
+            $service = Service::find($value);
+            $this->slotMinutes = $service?->duration ?? 30;
+        } else {
+            $this->slotMinutes = 30;
+        }
+    }
+
+    /**
+     * Cuando cambia el profesional, resetear el servicio seleccionado
+     * porque puede no pertenecer al nuevo profesional.
+     */
+    public function updatedFilterProfessional($value): void
+    {
+        $this->filterService = '';
+        $this->slotMinutes   = 30;
+        unset($this->availableServices);
     }
 
     // ── Navegación ────────────────────────────────────────────────────────────
@@ -71,6 +101,8 @@ trait HasAvailabilitySlots
         ];
     }
 
+    // ── Horarios ──────────────────────────────────────────────────────────────
+
     protected function getOpeningHoursMap(): Collection
     {
         $companyId = session('active_company_id');
@@ -78,32 +110,110 @@ trait HasAvailabilitySlots
         return OpeningHour::query()
             ->where('company_id', $companyId)
             ->get()
-            ->keyBy('day_of_week');   // índice por número de día ISO
+            ->keyBy('day_of_week');
     }
 
     /**
-     * Devuelve ['start' => 'HH:MM', 'end' => 'HH:MM'] para el día dado,
-     * o null si la empresa no trabaja ese día.
-     *
-     * @param  Carbon           $date
-     * @param  Collection|null  $hoursMap  (ya cargada para evitar N queries)
+     * Devuelve el mapa de disponibilidad del profesional activo (si aplica).
+     * Retorna null si no hay profesional específico (admin sin filtro).
      */
-    protected function getWorkingHours(Carbon $date, ?Collection $hoursMap = null): ?array
+    protected function getProfessionalAvailabilityMap(): ?Collection
     {
-        $hoursMap ??= $this->getOpeningHoursMap();
+        $userId = null;
 
+        if ($this->isAdmin && !empty($this->filterProfessional)) {
+            $userId = $this->filterProfessional;
+        } elseif (!$this->isAdmin) {
+            $userId = auth()->id();
+        }
+
+        if (!$userId) {
+            return null;
+        }
+
+        return ProfessionalAvailability::query()
+            ->where('user_id', $userId)
+            ->whereNull('deleted_at')
+            ->get()
+            ->keyBy('day_of_week');
+    }
+
+    /**
+     * Prioridad de horario:
+     *   1. ProfessionalAvailability del profesional para ese día
+     *   2. OpeningHour de la empresa para ese día
+     *   3. null → día no laboral
+     */
+    protected function getWorkingHours(Carbon $date, ?Collection $hoursMap = null, ?Collection $proMap = null): ?array
+    {
         $dayOfWeek = $date->format('l'); // 'Monday', 'Tuesday'…
 
+        // 1. Horario propio del profesional
+        if ($proMap && $proMap->has($dayOfWeek)) {
+            $record = $proMap->get($dayOfWeek);
+            return [
+                'start'  => substr($record->start_time, 0, 5),
+                'end'    => substr($record->end_time,   0, 5),
+                'source' => 'professional',
+            ];
+        }
+
+        // 2. Horario de la empresa como fallback
+        $hoursMap ??= $this->getOpeningHoursMap();
         $record = $hoursMap->get($dayOfWeek);
 
-        if (! $record) {
+        if (!$record) {
             return null;
         }
 
         return [
-            'start' => substr($record->start_time, 0, 5),
-            'end'   => substr($record->end_time,   0, 5),
+            'start'  => substr($record->start_time, 0, 5),
+            'end'    => substr($record->end_time,   0, 5),
+            'source' => 'company',
         ];
+    }
+
+    // ── Servicios de la empresa ───────────────────────────────────────────────
+
+    /**
+     * Lista de servicios filtrada según el contexto:
+     * - Admin con profesional seleccionado → servicios de ese profesional
+     * - Admin sin profesional              → todos los servicios de la empresa
+     * - Profesional no-admin               → solo sus propios servicios
+     */
+    #[Computed]
+    public function availableServices(): Collection
+    {
+        $companyId = session('active_company_id');
+
+        $base = Service::query()
+            ->where('company_id', $companyId)
+            ->whereNull('deleted_at')
+            ->orderBy('name');
+
+        if ($this->isAdmin && !empty($this->filterProfessional)) {
+            // Servicios del profesional seleccionado
+            $base->whereHas('users', fn($q) => $q->where('users.id', $this->filterProfessional));
+        } elseif (!$this->isAdmin) {
+            // Profesional no-admin → solo los suyos
+            $base->whereHas('users', fn($q) => $q->where('users.id', auth()->id()));
+        }
+        // Admin sin filtro → todos los de la empresa (sin whereHas adicional)
+
+        return $base->get(['id', 'name', 'duration']);
+    }
+
+    /**
+     * Devuelve el servicio actualmente seleccionado (o null).
+     */
+    #[Computed]
+    public function selectedService(): ?Service
+    {
+        if (empty($this->filterService)) {
+            return null;
+        }
+
+        return Service::find($this->filterService);
     }
 
     // ── Consulta de citas del rango ───────────────────────────────────────────
@@ -119,14 +229,20 @@ trait HasAvailabilitySlots
                 $from->copy()->startOfDay(),
                 $to->copy()->endOfDay(),
             ])
+            // Filtro por profesional (admin con filterProfessional)
             ->when(
-                $this->isAdmin && ! empty($this->filterProfessional),
+                $this->isAdmin && !empty($this->filterProfessional),
                 fn($q) => $q->where('user_id', $this->filterProfessional)
             )
+            // Profesional no-admin solo ve sus propias citas
             ->when(
-                ! $this->isAdmin,
+                !$this->isAdmin,
                 fn($q) => $q->where('user_id', auth()->id())
             )
+            // ── NO filtramos por servicio aquí ────────────────────────────────
+            // El profesional está ocupado aunque la cita sea de otro servicio.
+            // filterService solo afecta slotMinutes (duración del slot).
+            // ─────────────────────────────────────────────────────────────────
             ->get();
     }
 
@@ -138,11 +254,12 @@ trait HasAvailabilitySlots
         ['start' => $from, 'end' => $to] = $this->availabilityDateRange();
 
         $appointments = $this->appointmentsInRange($from, $to);
-        $hoursMap     = $this->getOpeningHoursMap(); // ← una sola query para todo el rango
+        $hoursMap     = $this->getOpeningHoursMap();
+        $proMap       = $this->getProfessionalAvailabilityMap();
         $days         = [];
 
         foreach (CarbonPeriod::create($from, $to) as $day) {
-            $hours = $this->getWorkingHours($day, $hoursMap);
+            $hours = $this->getWorkingHours($day, $hoursMap, $proMap);
 
             if (is_null($hours)) {
                 $days[] = [
@@ -159,7 +276,7 @@ trait HasAvailabilitySlots
                 continue;
             }
 
-            // Generar todos los slots del día.
+            // Generar todos los slots del día
             $slots    = [];
             $cursor   = Carbon::parse($day->toDateString() . ' ' . $hours['start']);
             $dayEnd   = Carbon::parse($day->toDateString() . ' ' . $hours['end']);
@@ -178,8 +295,9 @@ trait HasAvailabilitySlots
                 });
 
                 $slots[] = [
-                    'time' => $cursor->format('H:i'),
-                    'free' => ! $busy,
+                    'time'     => $cursor->format('H:i'),
+                    'time_end' => $slotEnd->format('H:i'),
+                    'free'     => !$busy,
                 ];
 
                 $cursor->addMinutes($this->slotMinutes);
@@ -218,7 +336,7 @@ trait HasAvailabilitySlots
     #[Computed]
     public function availabilitySummary(): array
     {
-        $days = $this->availabilityDays; // usar la propiedad computada cacheada, no el método
+        $days = $this->availabilityDays;
 
         $workingDays = collect($days)->where('is_working_day', true);
         $totalSlots  = $workingDays->sum('total_slots');
@@ -235,6 +353,8 @@ trait HasAvailabilitySlots
             'full_days'     => $fullDays,
             'avail_days'    => $availDays,
             'period_label'  => $this->availabilityPeriodLabel(),
+            'slot_minutes'  => $this->slotMinutes,
+            'service_name'  => $this->selectedService?->name,
         ];
     }
 
