@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('notification_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('appointment_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('delay_notification_id')->nullable()->constrained('delay_notifications')->nullOnDelete();
             $table->string('type');
             $table->string('recipient_email');
             $table->enum('status', ['sent', 'error'])->default('sent');

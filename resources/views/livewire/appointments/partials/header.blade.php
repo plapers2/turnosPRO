@@ -65,7 +65,8 @@
 
         <button wire:click="$set('view', 'availability')" @class([
             'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-            'bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/30' => $view === 'availability',
+            'bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/30' =>
+                $view === 'availability',
             'text-gray-600 hover:bg-gray-100' => $view !== 'availability',
         ])>
             {{-- Ícono: cuadrícula con check --}}
@@ -82,6 +83,20 @@
                 </span>
             @endif
         </button>
+
+        @if ($isAdmin)
+            <button wire:click="openDelayModal"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl
+           bg-[#FAEEDA] text-[#854F0B] border border-[#FAC775]
+           text-[12.5px] font-semibold
+           hover:bg-[#FAC775] transition-colors duration-150">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                Notificar retraso
+            </button>
+        @endif
 
         <a href="{{ route('employee.appointment.create') }}"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition">

@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Livewire\Appointments\Concerns\HasDelayNotification;
 
 class Manager extends Component
 {
@@ -24,6 +25,7 @@ class Manager extends Component
     use HasCalendar;
     use HasAppointmentActions;
     use HasProfessionalReassignment;
+    use HasDelayNotification;
     use HasFilters,
         HasAvailabilitySlots {
         // ── filterService ──────────────────────────────────────────────────

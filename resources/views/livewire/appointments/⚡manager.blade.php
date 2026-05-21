@@ -78,6 +78,9 @@
     @if ($showCompleteConfirm)
         @include('livewire.appointments.modals.complete-confirm')
     @endif
+    @if ($showDelayModal)
+        @include('livewire.appointments.modals.delay-confirm')
+    @endif
 
 
 </div>
