@@ -10,18 +10,18 @@
 
     @if ($todayFreeSlots > 0 && $view !== 'availability')
         <div
-            class="flex items-center justify-between gap-3
-                bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 text-sm my-3">
-            <div class="flex items-center gap-2 text-emerald-700 font-medium">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3
+                bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm my-3">
+            <div class="flex items-start sm:items-center gap-2 text-emerald-700 font-medium">
+                <svg class="w-4 h-4 flex-shrink-0 mt-0.5 sm:mt-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7
-                         a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                     a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Hoy tienes <strong>{{ $todayFreeSlots }} espacios libres</strong>disponibles para agendar.
+                <span>Hoy tienes <strong>{{ $todayFreeSlots }} espacios libres</strong> disponibles para agendar.</span>
             </div>
             <button wire:click="$set('view', 'availability')"
-                class="flex-shrink-0 text-xs font-semibold text-emerald-700
-                   underline underline-offset-2 hover:text-emerald-900 transition-colors">
+                class="self-end sm:self-auto flex-shrink-0 text-xs font-semibold text-emerald-700
+                   underline underline-offset-2 hover:text-emerald-900 transition-colors whitespace-nowrap">
                 Ver disponibilidad →
             </button>
         </div>

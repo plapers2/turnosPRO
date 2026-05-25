@@ -19,7 +19,7 @@
 
 <article wire:key="card-{{ $appt->id }}"
     class="relative bg-surface-container-lowest border border-outline-variant/40
-           rounded-2xl p-4 flex flex-col gap-3
+           rounded-2xl p-4 flex flex-col gap-3 m-2
            shadow-[0_1px_6px_rgba(95,94,90,0.06)]
            hover:shadow-[0_4px_16px_rgba(95,94,90,0.10)]
            hover:-translate-y-0.5 transition-all duration-200">
