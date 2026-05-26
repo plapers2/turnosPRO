@@ -1,5 +1,5 @@
 {{-- resources/views/livewire/appointments/partials/stats-row.blade.php --}}
-<div class="grid grid-cols-3 xl:grid-cols-5 gap-3 mb-5">
+<div class="grid grid-cols-2 xl:grid-cols-5 gap-3 mb-5">
 
     @php
         $stats_cards = [
