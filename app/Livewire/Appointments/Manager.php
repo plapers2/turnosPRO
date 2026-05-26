@@ -118,6 +118,7 @@ class Manager extends Component
             'confirmed' => $counts->get('confirmed', 0),
             'cancelled' => $counts->get('cancelled', 0),
             'completed' => $counts->get('completed', 0),
+            'no_attend' => $counts->get('no_attend', 0)
         ];
     }
 

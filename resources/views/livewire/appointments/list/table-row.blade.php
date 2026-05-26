@@ -2,13 +2,17 @@
 @php
     $canComplete = $appt->status === 'confirmed' && now()->gte($appt->end_time);
     $pendingEnd = $appt->status === 'confirmed' && now()->lt($appt->end_time);
+$canNoAttend =
+    $appt->status === 'confirmed' &&
+    now()->gte($appt->end_time) &&
+    abs(today()->diffInDays($appt->end_time->startOfDay())) <= 2;
 
     $badgeClass = match ($appt->status) {
         'pending' => 'bg-[#FAEEDA] text-[#854F0B]',
         'confirmed' => 'bg-[#E1F5EE] text-[#0F6E56]',
         'cancelled' => 'bg-[#FCEBEB] text-[#A32D2D]',
         'completed' => 'bg-[#E6F1FB] text-[#185FA5]',
-         'no_attend' => 'bg-[#FEF3E2] text-[#B45309]',
+        'no_attend' => 'bg-[#FEF3E2] text-[#B45309]',
         default => 'bg-surface-container text-on-surface-variant',
     };
     $badgeLabel = match ($appt->status) {
@@ -130,7 +134,7 @@
                 </button>
             @endif
 
-            @if ($canComplete)
+            @if ($canNoAttend)
                 <button wire:click="openNoAttendModal({{ $appt->id }})" title="Marcar inasistencia del cliente"
                     class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
                        bg-[#fbf0e6] border border-[#f0c89e] text-[#ff9100]

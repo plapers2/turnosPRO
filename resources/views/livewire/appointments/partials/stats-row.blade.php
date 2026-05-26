@@ -1,5 +1,5 @@
 {{-- resources/views/livewire/appointments/partials/stats-row.blade.php --}}
-<div class="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
+<div class="grid grid-cols-3 xl:grid-cols-5 gap-3 mb-5">
 
     @php
         $stats_cards = [
@@ -38,6 +38,21 @@
                 'bg' => 'bg-[#FCEBEB]',
                 'text' => 'text-[#A32D2D]',
                 'num' => 'text-[#A32D2D]',
+            ],
+            [
+                'label' => 'Inasistencias',
+                'value' => $stats['no_attend'],
+                'icon' => ' <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="7" cy="4" r="2.2" stroke="currentColor" stroke-width="1.3" />
+                        <path d="M3 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.3"
+                            stroke-linecap="round" />
+                        <line x1="1.5" y1="1.5" x2="12.5" y2="12.5" stroke="currentColor"
+                            stroke-width="1.3" stroke-linecap="round" />
+                    </svg>',
+                'bg' => 'bg-[#fbf0e6]',
+                'text' => 'text-[#ff9100]',
+                'num' => 'text-[#ff9100]',
             ],
         ];
     @endphp
