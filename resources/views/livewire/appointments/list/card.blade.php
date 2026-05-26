@@ -133,21 +133,23 @@
             </button>
         @endif
 
-        @if ($canNoAttend)
-            <button wire:click="openNoAttendModal({{ $appt->id }})"
-                class="flex items-center justify-center gap-1 py-2 px-2 rounded-xl
+        @role('admin')
+            @if ($canNoAttend)
+                <button wire:click="openNoAttendModal({{ $appt->id }})"
+                    class="flex items-center justify-center gap-1 py-2 px-2 rounded-xl
                        text-[11px] font-semibold bg-[#fbf0e6] border border-[#f0c89e] text-[#ff9100]
                        hover:bg-[#dd8a37] hover:text-white hover:border-[#dd8a37]
                        transition-colors duration-150">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"
-                        stroke-dasharray="2.5 2" />
-                    <path d="M3.5 6.2l2.2 2.2 3.5-4.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-                Inasistencia
-            </button>
-        @endif
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"
+                            stroke-dasharray="2.5 2" />
+                        <path d="M3.5 6.2l2.2 2.2 3.5-4.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    Inasistencia
+                </button>
+            @endif
+        @endrole
 
 
         @role('admin')

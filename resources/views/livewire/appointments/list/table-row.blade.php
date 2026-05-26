@@ -2,10 +2,10 @@
 @php
     $canComplete = $appt->status === 'confirmed' && now()->gte($appt->end_time);
     $pendingEnd = $appt->status === 'confirmed' && now()->lt($appt->end_time);
-$canNoAttend =
-    $appt->status === 'confirmed' &&
-    now()->gte($appt->end_time) &&
-    abs(today()->diffInDays($appt->end_time->startOfDay())) <= 2;
+    $canNoAttend =
+        $appt->status === 'confirmed' &&
+        now()->gte($appt->end_time) &&
+        abs(today()->diffInDays($appt->end_time->startOfDay())) <= 2;
 
     $badgeClass = match ($appt->status) {
         'pending' => 'bg-[#FAEEDA] text-[#854F0B]',
@@ -134,23 +134,25 @@ $canNoAttend =
                 </button>
             @endif
 
-            @if ($canNoAttend)
-                <button wire:click="openNoAttendModal({{ $appt->id }})" title="Marcar inasistencia del cliente"
-                    class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
+            @role('admin')
+                @if ($canNoAttend)
+                    <button wire:click="openNoAttendModal({{ $appt->id }})" title="Marcar inasistencia del cliente"
+                        class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
                        bg-[#fbf0e6] border border-[#f0c89e] text-[#ff9100]
                        hover:bg-[#dd8a37] hover:text-white hover:border-[#dd8a37]
                        transition-colors duration-150">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="7" cy="4" r="2.2" stroke="currentColor" stroke-width="1.3" />
-                        <path d="M3 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.3"
-                            stroke-linecap="round" />
-                        <line x1="1.5" y1="1.5" x2="12.5" y2="12.5" stroke="currentColor"
-                            stroke-width="1.3" stroke-linecap="round" />
-                    </svg>
-                </button>
-            @endif
-
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="7" cy="4" r="2.2" stroke="currentColor" stroke-width="1.3" />
+                            <path d="M3 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.3"
+                                stroke-linecap="round" />
+                            <line x1="1.5" y1="1.5" x2="12.5" y2="12.5" stroke="currentColor"
+                                stroke-width="1.3" stroke-linecap="round" />
+                        </svg>
+                    </button>
+                @endif
+            @endrole
+            
             {{-- Completar deshabilitado --}}
             @if ($pendingEnd)
                 <button disabled title="Disponible al finalizar la cita ({{ $appt->end_time->format('H:i') }})"
