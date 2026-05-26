@@ -2,6 +2,10 @@
 @php
     $canComplete = $appt->status === 'confirmed' && now()->gte($appt->end_time);
     $canCancel = in_array($appt->status, ['pending', 'confirmed']);
+    $canNoAttend =
+        $appt->status === 'confirmed' &&
+        now()->gte($appt->end_time) &&
+        abs(today()->diffInDays($appt->end_time->startOfDay())) <= 2;
     $actionCount = (int) $canComplete + (int) $canCancel;
     $gridCols = match (true) {
         $actionCount === 0 => 'grid-cols-1',
@@ -129,7 +133,7 @@
             </button>
         @endif
 
-        @if ($canComplete)
+        @if ($canNoAttend)
             <button wire:click="openNoAttendModal({{ $appt->id }})"
                 class="flex items-center justify-center gap-1 py-2 px-2 rounded-xl
                        text-[11px] font-semibold bg-[#fbf0e6] border border-[#f0c89e] text-[#ff9100]
@@ -147,7 +151,7 @@
 
 
         @role('admin')
-            @if ($canCancel)
+            @if ($appt->status === 'confirmed' && !$canComplete)
                 <button wire:click="openCancelModal({{ $appt->id }})"
                     class="flex items-center justify-center gap-1 py-2 px-2 rounded-xl
                        text-[11px] font-semibold text-[#A32D2D]
