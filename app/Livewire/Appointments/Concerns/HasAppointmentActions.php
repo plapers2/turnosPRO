@@ -24,6 +24,10 @@ trait HasAppointmentActions
     public bool $hasAppointmentsForConfirmed = true;
     public array $appointmentForConfirmed = [];
 
+    // -- Modal para marcar innasistencia
+    public bool $showNoAttendConfirm = false;
+    public ?int $noAttendTargetId = null;
+
 
 
     public function closeConfirmModal(): void
@@ -50,6 +54,28 @@ trait HasAppointmentActions
         $this->resetErrorBag();
         $this->showCancelConfirm  = true;
     }
+
+    public function openNoAttendModal(int $id): void
+    {
+        $this->authorizeAppointmentAction($id);
+
+        $appointment = Appointment::findOrFail($id);
+
+        if ($appointment->end_time > now()) {
+            $this->dispatch('notify', type: 'error', message: 'No es posible marcar una cita con inasistencia si no se ha terminado');
+            return;
+        }
+
+        $this->noAttendTargetId = $id;
+        $this->showNoAttendConfirm = true;
+    }
+
+    public function closeNoAttendModal(): void
+    {
+        $this->showNoAttendConfirm  = false;
+        $this->noAttendTargetId     = null;
+    }
+
 
     public function closeCancelModal(): void
     {
@@ -138,6 +164,26 @@ trait HasAppointmentActions
         $this->refreshSelectedAppt($appointment);
         $this->refreshCalendarEvents();
         $this->dispatch('notify', type: 'success', message: 'Cita marcada como completada.');
+    }
+
+    public function noAttendAppointment(): void
+    {
+        if (! $this->noAttendTargetId) return;
+        $this->authorizeAppointmentAction($this->noAttendTargetId);
+        $appointment = Appointment::findOrFail($this->noAttendTargetId);
+        abort_if($appointment->status !== 'confirmed', 422, 'Solo se pueden marca citas con inasistencia si su estado es confirmada.');
+        abort_if(!now()->gte($appointment->end_time), 422, 'La cita aun no ha finalizado.');
+
+        $appointment->update([
+            'status' => 'no_attend',
+            'no_attend_by' => auth()->id(),
+            'no_attend_at' => now()
+        ]);
+
+        $this->closeNoAttendModal();
+        $this->refreshSelectedAppt($appointment);
+        $this->refreshCalendarEvents();
+        $this->dispatch('notify', type: 'success', message: 'Cita marcada con inasistencia.');
     }
 
     public function openCompleteAndClose(int $id): void

@@ -1,22 +1,24 @@
 {{-- resources/views/livewire/appointments/list/table-row.blade.php --}}
 @php
-$canComplete = $appt->status === 'confirmed' && now()->gte($appt->end_time);
-$pendingEnd = $appt->status === 'confirmed' && now()->lt($appt->end_time);
+    $canComplete = $appt->status === 'confirmed' && now()->gte($appt->end_time);
+    $pendingEnd = $appt->status === 'confirmed' && now()->lt($appt->end_time);
 
-$badgeClass = match ($appt->status) {
-'pending' => 'bg-[#FAEEDA] text-[#854F0B]',
-'confirmed' => 'bg-[#E1F5EE] text-[#0F6E56]',
-'cancelled' => 'bg-[#FCEBEB] text-[#A32D2D]',
-'completed' => 'bg-[#E6F1FB] text-[#185FA5]',
-default => 'bg-surface-container text-on-surface-variant',
-};
-$badgeLabel = match ($appt->status) {
-'pending' => 'Pendiente',
-'confirmed' => 'Confirmada',
-'cancelled' => 'Cancelada',
-'completed' => 'Completada',
-default => $appt->status,
-};
+    $badgeClass = match ($appt->status) {
+        'pending' => 'bg-[#FAEEDA] text-[#854F0B]',
+        'confirmed' => 'bg-[#E1F5EE] text-[#0F6E56]',
+        'cancelled' => 'bg-[#FCEBEB] text-[#A32D2D]',
+        'completed' => 'bg-[#E6F1FB] text-[#185FA5]',
+         'no_attend' => 'bg-[#FEF3E2] text-[#B45309]',
+        default => 'bg-surface-container text-on-surface-variant',
+    };
+    $badgeLabel = match ($appt->status) {
+        'pending' => 'Pendiente',
+        'confirmed' => 'Confirmada',
+        'cancelled' => 'Cancelada',
+        'completed' => 'Completada',
+        'no_attend' => 'Inasistencia',
+        default => $appt->status,
+    };
 @endphp
 
 <tr wire:key="row-{{ $appt->id }}"
@@ -54,18 +56,18 @@ default => $appt->status,
     <td class="px-4 py-3">
         <div class="flex flex-wrap gap-1">
             @foreach ($appt->services->take(2) as $svc)
-            <span
-                class="inline-block bg-surface-container border border-outline-variant/30
+                <span
+                    class="inline-block bg-surface-container border border-outline-variant/30
                              text-on-surface-variant text-[10.5px] font-medium px-2 py-0.5 rounded-lg">
-                {{ $svc->name }}
-            </span>
+                    {{ $svc->name }}
+                </span>
             @endforeach
             @if ($appt->services->count() > 2)
-            <span
-                class="inline-block bg-surface-container border border-outline-variant/30
+                <span
+                    class="inline-block bg-surface-container border border-outline-variant/30
                              text-on-surface-variant text-[10.5px] font-medium px-2 py-0.5 rounded-lg">
-                +{{ $appt->services->count() - 2 }}
-            </span>
+                    +{{ $appt->services->count() - 2 }}
+                </span>
             @endif
         </div>
     </td>
@@ -114,49 +116,66 @@ default => $appt->status,
 
             {{-- Completar activo --}}
             @if ($canComplete)
-            <button wire:click="openCompleteModal({{ $appt->id }})" title="Marcar como completada"
-                class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
+                <button wire:click="openCompleteModal({{ $appt->id }})" title="Marcar como completada"
+                    class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
                        bg-[#E6F1FB] border border-[#9EC8F0] text-[#185FA5]
                        hover:bg-[#378ADD] hover:text-white hover:border-[#378ADD]
                        transition-colors duration-150">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M1.5 7.5l3 3 8-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"
-                        stroke-dasharray="2.5 2" />
-                </svg>
-            </button>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M1.5 7.5l3 3 8-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"
+                            stroke-dasharray="2.5 2" />
+                    </svg>
+                </button>
+            @endif
+
+            @if ($canComplete)
+                <button wire:click="openNoAttendModal({{ $appt->id }})" title="Marcar inasistencia del cliente"
+                    class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
+                       bg-[#fbf0e6] border border-[#f0c89e] text-[#ff9100]
+                       hover:bg-[#dd8a37] hover:text-white hover:border-[#dd8a37]
+                       transition-colors duration-150">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="7" cy="4" r="2.2" stroke="currentColor" stroke-width="1.3" />
+                        <path d="M3 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.3"
+                            stroke-linecap="round" />
+                        <line x1="1.5" y1="1.5" x2="12.5" y2="12.5" stroke="currentColor"
+                            stroke-width="1.3" stroke-linecap="round" />
+                    </svg>
+                </button>
             @endif
 
             {{-- Completar deshabilitado --}}
             @if ($pendingEnd)
-            <button disabled title="Disponible al finalizar la cita ({{ $appt->end_time->format('H:i') }})"
-                class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
+                <button disabled title="Disponible al finalizar la cita ({{ $appt->end_time->format('H:i') }})"
+                    class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
                        bg-surface-container border border-outline-variant/20
                        text-on-surface-variant/30 cursor-not-allowed">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"
-                        stroke-dasharray="2.5 2" />
-                    <path d="M4.5 7.2l2.3 2.3 3.7-4.5" stroke="currentColor" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </button>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"
+                            stroke-dasharray="2.5 2" />
+                        <path d="M4.5 7.2l2.3 2.3 3.7-4.5" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
             @endif
 
             {{-- Cancelar — solo admin --}}
             @role('admin')
-            @if ($appt->status === 'confirmed')
-            <button wire:click="openCancelModal({{ $appt->id }})" title="Cancelar cita"
-                class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
+                @if ($appt->status === 'confirmed' && !$canComplete)
+                    <button wire:click="openCancelModal({{ $appt->id }})" title="Cancelar cita"
+                        class="w-[30px] h-[30px] flex items-center justify-center rounded-lg
                            bg-[#FCEBEB] border border-[#F7C1C1] text-[#A32D2D]
                            hover:bg-[#E24B4A] hover:text-white hover:border-[#E24B4A]
                            transition-colors duration-150">
-                <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                    <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
-                        stroke-linecap="round" />
-                </svg>
-            </button>
-            @endif
+                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" />
+                        </svg>
+                    </button>
+                @endif
             @endrole
 
         </div>

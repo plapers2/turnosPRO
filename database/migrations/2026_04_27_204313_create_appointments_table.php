@@ -17,14 +17,16 @@ return new class extends Migration
             $table->dateTime("end_time");
             $table->text('cancellation_reason')->nullable();
             $table->timestamp('completed_at')->nullable();
+            $table->timestamp('no_attend_at')->nullable();
             $table->time('payment_expires_at')->nullable();
-            $table->enum('status', ['confirmed', 'completed', 'cancelled'])->default('confirmed');
+            $table->enum('status', ['confirmed', 'completed', 'cancelled', 'no_attend'])->default('confirmed');
             $table->text('notes')->nullable();
             $table->string('cancel_token', 45)->nullable();
             $table->dateTime("cancel_token_expires_at")->nullable();
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('confirmed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('no_attend_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('previous_user')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('cancelled_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('completed_by')->nullable()->constrained('users')->nullOnDelete();
