@@ -80,11 +80,13 @@ class Appointment extends Model
     const STATUS_CONFIRMED = 'confirmed';
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELLED = 'cancelled';
+    const STATUS_NO_ATTEND = 'no_attend';
 
     const STATUSES = [
         self::STATUS_CONFIRMED,
         self::STATUS_COMPLETED,
         self::STATUS_CANCELLED,
+        self::STATUS_NO_ATTEND
     ];
 
     // ─── Relaciones ───────────────────────────────────────────────────────────
