@@ -84,11 +84,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span class="font-medium">{{ $slotMinutes }} min / slot</span>
+                <span class="font-medium">{{ $slotMinutes }} min / espacio</span>
             </div>
         @else
             <div class="w-full sm:w-auto flex items-center gap-2">
-                <label class="text-sm text-gray-600 whitespace-nowrap">Duración slot:</label>
+                <label class="text-sm text-gray-600 whitespace-nowrap">Duración espacio:</label>
                 <select wire:model.live="slotMinutes"
                     class="flex-1 sm:flex-none text-sm rounded-lg border-gray-300 focus:ring-amber-700 focus:border-amber-700">
                     <option value="15">15 min</option>
@@ -114,7 +114,7 @@
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
             Servicio: {{ $availabilitySummary['service_name'] }}
-            &nbsp;·&nbsp; slots de {{ $availabilitySummary['slot_minutes'] }} min
+            &nbsp;·&nbsp; espacio de {{ $availabilitySummary['slot_minutes'] }} min
         </span>
         <button wire:click="$set('filterService', '')"
             class="text-xs text-gray-400 hover:text-gray-600 underline transition-colors">
@@ -129,7 +129,7 @@
 @php
     $availability_cards = [
         [
-            'label' => 'Slots totales',
+            'label' => 'Espacios totales',
             'value' => $availabilitySummary['total_slots'],
             'icon' =>
                 '<rect x="1" y="3" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 3V2M11 3V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.5"/>',
@@ -138,7 +138,7 @@
             'num' => 'text-primary',
         ],
         [
-            'label' => 'Slots libres',
+            'label' => 'Espacios libres',
             'value' => $availabilitySummary['free_slots'],
             'icon' =>
                 '<path d="M2.5 8.5l3.5 3.5 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -147,7 +147,7 @@
             'num' => 'text-[#0F6E56]',
         ],
         [
-            'label' => 'Slots ocupados',
+            'label' => 'Espacios ocupados',
             'value' => $availabilitySummary['busy_slots'],
             'icon' =>
                 '<path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
@@ -283,7 +283,7 @@
                     class="border-t border-gray-200 px-2 sm:px-3 py-2 max-h-48 overflow-y-auto">
 
                     <p class="text-[10px] text-gray-400 mb-1.5 font-medium">
-                        Slots de {{ $slotMinutes }} min
+                        Espacios de {{ $slotMinutes }} min
                         @if ($availabilitySummary['service_name'])
                             · {{ $availabilitySummary['service_name'] }}
                         @endif
