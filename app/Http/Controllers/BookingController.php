@@ -800,12 +800,20 @@ class BookingController extends Controller
             'hasta.after_or_equal' => 'La fecha "Hasta" no puede ser anterior a la fecha "Desde".',
         ]);
 
+        $user      = auth()->user();
         $companyId = session('active_company_id');
-        $company   = \App\Models\Company::findOrFail($companyId);
-        $modo      = $request->input('modo', 'color');
+
+        // Verificar que la empresa existe Y pertenece al usuario autenticado
+        $company = $user->companies()->where('companies.id', $companyId)->first();
+
+        if (!$company) {
+            return redirect()->back()->with('error', 'No tienes acceso a esta empresa.');
+        }
+
+        $modo  = $request->input('modo', 'color');
 
         $query = \App\Models\Appointment::with(['customer', 'user', 'services'])
-            ->where('company_id', $companyId);
+            ->where('company_id', $company->id);
 
         if ($request->filled('desde')) $query->whereDate('start_time', '>=', $request->desde);
         if ($request->filled('hasta')) $query->whereDate('start_time', '<=', $request->hasta);

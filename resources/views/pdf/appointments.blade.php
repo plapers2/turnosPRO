@@ -34,7 +34,6 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #fff;
         }
 
         tbody td {
@@ -68,12 +67,18 @@
 
     @php
     $isColor = $modo === 'color';
-    $accent = $isColor ? '#ba7517' : '#1c1b1f';
+
+    $accent = $isColor ? '#ba7517' : '#000';
     $muted = $isColor ? '#847467' : '#555';
-    $statBg = $isColor ? '#fdf6ec' : '#f5f5f5';
+    $statBg = $isColor ? '#fdf6ec' : '#fff';
     $statBorder = $isColor ? '#f0d9b0' : '#ccc';
-    $rowEven = $isColor ? '#fdf9f5' : '#f9f9f9';
+    $theadBg = $isColor ? '#ba7517' : '#fff';
+    $theadColor = $isColor ? '#fff' : '#000';
+    $theadBorder = $isColor ? 'none' : '1px solid #000';
+    $rowEven = $isColor ? '#fdf9f5' : '#fff';
     $rowBorder = $isColor ? '#f0ebe4' : '#ddd';
+    $hrColor = $isColor ? '#ba7517' : '#ccc';
+    $hrSize = $isColor ? '3px' : '0.5px';
 
     $total = $appointments->count();
     $completadas = $appointments->where('status', 'completed')->count();
@@ -83,17 +88,26 @@
 
     {{-- HEADER --}}
     <div style="display:flex; align-items:center; justify-content:space-between;
-            padding:20px 30px; border-bottom:3px solid {{ $accent }}; margin-bottom:20px;">
+                padding:20px 30px; border-bottom:{{ $hrSize }} solid {{ $hrColor }};
+                margin-bottom:20px;">
         <div style="display:flex; align-items:center; gap:14px;">
-            <img src="{{ public_path('logo-turnos-pro.png') }}" alt="Logo" style="height:48px; width:auto;">
+            <img src="{{ public_path('logo-turnos-pro.png') }}" alt="Logo"
+                style="height:48px; width:auto; {{ $isColor ? '' : 'filter:grayscale(100%);' }}">
             <div>
-                <div style="font-size:18px; font-weight:700; color:#1c1b1f;">{{ $company->name }}</div>
-                <div style="font-size:10px; color:{{ $muted }}; margin-top:2px;">{{ $company->email }} · {{ $company->phone }}</div>
+                <div style="font-size:18px; font-weight:700; color:#1c1b1f;">
+                    {{ $company->name }}
+                </div>
+                <div style="font-size:10px; color:{{ $muted }}; margin-top:2px;">
+                    {{ $company->email }} · {{ $company->phone }}
+                </div>
             </div>
         </div>
         <div style="text-align:right;">
-            <div style="font-size:14px; font-weight:700; color:{{ $accent }}; text-transform:uppercase; letter-spacing:1px;">Reporte de Citas</div>
-            <div style="font-size:9px; color:{{ $muted }}; margin-top:4px;">Generado el {{ $generado_en }}</div>
+            <div style="font-size:14px; font-weight:700; color:{{ $accent }};
+                        text-transform:uppercase; letter-spacing:1px;">Reporte de Citas</div>
+            <div style="font-size:9px; color:{{ $muted }}; margin-top:4px;">
+                Generado el {{ $generado_en }}
+            </div>
             @if ($desde || $hasta)
             <div style="font-size:9px; color:{{ $muted }}; margin-top:2px;">
                 Período: {{ $desde ? \Carbon\Carbon::parse($desde)->format('d/m/Y') : '—' }}
@@ -104,7 +118,8 @@
     </div>
 
     {{-- STATS --}}
-    <table style="width:calc(100% - 60px); margin:0 30px 16px; border-collapse:separate; border-spacing:6px 0;">
+    <table style="width:calc(100% - 60px); margin:0 30px 16px;
+                  border-collapse:separate; border-spacing:6px 0;">
         <tr>
             @foreach ([
             ['label' => 'Total citas', 'value' => $total],
@@ -113,16 +128,25 @@
             ['label' => 'Canceladas', 'value' => $canceladas],
             ] as $stat)
             <td style="background:{{ $statBg }}; border:1px solid {{ $statBorder }};
-                   border-radius:6px; padding:8px 10px; text-align:center; width:25%;">
-                <div style="font-size:20px; font-weight:700; color:{{ $accent }};">{{ $stat['value'] }}</div>
-                <div style="font-size:8px; color:{{ $muted }}; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">{{ $stat['label'] }}</div>
+                       border-radius:{{ $isColor ? '6px' : '0' }};
+                       padding:8px 10px; text-align:center; width:25%;">
+                <div style="font-size:20px; font-weight:700; color:{{ $accent }};">
+                    {{ $stat['value'] }}
+                </div>
+                <div style="font-size:8px; color:{{ $muted }};
+                            text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">
+                    {{ $stat['label'] }}
+                </div>
             </td>
             @endforeach
         </tr>
     </table>
 
     {{-- TABLA --}}
-    @php $chunks = $appointments->chunk(20); @endphp
+    @php
+    $chunks = $appointments->values()->chunk(20);
+    $counter = 1;
+    @endphp
 
     @foreach ($chunks as $chunkIndex => $chunk)
 
@@ -133,21 +157,17 @@
     <div style="margin:0 30px;">
         <table>
             <thead>
-                <tr style="background:{{ $accent }};">
-                    <th>#</th>
-                    <th>Cliente</th>
-                    <th>Servicio(s)</th>
-                    <th>Profesional</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Estado</th>
+                <tr style="background:{{ $theadBg }};
+                           {{ $isColor ? '' : 'border-bottom:' . $theadBorder . ';' }}">
+                    @foreach (['#', 'Cliente', 'Servicio(s)', 'Profesional', 'Fecha', 'Hora', 'Estado'] as $col)
+                    <th style="color:{{ $theadColor }};">{{ $col }}</th>
+                    @endforeach
                 </tr>
             </thead>
             <tbody>
-                @foreach ($chunk as $i => $appt)
+                @foreach ($chunk as $appt)
                 @php
-                $globalIndex = $chunkIndex * 20 + $i + 1;
-                $isEven = $i % 2 === 1;
+                $isEven = $counter % 2 === 0;
                 $rowBg = $isEven ? $rowEven : '#fff';
 
                 if ($isColor) {
@@ -158,7 +178,7 @@
                 default => 'background:#f5f5f5;color:#555;',
                 };
                 } else {
-                $badgeStyle = 'background:#e8e8e8;color:#1c1b1f;border:1px solid #aaa;';
+                $badgeStyle = 'background:none; padding:0; border-radius:0; color:#000; font-weight:700;';
                 }
 
                 $statusLabel = match($appt->status) {
@@ -168,18 +188,30 @@
                 default => $appt->status,
                 };
                 @endphp
-                <tr style="background:{{ $rowBg }}; border-bottom:1px solid {{ $rowBorder }};">
-                    <td style="color:{{ $muted }};">{{ $globalIndex }}</td>
+                <tr style="background:{{ $rowBg }};
+                           border-bottom:{{ $isColor ? '1px' : '0.3px' }} solid {{ $rowBorder }};">
+                    <td style="color:{{ $muted }};">{{ $counter }}</td>
                     <td>
                         <strong>{{ $appt->customer->name }}</strong><br>
-                        <span style="color:{{ $muted }};font-size:9px;">{{ $appt->customer->email }}</span>
+                        <span style="color:{{ $muted }}; font-size:9px;">
+                            {{ $appt->customer->email }}
+                        </span>
                     </td>
                     <td>{{ $appt->services->pluck('name')->join(', ') }}</td>
                     <td>{{ $appt->user->name }}</td>
                     <td>{{ \Carbon\Carbon::parse($appt->start_time)->format('d/m/Y') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($appt->start_time)->format('H:i') }} – {{ \Carbon\Carbon::parse($appt->end_time)->format('H:i') }}</td>
-                    <td><span class="badge" style="{{ $badgeStyle }}">{{ $statusLabel }}</span></td>
+                    <td>
+                        {{ \Carbon\Carbon::parse($appt->start_time)->format('H:i') }}
+                        –
+                        {{ \Carbon\Carbon::parse($appt->end_time)->format('H:i') }}
+                    </td>
+                    <td>
+                        <span class="badge" style="{{ $badgeStyle }}">
+                            {{ $statusLabel }}
+                        </span>
+                    </td>
                 </tr>
+                @php $counter++; @endphp
                 @endforeach
             </tbody>
         </table>
@@ -187,9 +219,16 @@
 
     @endforeach
 
+    {{-- EMPTY STATE --}}
+    @if ($total === 0)
+    <div class="empty-state">No hay citas en el período seleccionado.</div>
+    @endif
+
     {{-- FOOTER --}}
-    <div style="margin-top:24px; padding:12px 30px; border-top:1px solid {{ $rowBorder }};
-            display:flex; justify-content:space-between; font-size:8px; color:{{ $muted }};">
+    <div style="margin-top:24px; padding:12px 30px;
+                border-top:{{ $hrSize }} solid {{ $isColor ? $rowBorder : '#ccc' }};
+                display:flex; justify-content:space-between;
+                font-size:8px; color:{{ $muted }};">
         <span>TurnosPRO · Reporte generado automáticamente</span>
         <span>{{ $generado_en }}</span>
     </div>
