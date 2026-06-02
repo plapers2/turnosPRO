@@ -259,9 +259,8 @@
                                 class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-container transition text-on-surface-variant hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed">
                                 <span class="material-symbols-outlined text-[18px]">chevron_left</span>
                             </button>
-                            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-0 items-center">
+                            <div class="flex-1">
                                 <p id="emp-dp-month-left" class="text-sm font-bold text-on-surface text-center"></p>
-                                <p id="emp-dp-month-right" class="text-sm font-bold text-on-surface text-center hidden md:block"></p>
                             </div>
                             <div id="emp-dp-loading" class="hidden w-8 h-8 items-center justify-center">
                                 <span class="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></span>
@@ -272,7 +271,7 @@
                             </button>
                         </div>
 
-                        <div class="px-5 pb-3 grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 gap-5 md:items-start">
                             <div>
                                 <div class="grid grid-cols-7 mb-1">
                                     @foreach(['Lu','Ma','Mi','Ju','Vi','Sa','Do'] as $d)
@@ -281,13 +280,19 @@
                                 </div>
                                 <div id="emp-dp-grid-left" class="grid grid-cols-7 gap-y-1"></div>
                             </div>
-                            <div class="hidden md:block">
-                                <div class="grid grid-cols-7 mb-1">
-                                    @foreach(['Lu','Ma','Mi','Ju','Vi','Sa','Do'] as $d)
-                                    <div class="text-center text-[11px] font-semibold text-on-surface-variant/60 py-1">{{ $d }}</div>
-                                    @endforeach
+                            <div id="emp-dp-slots-inline" class="md:block">
+                                <div id="emp-dp-slots-inline-title" class="text-xs font-bold text-on-surface mb-3 min-h-[1.25rem]"></div>
+                                <div id="emp-dp-slots-inline-loading" class="hidden mb-2">
+                                    <span class="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></span>
                                 </div>
-                                <div id="emp-dp-grid-right" class="grid grid-cols-7 gap-y-1"></div>
+                                <div id="emp-dp-slots-inline-grid" class="flex flex-wrap gap-2"></div>
+                                <div id="emp-dp-slots-inline-empty" class="hidden text-xs text-on-surface-variant text-center py-4">
+                                    Sin horarios disponibles este día. Elige otro.
+                                </div>
+                                <div id="emp-dp-slots-inline-placeholder" class="flex flex-col items-center justify-center text-center py-8">
+                                    <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl mb-2">schedule</span>
+                                    <p class="text-xs text-on-surface-variant">Selecciona un día<br>para ver horarios</p>
+                                </div>
                             </div>
                         </div>
 
@@ -618,23 +623,16 @@
 
             function renderCalendar() {
                 const leftGrid = document.getElementById('emp-dp-grid-left');
-                const rightGrid = document.getElementById('emp-dp-grid-right');
                 const leftLabel = document.getElementById('emp-dp-month-left');
-                const rightLabel = document.getElementById('emp-dp-month-right');
                 const prevBtn = document.getElementById('emp-dp-prev');
                 if (!leftGrid) return;
 
-                const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
-                const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
-
                 if (leftLabel) leftLabel.textContent = `${MONTHS_ES[currentMonth]} ${currentYear}`;
-                if (rightLabel) rightLabel.textContent = `${MONTHS_ES[nextMonth]} ${nextYear}`;
 
                 const now = new Date();
                 if (prevBtn) prevBtn.disabled = (currentYear === now.getFullYear() && currentMonth <= now.getMonth());
 
                 renderMonth(leftGrid, currentYear, currentMonth);
-                renderMonth(rightGrid, nextYear, nextMonth);
             }
 
             async function selectDay(dateKey) {
@@ -653,25 +651,24 @@
                 selectedDate = dateKey;
                 renderCalendar();
 
-                const wrapper = document.getElementById('emp-dp-slots-wrapper');
-                const title = document.getElementById('emp-dp-slots-title');
-                const grid = document.getElementById('emp-dp-slots-grid');
-                const empty = document.getElementById('emp-dp-slots-empty');
-                const loading = document.getElementById('emp-dp-slots-loading');
-                if (!wrapper || !grid) return;
+                const placeholder = document.getElementById('emp-dp-slots-inline-placeholder');
+                const title = document.getElementById('emp-dp-slots-inline-title');
+                const grid = document.getElementById('emp-dp-slots-inline-grid');
+                const empty = document.getElementById('emp-dp-slots-inline-empty');
+                const loading = document.getElementById('emp-dp-slots-inline-loading');
+                if (!grid) return;
 
-                wrapper.classList.remove('hidden');
+                if (placeholder) placeholder.classList.add('hidden');
                 grid.innerHTML = '';
                 empty.classList.add('hidden');
                 loading.classList.remove('hidden');
 
                 const d = new Date(dateKey + 'T12:00:00');
                 const DAYS_ES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-                title.textContent = `Horarios para el ${DAYS_ES[d.getDay()]} ${d.getDate()} de ${MONTHS_ES[d.getMonth()]}`;
+                if (title) title.textContent = `${DAYS_ES[d.getDay()]} ${d.getDate()} de ${MONTHS_ES[d.getMonth()]}`;
 
                 try {
                     let disponibles;
-
                     if (slotsCache[dateKey]) {
                         disponibles = slotsCache[dateKey];
                         loading.classList.add('hidden');
@@ -704,7 +701,7 @@
                         pill.className = 'emp-slot-pill px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all duration-150 border-outline-variant/30 bg-surface-container hover:border-primary/50 hover:bg-primary/5 hover:text-primary text-on-surface';
                         pill.textContent = slot.inicio;
                         if (slot.disponibles === 1 && serviceIds.length === 1) {
-                            pill.insertAdjacentHTML('beforeend', '<span class="ml-1.5 text-[10px] text-orange-500 font-bold">·último</span>');
+                            pill.insertAdjacentHTML('beforeend', '<span class="ml-1.5 text-[10px] text-orange-500 font-bold">· Última Cita</span>');
                         }
                         pill.addEventListener('click', () => selectSlot(dateKey, slot.inicio, pill));
                         grid.appendChild(pill);
@@ -764,8 +761,12 @@
                 availability = {};
                 slotsCache = {};
 
-                const wrapper = document.getElementById('emp-dp-slots-wrapper');
-                if (wrapper) wrapper.classList.add('hidden');
+                const placeholder = document.getElementById('emp-dp-slots-inline-placeholder');
+                if (placeholder) placeholder.classList.remove('hidden');
+                const inlineGrid = document.getElementById('emp-dp-slots-inline-grid');
+                if (inlineGrid) inlineGrid.innerHTML = '';
+                const inlineTitle = document.getElementById('emp-dp-slots-inline-title');
+                if (inlineTitle) inlineTitle.textContent = '';
 
                 setupNav();
                 renderCalendar();
@@ -781,9 +782,13 @@
                 selectedDate = null;
                 availability = {};
                 slotsCache = {};
-                loadingRange = false; // ← esto es clave, desbloquea el flag
-                const wrapper = document.getElementById('emp-dp-slots-wrapper');
-                if (wrapper) wrapper.classList.add('hidden');
+                loadingRange = false;
+                const placeholder = document.getElementById('emp-dp-slots-inline-placeholder');
+                if (placeholder) placeholder.classList.remove('hidden');
+                const inlineGrid = document.getElementById('emp-dp-slots-inline-grid');
+                if (inlineGrid) inlineGrid.innerHTML = '';
+                const inlineTitle = document.getElementById('emp-dp-slots-inline-title');
+                if (inlineTitle) inlineTitle.textContent = '';
                 renderCalendar();
                 loadAvailability();
             });
