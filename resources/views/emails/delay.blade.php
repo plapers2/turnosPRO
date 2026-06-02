@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aviso de retraso en tu cita</title>
+    <title>Aviso de atraso en tu cita</title>
 </head>
 
 <body style="margin:0;padding:0;background-color:#f5f3ef;font-family:'Segoe UI',Arial,sans-serif;">
@@ -54,7 +54,7 @@
                             </h2>
 
                             <p style="margin:0 0 28px;color:#6b7280;font-size:14px;line-height:1.6;">
-                                Te informamos que el servicio presenta un retraso aproximado de
+                                Te informamos que el servicio presenta un atraso aproximado de
                                 <strong style="color:#b45309;">{{ $delayMinutes }} minutos</strong>.
                                 Lamentamos los inconvenientes y agradecemos tu comprensión.
                             </p>
@@ -132,7 +132,7 @@
                                     </td>
                                 </tr>
 
-                                <!-- Hora estimada con retraso -->
+                                <!-- Hora estimada con atraso -->
                                 <tr>
                                     <td style="padding:16px 20px;">
                                         <table width="100%">
@@ -170,7 +170,7 @@
 
                             <!-- Disculpa -->
                             <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;line-height:1.6;">
-                                Nos disculpamos por el retraso. Estamos trabajando para atenderte lo antes posible.<br>
+                                Nos disculpamos por el atraso. Estamos trabajando para atenderte lo antes posible.<br>
                                 Si tienes dudas, comunícate directamente con {{ $appointment->company->name }}.
                             </p>
 
