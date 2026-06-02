@@ -235,7 +235,7 @@
             $isToday = $day['date'] === now()->toDateString();
         @endphp
 
-        <div x-data="{ open: false }"
+        <div x-data="{ open: {{$availabilityView === 'week' ? 'true' : 'false'}} }"
             class="relative rounded-xl border {{ $statusClasses }} ring-1 cursor-pointer
                    transition-shadow hover:shadow-md select-none"
             @click="open = !open">
