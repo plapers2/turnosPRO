@@ -64,8 +64,7 @@ class ServiceIndex extends Component
                 $q->where('service_id', $id);
             })
             ->where(function ($q) {
-                $q->where('status', Appointment::STATUS_PENDING)
-                    ->orWhere('status', Appointment::STATUS_CONFIRMED);
+                $q->where('status', Appointment::STATUS_CONFIRMED);
             })
             ->exists();
 

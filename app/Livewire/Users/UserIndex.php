@@ -62,7 +62,7 @@ class UserIndex extends Component
         $companyId = session('active_company_id');
         $hasActiveAppointments = Appointment::where('company_id', $companyId)
             ->where('user_id', $id)
-            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED])
             ->exists();
         if ($hasActiveAppointments) {
             $this->dispatch('delete-error', message: "El usuario actual tiene citas activas o pendientes");
