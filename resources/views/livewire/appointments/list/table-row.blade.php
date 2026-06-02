@@ -47,11 +47,20 @@
     {{-- Profesional --}}
     <td class="px-4 py-3">
         <div class="flex items-center gap-2.5">
-            <div
-                class="w-8 h-8 rounded-full bg-[#E1F5EE] text-[#0F6E56]
+            {{-- Avatar --}}
+            @if ($appt->user->image)
+                <img src="{{ asset('storage/' . $appt->user->image) }}"
+                    class="w-[32px] h-[32px] rounded-[10px] object-cover flex-shrink-0" />
+            @else
+                <div
+                    class="w-8 h-8 rounded-full bg-[#E1F5EE] text-[#0F6E56]
                         flex items-center justify-center text-[11px] font-bold flex-shrink-0">
-                {{ strtoupper(substr($appt->user->name, 0, 2)) }}
-            </div>
+                    {{ strtoupper(substr($appt->user->name, 0, 2)) }}
+                </div>
+            @endif
+
+
+
             <span class="text-[13px] text-on-surface">{{ $appt->user->name }}</span>
         </div>
     </td>
@@ -152,7 +161,7 @@
                     </button>
                 @endif
             @endrole
-            
+
             {{-- Completar deshabilitado --}}
             @if ($pendingEnd)
                 <button disabled title="Disponible al finalizar la cita ({{ $appt->end_time->format('H:i') }})"
