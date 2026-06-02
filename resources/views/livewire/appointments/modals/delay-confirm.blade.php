@@ -17,7 +17,7 @@
                     </svg>
                 </div>
                 <h2 id="modal-title-delay" class="text-[15px] font-semibold text-on-surface">
-                    Notificar retraso
+                    Notificar atraso
                 </h2>
             </div>
             <button wire:click="closeDelayModal" aria-label="Cerrar"
@@ -51,7 +51,7 @@
             {{-- Input minutos --}}
             <div class="flex flex-col gap-1.5">
                 <label for="delay-minutes" class="text-[11.5px] font-semibold text-on-surface-variant">
-                    Tiempo de retraso (minutos)
+                    Tiempo de atraso (minutos)
                 </label>
                 <input id="delay-minutes"
                        type="number"

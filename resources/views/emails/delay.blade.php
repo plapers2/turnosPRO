@@ -44,7 +44,7 @@
                             <!-- Badge -->
                             <div style="text-align:center;margin-bottom:24px;">
                                 <span style="display:inline-block;background:#fef3c7;color:#92400e;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #fcd34d;letter-spacing:0.3px;">
-                                    ⚠ AVISO DE RETRASO
+                                    ⚠ AVISO DE ATRASO
                                 </span>
                             </div>
 
