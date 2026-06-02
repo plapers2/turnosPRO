@@ -92,7 +92,11 @@ class UserIndex extends Component
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->when($this->status === 'active', fn($q) => $q->whereNull('deleted_at'))
             ->when($this->status === 'inactive', fn($q) => $q->onlyTrashed())
-            ->when($this->role, fn($q) => $q->whereHas('roles', fn($q) => $q->where('name', $this->role)))
+            ->when(
+                $this->role,
+                fn($q) => $q->whereHas('roles', fn($q) => $q->where('name', $this->role)),
+                fn($q) => $q->whereHas('roles', fn($q) => $q->where('name', '!=', 'cliente'))
+            )
             ->where('id', '!=', $userId)
             ->paginate(10);
 

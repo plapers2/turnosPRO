@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
                 'image'    => null,
             ]
         );
-        
+
         $admin = User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
             [

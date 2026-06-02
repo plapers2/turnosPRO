@@ -51,6 +51,7 @@
         <option value="confirmed">Confirmada</option>
         <option value="completed">Completada</option>
         <option value="cancelled">Cancelada</option>
+          <option value="no_attend">Inasistente</option>
     </select>
 
     {{-- Rango de fechas --}}
