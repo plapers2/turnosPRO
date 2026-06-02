@@ -74,23 +74,23 @@ class UserController extends Controller
         ];
         // Verificar que todos los campos cumplan con lo requerido
         foreach ($slots as $i => $slot) {
-            $dia = $slot['dia_semana'] ?? '';
+            $dia = $slot['day_of_week'] ?? '';
 
-            $slotRules["disponibilidad.{$i}.dia_semana"] = [
+            $slotRules["disponibilidad.{$i}.day_of_week"] = [
                 'required',
                 'string',
                 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             ];
-            $slotRules["disponibilidad.{$i}.hora_inicio"] = [
+            $slotRules["disponibilidad.{$i}.start_time"] = [
                 'required',
                 'date_format:H:i',
                 new DentroHorarioEmpresa($dia, $companyId, validarDia: true),
                 new SinSolapamientoEnSlots($dia, $i, $slots),
             ];
-            $slotRules["disponibilidad.{$i}.hora_fin"] = [
+            $slotRules["disponibilidad.{$i}.end_time"] = [
                 'required',
                 'date_format:H:i',
-                new HoraFinPosteriorAInicio($slot['hora_inicio'] ?? null, $diasNombres[$dia] ?? $dia),
+                new HoraFinPosteriorAInicio($slot['start_time'] ?? null, $diasNombres[$dia] ?? $dia),
                 new DentroHorarioEmpresa($dia, $companyId, validarDia: false),
             ];
         }
@@ -122,9 +122,9 @@ class UserController extends Controller
 
         foreach ($slots as $slot) {
             $user->professionalAvailabilities()->create([
-                'day_of_week' => $slot['dia_semana'],
-                'start_time'  => $slot['hora_inicio'],
-                'end_time'    => $slot['hora_fin'],
+                'day_of_week' => $slot['day_of_week'],
+                'start_time'  => $slot['start_time'],
+                'end_time'    => $slot['end_time'],
             ]);
         }
 
@@ -172,23 +172,23 @@ class UserController extends Controller
 
         $slotRules = [];
         foreach ($slots as $i => $slot) {
-            $dia = $slot['dia_semana'] ?? '';
+            $dia = $slot['day_of_week'] ?? '';
 
-            $slotRules["disponibilidad.{$i}.dia_semana"] = [
+            $slotRules["disponibilidad.{$i}.day_of_week"] = [
                 'required',
                 'string',
                 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             ];
-            $slotRules["disponibilidad.{$i}.hora_inicio"] = [
+            $slotRules["disponibilidad.{$i}.start_time"] = [
                 'required',
                 'date_format:H:i',
                 new DentroHorarioEmpresa($dia, $companyId, validarDia: true),
                 new SinSolapamientoEnSlots($dia, $i, $slots),  // ← mismo que en store
             ];
-            $slotRules["disponibilidad.{$i}.hora_fin"] = [
+            $slotRules["disponibilidad.{$i}.end_time"] = [
                 'required',
                 'date_format:H:i',
-                "after:disponibilidad.{$i}.hora_inicio",
+                "after:disponibilidad.{$i}.start_time",
                 new DentroHorarioEmpresa($dia, $companyId, validarDia: false),
             ];
         }
@@ -227,9 +227,9 @@ class UserController extends Controller
         $user->professionalAvailabilities()->forceDelete();
         foreach ($slots as $slot) {
             $user->professionalAvailabilities()->create([
-                'day_of_week' => $slot['dia_semana'],
-                'start_time'  => $slot['hora_inicio'],
-                'end_time'    => $slot['hora_fin'],
+                'day_of_week' => $slot['day_of_week'],
+                'start_time'  => $slot['start_time'],
+                'end_time'    => $slot['end_time'],
             ]);
         }
 
