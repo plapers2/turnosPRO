@@ -275,9 +275,8 @@
                                 class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-container transition text-on-surface-variant hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed">
                                 <span class="material-symbols-outlined text-[18px]">chevron_left</span>
                             </button>
-                            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-0">
+                            <div class="flex-1">
                                 <p id="dp-month-left" class="text-sm font-bold text-on-surface text-center"></p>
-                                <p id="dp-month-right" class="text-sm font-bold text-on-surface text-center hidden md:block"></p>
                             </div>
                             {{-- Spinner de carga --}}
                             <div id="dp-loading" class="hidden w-8 h-8 items-center justify-center">
@@ -290,7 +289,7 @@
                         </div>
 
                         {{-- Grids de días --}}
-                        <div class="px-5 pb-3 grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 gap-5 md:items-stretch">
                             {{-- Mes izquierdo --}}
                             <div>
                                 <div class="grid grid-cols-7 mb-1">
@@ -300,28 +299,20 @@
                                 </div>
                                 <div id="dp-grid-left" class="grid grid-cols-7 gap-y-1"></div>
                             </div>
-                            {{-- Mes derecho (solo desktop) --}}
-                            <div class="hidden md:block">
-                                <div class="grid grid-cols-7 mb-1">
-                                    @foreach(['Lu','Ma','Mi','Ju','Vi','Sa','Do'] as $d)
-                                    <div class="text-center text-[11px] font-semibold text-on-surface-variant/60 py-1">{{ $d }}</div>
-                                    @endforeach
-                                </div>
-                                <div id="dp-grid-right" class="grid grid-cols-7 gap-y-1"></div>
-                            </div>
-                        </div>
-
-                        {{-- Pills de hora — se muestran al seleccionar día --}}
-                        <div id="dp-slots-wrapper" class="hidden px-5 pb-5 border-t border-outline-variant/20 pt-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <p id="dp-slots-title" class="text-xs font-bold text-on-surface"></p>
-                                <div id="dp-slots-loading" class="hidden">
+                            {{-- Slots de hora (columna derecha desktop) --}}
+                            <div id="dp-slots-inline" class="md:block border-t md:border-t-0 md:border-l border-outline-variant/20 md:pl-5 pt-4 md:pt-0">
+                                <div id="dp-slots-inline-title" class="text-xs font-bold text-on-surface mb-3"></div>
+                                <div id="dp-slots-inline-loading" class="hidden mb-2">
                                     <span class="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></span>
                                 </div>
-                            </div>
-                            <div id="dp-slots-grid" class="flex flex-wrap gap-2"></div>
-                            <div id="dp-slots-empty" class="hidden text-xs text-on-surface-variant text-center py-4">
-                                Sin horarios disponibles este día. Elige otro.
+                                <div id="dp-slots-inline-grid" class="flex flex-wrap gap-2"></div>
+                                <div id="dp-slots-inline-empty" class="hidden text-xs text-on-surface-variant text-center py-4">
+                                    Sin horarios disponibles este día. Elige otro.
+                                </div>
+                                <div id="dp-slots-inline-placeholder" class="flex flex-col items-center justify-center h-full text-center py-8">
+                                    <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl mb-2">schedule</span>
+                                    <p class="text-xs text-on-surface-variant">Selecciona un día<br>para ver horarios</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -752,40 +743,31 @@
             // ── Render ambos meses ────────────────────────────────────────────
             function renderCalendar() {
                 const leftGrid = document.getElementById('dp-grid-left');
-                const rightGrid = document.getElementById('dp-grid-right');
                 const leftLabel = document.getElementById('dp-month-left');
-                const rightLabel = document.getElementById('dp-month-right');
+                const rightLabel = document.getElementById('dp-month-right'); // puede ser null, no pasa nada
                 const prevBtn = document.getElementById('dp-prev');
 
                 if (!leftGrid) return;
 
-                const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
-                const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
-
                 if (leftLabel) leftLabel.textContent = `${MONTHS_ES[currentMonth]} ${currentYear}`;
-                if (rightLabel) rightLabel.textContent = `${MONTHS_ES[nextMonth]} ${nextYear}`;
+                if (rightLabel) rightLabel.textContent = ''; // vacío, el elemento ya no existe en el DOM
 
-                // Deshabilitar prev si el mes actual es el presente o pasado
                 const nowMonth = new Date().getMonth();
                 const nowYear = new Date().getFullYear();
-                if (prevBtn) {
-                    prevBtn.disabled = (currentYear === nowYear && currentMonth <= nowMonth);
-                }
+                if (prevBtn) prevBtn.disabled = (currentYear === nowYear && currentMonth <= nowMonth);
 
                 renderMonth(leftGrid, currentYear, currentMonth);
-                renderMonth(rightGrid, nextYear, nextMonth);
+                // Ya no llamamos renderMonth para el mes derecho
             }
 
             // ── Seleccionar día → cargar slots de hora ────────────────────────
             async function selectDay(dateKey) {
-                // Si cambia el día, resetear slot y profesionales en Livewire
                 if (selectedDate && selectedDate !== dateKey) {
                     $wire.set('fecha', null);
                     $wire.set('hora', null);
                     $wire.set('horaFin', null);
                     $wire.set('selectedProfesionales', {});
                     $wire.set('profesionalesPorServicio', {});
-                    // Limpiar pills del día anterior visualmente
                     document.querySelectorAll('.slot-pill').forEach(p => {
                         p.classList.remove('border-primary', 'bg-primary', 'text-white', 'shadow-md');
                         p.classList.add('border-outline-variant/30', 'bg-surface-container', 'text-on-surface');
@@ -793,82 +775,89 @@
                 }
 
                 selectedDate = dateKey;
-                renderCalendar(); // resalta el día seleccionado
+                renderCalendar();
 
+                // Referencias — mobile (wrapper inferior) y desktop (columna derecha)
                 const wrapper = document.getElementById('dp-slots-wrapper');
-                const title = document.getElementById('dp-slots-title');
-                const grid = document.getElementById('dp-slots-grid');
-                const empty = document.getElementById('dp-slots-empty');
-                const loading = document.getElementById('dp-slots-loading');
+                const inlineDiv = document.getElementById('dp-slots-inline');
 
-                if (!wrapper || !grid) return;
+                const grids = ['dp-slots-grid', 'dp-slots-inline-grid'];
+                const empties = ['dp-slots-empty', 'dp-slots-inline-empty'];
+                const loadings = ['dp-slots-loading', 'dp-slots-inline-loading'];
+                const titles = ['dp-slots-title', 'dp-slots-inline-title'];
+                const placeholders = document.getElementById('dp-slots-inline-placeholder');
 
-                wrapper.classList.remove('hidden');
-                grid.innerHTML = '';
-                empty.classList.add('hidden');
-                loading.classList.remove('hidden');
+                // Mostrar paneles
+                wrapper?.classList.remove('hidden');
+                // En desktop mostrar columna inline, ocultar placeholder
+                placeholders?.classList.add('hidden');
 
-                // Formatear título del día
+                // Limpiar grids
+                grids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = '';
+                });
+                empties.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+                loadings.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
+
+                // Título del día
                 const d = new Date(dateKey + 'T12:00:00');
                 const DAYS_ES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-                title.textContent = `Horarios para el ${DAYS_ES[d.getDay()]} ${d.getDate()} de ${MONTHS_ES[d.getMonth()]}`;
+                const titleText = `${DAYS_ES[d.getDay()]} ${d.getDate()} de ${MONTHS_ES[d.getMonth()]}`;
+                titles.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = titleText;
+                });
 
-                // Consultar endpoint para el día específico
-                const start = new Date(dateKey + 'T00:00:00');
-                const end = new Date(dateKey + 'T23:59:59');
                 const params = new URLSearchParams({
                     company_id: companyId,
-                    start: start.toISOString(),
-                    end: end.toISOString(),
+                    start: new Date(dateKey + 'T00:00:00').toISOString(),
+                    end: new Date(dateKey + 'T23:59:59').toISOString()
                 });
                 serviceIds.forEach(id => params.append('services[]', id));
 
                 try {
                     let disponibles;
-
                     if (slotsCache[dateKey]) {
-                        // Reusar datos ya cargados — sin request al servidor
                         disponibles = slotsCache[dateKey];
-                        loading.classList.add('hidden');
                     } else {
-                        // Solo si no está en cache (caso raro: día fuera del rango pre-cargado)
                         const res = await fetch(`/booking/citas-ocupadas?${params}`);
                         const data = await res.json();
-                        disponibles = (data.disponibles || []);
-                        loading.classList.add('hidden');
+                        disponibles = data.disponibles || [];
                     }
+                    loadings.forEach(id => document.getElementById(id)?.classList.add('hidden'));
 
                     const ahora = new Date();
                     const slotsDisponibles = disponibles
-                        .filter(s => {
-                            if (s.fecha !== dateKey || s.disponibles === 0) return false;
-                            return new Date(`${s.fecha}T${s.inicio}`) > ahora;
-                        })
+                        .filter(s => s.fecha === dateKey && s.disponibles !== 0 && new Date(`${s.fecha}T${s.inicio}`) > ahora)
                         .sort((a, b) => a.inicio.localeCompare(b.inicio));
 
                     if (slotsDisponibles.length === 0) {
-                        empty.classList.remove('hidden');
+                        empties.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
                         return;
                     }
 
-                    slotsDisponibles.forEach(slot => {
-                        const pill = document.createElement('button');
-                        pill.type = 'button';
-                        pill.className = 'slot-pill px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all duration-150 border-outline-variant/30 bg-surface-container hover:border-primary/50 hover:bg-primary/5 hover:text-primary text-on-surface';
-                        pill.textContent = slot.inicio;
-                        pill.dataset.hora = slot.inicio;
-
-                        if (slot.disponibles === 1 && serviceIds.length === 1) {
-                            pill.insertAdjacentHTML('beforeend', '<span class="ml-1.5 text-[10px] text-orange-500 font-bold">· Última Cita</span>');
-                        }
-
-                        pill.addEventListener('click', () => selectSlot(dateKey, slot.inicio, pill));
-                        grid.appendChild(pill);
+                    // Renderizar pills en ambos grids
+                    grids.forEach(gridId => {
+                        const grid = document.getElementById(gridId);
+                        if (!grid) return;
+                        slotsDisponibles.forEach(slot => {
+                            const pill = document.createElement('button');
+                            pill.type = 'button';
+                            pill.className = 'slot-pill px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all duration-150 border-outline-variant/30 bg-surface-container hover:border-primary/50 hover:bg-primary/5 hover:text-primary text-on-surface';
+                            pill.textContent = slot.inicio;
+                            pill.dataset.hora = slot.inicio;
+                            if (slot.disponibles === 1 && serviceIds.length === 1) {
+                                pill.insertAdjacentHTML('beforeend', '<span class="ml-1.5 text-[10px] text-orange-500 font-bold">· Última Cita</span>');
+                            }
+                            pill.addEventListener('click', () => selectSlot(dateKey, slot.inicio, pill));
+                            grid.appendChild(pill);
+                        });
                     });
 
                 } catch (e) {
-                    loading.classList.add('hidden');
-                    empty.classList.remove('hidden');
+                    loadings.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+                    empties.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
                     console.error(e);
                 }
             }
@@ -927,8 +916,12 @@
                 slotsCache = {};
 
                 // Ocultar slots panel
-                const wrapper = document.getElementById('dp-slots-wrapper');
-                if (wrapper) wrapper.classList.add('hidden');
+                const inlinePlaceholder = document.getElementById('dp-slots-inline-placeholder');
+                if (inlinePlaceholder) inlinePlaceholder.classList.remove('hidden');
+                const inlineGrid = document.getElementById('dp-slots-inline-grid');
+                if (inlineGrid) inlineGrid.innerHTML = '';
+                const inlineTitle = document.getElementById('dp-slots-inline-title');
+                if (inlineTitle) inlineTitle.textContent = '';
 
                 setupNav();
                 renderCalendar();
@@ -951,8 +944,13 @@
             $wire.on('reset-calendario', () => {
                 selectedDate = null;
                 availability = {};
-                const wrapper = document.getElementById('dp-slots-wrapper');
-                if (wrapper) wrapper.classList.add('hidden');
+                slotsCache = {};
+                const placeholder = document.getElementById('dp-slots-inline-placeholder');
+                if (placeholder) placeholder.classList.remove('hidden');
+                const grid = document.getElementById('dp-slots-inline-grid');
+                if (grid) grid.innerHTML = '';
+                const title = document.getElementById('dp-slots-inline-title');
+                if (title) title.textContent = '';
             });
 
         })();
