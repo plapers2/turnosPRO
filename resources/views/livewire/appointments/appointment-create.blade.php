@@ -240,11 +240,11 @@
                         <div class="hidden sm:flex items-center gap-4">
                             <div class="flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                <span class="text-[11px] text-on-surface-variant">Disponible</span>
+                                <span class="text-[11px] text-on-surface-variant">Cita disponible</span>
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-orange-400"></span>
-                                <span class="text-[11px] text-on-surface-variant">Últimos slots</span>
+                                <span class="text-[11px] text-on-surface-variant">Última cita</span>
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-surface-variant border border-outline-variant/30"></span>
@@ -859,7 +859,7 @@
                         pill.dataset.hora = slot.inicio;
 
                         if (slot.disponibles === 1 && serviceIds.length === 1) {
-                            pill.insertAdjacentHTML('beforeend', '<span class="ml-1.5 text-[10px] text-orange-500 font-bold">·último</span>');
+                            pill.insertAdjacentHTML('beforeend', '<span class="ml-1.5 text-[10px] text-orange-500 font-bold">· Última Cita</span>');
                         }
 
                         pill.addEventListener('click', () => selectSlot(dateKey, slot.inicio, pill));

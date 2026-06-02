@@ -4,7 +4,7 @@
         <!-- HERO -->
         <div class="relative bg-surface px-8 py-10 border-b border-outline-variant/60">
             <div class="max-w-2xl">
-                <p class="text-xs font-semibold tracking-widest uppercase text-primary mb-2 font-label">Paso 1 de 3</p>
+                <p class="text-xs font-semibold tracking-widest uppercase text-primary mb-2 font-label">Paso 1 de 2</p>
                 <h2 class="text-3xl font-bold text-on-surface font-headline tracking-tight mb-2">
                     ¿A dónde quieres ir?
                 </h2>
