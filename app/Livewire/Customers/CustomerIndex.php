@@ -4,6 +4,7 @@ namespace App\Livewire\Customers;
 
 use App\Models\Customer;
 use App\Models\CompanyInvitation;
+use App\Mail\InvitationMail;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
@@ -70,7 +71,11 @@ class CustomerIndex extends Component
             'expires_at' => now()->addDays(7),
         ]);
 
-        $this->generatedLink   = route('register.invite', $invitation->token);
+        $link = route('register.invite', $invitation->token);
+
+        \Mail::to($invitation->email)->send(new InvitationMail($invitation, $link));
+
+        $this->generatedLink   = $link;
         $this->invitationEmail = '';
     }
 
