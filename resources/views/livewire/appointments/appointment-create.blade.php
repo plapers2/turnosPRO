@@ -8,15 +8,18 @@
     @if($successMsg)
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
         x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-4"
+        x-transition:enter-start="opacity-0 translate-y-2"
         x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-end="opacity-0 translate-y-4"
-        class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3
-               bg-green-600 text-white text-sm font-medium px-5 py-3.5 rounded-2xl shadow-xl max-w-sm w-full mx-4">
-        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+        x-transition:leave-end="opacity-0 translate-y-2"
+        class="fixed bottom-6 right-6 z-50 flex items-center gap-3
+       bg-[#ECFDF5] text-[#065F46] border border-[#6EE7B7]
+       text-sm font-medium px-4 py-3 rounded-xl shadow-md max-w-xs w-full mx-4">
+        <svg class="w-4 h-4 flex-shrink-0 text-[#059669]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        </svg>
         <span class="flex-1">{{ $successMsg }}</span>
-        <button @click="show = false"><span class="material-symbols-outlined text-[18px]">close</span></button>
     </div>
     @endif
 
@@ -24,15 +27,18 @@
     @if($errorMsg)
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
         x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-4"
+        x-transition:enter-start="opacity-0 translate-y-2"
         x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-end="opacity-0 translate-y-4"
-        class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3
-               bg-red-600 text-white text-sm font-medium px-5 py-3.5 rounded-2xl shadow-xl max-w-sm w-full mx-4">
-        <span class="material-symbols-outlined text-[18px]">error</span>
+        x-transition:leave-end="opacity-0 translate-y-2"
+        class="fixed bottom-6 right-6 z-50 flex items-center gap-3
+       bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]
+       text-sm font-medium px-4 py-3 rounded-xl shadow-md max-w-xs w-full mx-4">
+        <svg class="w-4 h-4 flex-shrink-0 text-[#DC2626]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        </svg>
         <span class="flex-1">{{ $errorMsg }}</span>
-        <button @click="show = false"><span class="material-symbols-outlined text-[18px]">close</span></button>
     </div>
     @endif
 
