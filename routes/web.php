@@ -164,6 +164,7 @@ Route::middleware(['auth', 'password.changed', 'role:admin|empleado'])->group(fu
 
 // Cancelar cita desde email
 Route::get('/appointments/cancel/{token}', [BookingController::class, 'cancelByToken'])->name('appointments.cancel');
+Route::post('/appointments/cancel/{token}', [BookingController::class, 'cancelByTokenConfirm'])->name('appointments.cancel.confirm');
 
 // Registro con invitación
 Route::get('/register/{token}', [RegisteredUserController::class, 'create'])->middleware('guest')->name('register.invite');

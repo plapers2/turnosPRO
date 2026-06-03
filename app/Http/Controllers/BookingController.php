@@ -710,18 +710,38 @@ class BookingController extends Controller
             return view('appointment.cancel-toolate');
         }
 
+        return view('appointment.cancel-confirm', compact('appointment', 'token'));
+    }
+    public function cancelByTokenConfirm(string $token)
+    {
+        $appointment = Appointment::where('cancel_token', $token)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (!$appointment || $appointment->status === 'cancelled') {
+            return view('appointment.cancel-invalid');
+        }
+
+        if ($appointment->cancel_token_expires_at && now()->gt($appointment->cancel_token_expires_at)) {
+            return view('appointment.cancel-expired');
+        }
+
+        if (now()->gt($appointment->start_time->subHours(2))) {
+            return view('appointment.cancel-toolate');
+        }
+
         $appointment->update([
-            'status' => 'cancelled',
-            'cancelled_by' => auth()->id(),
+            'status'              => 'cancelled',
+            'cancelled_by'        => auth()->id(),
             'cancellation_reason' => 'Cancelada por el cliente desde el enlace del correo.',
         ]);
 
         $appointment->load(['customer', 'user', 'company', 'services']);
-        $adminEmail = $appointment->company->email;
-        if ($adminEmail) {
+
+        if ($appointment->company->email) {
             $this->enviarEmail(
                 new AppointmentCancelledAdminMail($appointment),
-                $adminEmail,
+                $appointment->company->email,
                 $appointment->id,
                 'cancelled_admin'
             );
