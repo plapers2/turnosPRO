@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tu cita ha sido recibida</title>
+    <title>Tu cita ha sido confirmada</title>
 </head>
 
 <body style="margin:0;padding:0;background-color:#f5f3ef;font-family:'Segoe UI',Arial,sans-serif;">
@@ -47,8 +47,8 @@
 
                             <!-- Badge -->
                             <div style="text-align:center;margin-bottom:24px;">
-                                <span style="display:inline-block;background:#fef3c7;color:#92400e;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #fcd34d;letter-spacing:0.3px;">
-                                    ⏳ CITA PENDIENTE DE CONFIRMACIÓN
+                                <span style="display:inline-block;background:#E1F5EE;color:#0F6E56;font-size:12px;font-weight:600;padding:6px 16px;border-radius:99px;border:1px solid #6EE7B7;letter-spacing:0.3px;">
+                                    ✅ CITA CONFIRMADA
                                 </span>
                             </div>
 
@@ -57,7 +57,7 @@
                                 Hola, {{ $appointment->customer->name }} 👋
                             </h2>
                             <p style="margin:0 0 28px;color:#6b7280;font-size:14px;line-height:1.6;">
-                                Hemos recibido tu solicitud de cita correctamente. Está <strong style="color:#b45309;">pendiente de confirmación</strong> por parte del negocio. Te notificaremos cuando sea confirmada.
+                                Tu cita ha sido <strong style="color:#0F6E56;">confirmada correctamente</strong>. Te esperamos en la fecha y hora indicadas.
                             </p>
 
                             <!-- Card detalles -->
