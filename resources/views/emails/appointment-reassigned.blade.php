@@ -113,26 +113,6 @@
                             <table width="100%" cellpadding="0" cellspacing="0"
                                 style="background:#fdf8f0;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:28px;">
 
-                                <!-- Empresa -->
-                                <tr>
-                                    <td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;">
-                                        <table width="100%">
-                                            <tr>
-                                                <td style="width:32px;">🏢</td>
-                                                <td>
-                                                    <p
-                                                        style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
-                                                        Empresa</p>
-                                                    <p
-                                                        style="margin:2px 0 0;font-size:14px;font-weight:600;color:#1c1b1f;">
-                                                        {{ $appointment->company?->name }}
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-
                                 <!-- Servicio -->
                                 <tr>
                                     <td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;">

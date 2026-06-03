@@ -26,10 +26,6 @@
                                     alt="{{ $appointment->company->name }}"
                                     style="width:56px;height:56px;object-fit:contain;border-radius:10px;">
                             </div>
-                            @else
-                            <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;margin:0 auto 16px;text-align:center;line-height:56px;">
-                                <span style="font-size:28px;">📅</span>
-                            </div>
                             @endif
                             <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">
                                 {{ $appointment->company->name }} · TurnosPRO
@@ -72,21 +68,6 @@
                             <!-- Card detalles -->
                             <table width="100%" cellpadding="0" cellspacing="0"
                                 style="background:#fdf8f0;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:28px;">
-
-                                <!-- Empresa -->
-                                <tr>
-                                    <td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;">
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td style="width:32px;vertical-align:middle;"><span style="font-size:18px;">🏢</span></td>
-                                                <td style="vertical-align:middle;padding-left:12px;">
-                                                    <p style="margin:0;font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Empresa</p>
-                                                    <p style="margin:2px 0 0;font-size:14px;color:#1c1b1f;font-weight:600;">{{ $appointment->company->name }}</p>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
 
                                 <!-- Servicio -->
                                 <tr>

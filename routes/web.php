@@ -182,11 +182,9 @@ Route::get('/test-all-mails', function () {
     $company = $appointment->company;
 
     \Mail::to('test@test.com')->send(new \App\Mail\AppointmentConfirmationMail($appointment));
-    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentAutoConfirmedMail($appointment));
     \Mail::to('test@test.com')->send(new \App\Mail\AppointmentCancelledAdminMail($appointment));
     \Mail::to('test@test.com')->send(new \App\Mail\AppointmentCancelledByEmployeeMail($appointment));
     \Mail::to('test@test.com')->send(new \App\Mail\AppointmentCompletedMail($appointment));
-    \Mail::to('test@test.com')->send(new \App\Mail\AppointmentConfirmedByEmployeeMail($appointment));
     \Mail::to('test@test.com')->send(new \App\Mail\AppointmentReminderMail($appointment, '24h'));
     \Mail::to('test@test.com')->send(new \App\Mail\AppointmentReminderMail($appointment, '1h'));
     \Mail::to('test@test.com')->send(new \App\Mail\AdminCredentialsMail($admin, null, 'TempPass123'));
