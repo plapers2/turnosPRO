@@ -111,14 +111,15 @@ class MyAppointments extends Component
             'confirmed' => (clone $base)->where('status', 'confirmed')->where('start_time', '>=', now())->count(),
             'completed' => (clone $base)->where('status', 'completed')->count(),
             'cancelled' => (clone $base)->where('status', 'cancelled')->count(),
+            'no_attend'   => (clone $base)->where('status', 'no_attend')->count(),
         ];
 
         $countProximas  = (clone $base)->where('status', 'confirmed')->where('start_time', '>=', now())->count();
-        $countHistorial = (clone $base)->whereIn('status', ['completed', 'cancelled'])->count();
+        $countHistorial = (clone $base)->whereIn('status', ['completed', 'cancelled', 'no_attend    '])->count();
 
         $activeStatuses = $this->activeTab === 'proximas'
             ? ['confirmed']
-            : ['completed', 'cancelled'];
+            : ['completed', 'cancelled', 'no_attend'];
 
         $query = Appointment::whereIn('customer_id', $customerIds)
             ->whereIn('status', $activeStatuses)
