@@ -51,11 +51,37 @@
                                 class="px-3 py-2 rounded-lg border border-outline-variant/30 bg-surface text-sm text-on-surface
                                     focus:outline-none focus:border-primary transition">
                                 <option value="">Todos los estados</option>
-                                <option value="pending">Pendiente</option>
                                 <option value="confirmed">Confirmada</option>
                                 <option value="completed">Completada</option>
                                 <option value="cancelled">Cancelada</option>
                             </select>
+                        </div>
+
+                        <!-- Modo de color -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+                                Modo de impresión
+                            </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex items-center gap-3 px-4 py-3 rounded-lg border border-outline-variant/30
+                       bg-surface cursor-pointer hover:bg-surface-container transition has-[:checked]:border-primary
+                       has-[:checked]:bg-primary/5">
+                                    <input type="radio" name="modo" value="color" checked class="accent-primary">
+                                    <div>
+                                        <p class="text-sm font-semibold text-on-surface">A color</p>
+                                        <p class="text-xs text-on-surface-variant">Con colores y fondos</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 px-4 py-3 rounded-lg border border-outline-variant/30
+                       bg-surface cursor-pointer hover:bg-surface-container transition has-[:checked]:border-primary
+                       has-[:checked]:bg-primary/5">
+                                    <input type="radio" name="modo" value="bw" class="accent-primary">
+                                    <div>
+                                        <p class="text-sm font-semibold text-on-surface">Blanco y negro</p>
+                                        <p class="text-xs text-on-surface-variant">Bajo consumo de tinta</p>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Info -->

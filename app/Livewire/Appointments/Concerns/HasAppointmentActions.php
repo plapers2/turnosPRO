@@ -4,6 +4,8 @@ namespace App\Livewire\Appointments\Concerns;
 
 use App\Models\Appointment;
 use App\Services\AppointmentNotifier;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
 
 trait HasAppointmentActions
 {
@@ -19,46 +21,19 @@ trait HasAppointmentActions
     // -- Modal completar
     public bool $showCompleteConfirm = false;
     public ?int $completeTargetId    = null;
+    public bool $hasAppointmentsForConfirmed = true;
+    public array $appointmentForConfirmed = [];
 
-    // -- Confirmar
-    public function openConfirmModal(int $id): void
-    {
-        $this->authorizeAppointmentAction($id);
-        abort_if(Appointment::findOrFail($id)->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
+    // -- Modal para marcar innasistencia
+    public bool $showNoAttendConfirm = false;
+    public ?int $noAttendTargetId = null;
 
-        $this->confirmTargetId    = $id;
-        $this->showConfirmConfirm = true;
-    }
+
 
     public function closeConfirmModal(): void
     {
         $this->showConfirmConfirm = false;
         $this->confirmTargetId   = null;
-    }
-
-    public function confirmAppointment(): void
-    {
-        if (! $this->confirmTargetId) return;
-        $this->authorizeAppointmentAction($this->confirmTargetId);
-
-        $appointment = Appointment::findOrFail($this->confirmTargetId);
-        abort_if($appointment->status !== 'pending', 422, 'Solo se pueden confirmar citas pendientes.');
-
-        $appointment->update(['status' => 'confirmed', 'confirmed_by' => auth()->id()]);
-        $appointment->load(['customer' => fn($q) => $q->withTrashed(), 'user' => fn($q) => $q->withTrashed(), 'company', 'services' => fn($q) => $q->withTrashed()]);
-
-        app(AppointmentNotifier::class)->send('confirmed_by_employee', $appointment);
-
-        $this->closeConfirmModal();
-        $this->refreshSelectedAppt($appointment);
-        $this->refreshCalendarEvents();
-        $this->dispatch('notify', type: 'success', message: 'Cita confirmada correctamente.');
-    }
-
-    public function openConfirmAndClose(int $id): void
-    {
-        $this->openConfirmModal($id);
-        $this->closeModal();
     }
 
     // -- Cancelar
@@ -67,8 +42,9 @@ trait HasAppointmentActions
         $this->authorizeAppointmentAction($id);
 
         $appointment = Appointment::findOrFail($id);
+        $appointmentOutTime = Appointment::where('id', $id)->where('start_time', '<', now())->exists();
 
-        if ($appointment->start_time->diffInMinutes(now(), false) > -120) {
+        if ($appointment->start_time->diffInMinutes(now(), false) > -120 && !$appointmentOutTime) {
             $this->dispatch('notify', type: 'error', message: 'No es posible cancelar una cita con menos de 2 horas de antelacion.');
             return;
         }
@@ -78,6 +54,28 @@ trait HasAppointmentActions
         $this->resetErrorBag();
         $this->showCancelConfirm  = true;
     }
+
+    public function openNoAttendModal(int $id): void
+    {
+        $this->authorizeAppointmentAction($id);
+
+        $appointment = Appointment::findOrFail($id);
+
+        if ($appointment->end_time > now()) {
+            $this->dispatch('notify', type: 'error', message: 'No es posible marcar una cita con inasistencia si no se ha terminado');
+            return;
+        }
+
+        $this->noAttendTargetId = $id;
+        $this->showNoAttendConfirm = true;
+    }
+
+    public function closeNoAttendModal(): void
+    {
+        $this->showNoAttendConfirm  = false;
+        $this->noAttendTargetId     = null;
+    }
+
 
     public function closeCancelModal(): void
     {
@@ -166,6 +164,26 @@ trait HasAppointmentActions
         $this->refreshSelectedAppt($appointment);
         $this->refreshCalendarEvents();
         $this->dispatch('notify', type: 'success', message: 'Cita marcada como completada.');
+    }
+
+    public function noAttendAppointment(): void
+    {
+        if (! $this->noAttendTargetId) return;
+        $this->authorizeAppointmentAction($this->noAttendTargetId);
+        $appointment = Appointment::findOrFail($this->noAttendTargetId);
+        abort_if($appointment->status !== 'confirmed', 422, 'Solo se pueden marca citas con inasistencia si su estado es confirmada.');
+        abort_if(!now()->gte($appointment->end_time), 422, 'La cita aun no ha finalizado.');
+
+        $appointment->update([
+            'status' => 'no_attend',
+            'no_attend_by' => auth()->id(),
+            'no_attend_at' => now()
+        ]);
+
+        $this->closeNoAttendModal();
+        $this->refreshSelectedAppt($appointment);
+        $this->refreshCalendarEvents();
+        $this->dispatch('notify', type: 'success', message: 'Cita marcada con inasistencia.');
     }
 
     public function openCompleteAndClose(int $id): void

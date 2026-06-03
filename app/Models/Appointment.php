@@ -54,6 +54,7 @@ class Appointment extends Model
         'cancelled_by',
         'confirmed_by',
         'completed_by',
+        'previous_user',
         'completed_at',
         'company_id',
         'status',
@@ -76,16 +77,16 @@ class Appointment extends Model
 
     // ─── Status constants ─────────────────────────────────────────────────────
 
-    const STATUS_PENDING   = 'pending';
     const STATUS_CONFIRMED = 'confirmed';
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELLED = 'cancelled';
+    const STATUS_NO_ATTEND = 'no_attend';
 
     const STATUSES = [
-        self::STATUS_PENDING,
         self::STATUS_CONFIRMED,
         self::STATUS_COMPLETED,
         self::STATUS_CANCELLED,
+        self::STATUS_NO_ATTEND
     ];
 
     // ─── Relaciones ───────────────────────────────────────────────────────────
@@ -133,6 +134,13 @@ class Appointment extends Model
     {
         return $this->belongsTo(User::class, 'completed_by');
     }
+
+    public function previousUser()
+    {
+        return $this->belongsTo(User::class, 'previous_user');
+    }
+
+
     public function statusLogs()
     {
         return $this->hasMany(AppointmentStatusLog::class)->orderBy('created_at');
@@ -140,10 +148,6 @@ class Appointment extends Model
 
     // ─── Scopes ───────────────────────────────────────────────────────────────
 
-    public function scopePending($query)
-    {
-        return $query->where('status', self::STATUS_PENDING);
-    }
 
     public function scopeConfirmed($query)
     {
@@ -171,11 +175,6 @@ class Appointment extends Model
 
     public function isCancellable(): bool
     {
-        return in_array($this->status, [self::STATUS_PENDING, self::STATUS_CONFIRMED]);
-    }
-
-    public function isConfirmable(): bool
-    {
-        return $this->status === self::STATUS_PENDING;
+        return in_array($this->status, [self::STATUS_CONFIRMED]);
     }
 }

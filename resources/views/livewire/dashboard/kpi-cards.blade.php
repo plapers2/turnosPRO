@@ -1,5 +1,5 @@
 <div>
-    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <section class="grid grid-cols-2 sm:grid-cols-5 gap-3">
         @php
             $meta = [
                 [
@@ -8,7 +8,7 @@
                     'wrap' => 'bg-primary-container text-on-primary-container',
                 ],
                 [
-                    'icon' => 'check_circle',
+                    'icon' => 'schedule',
                     'accent' => 'bg-[#0F6E56]',
                     'wrap' => 'bg-[#DDF4E8] text-[#0F6E56]',
                 ],
@@ -18,9 +18,14 @@
                     'wrap' => 'bg-error-container/60 text-on-error-container',
                 ],
                 [
-                    'icon' => 'schedule',
+                    'icon' => 'assignment_turned_in',
                     'accent' => 'bg-blue-600',
                     'wrap' => 'bg-blue-200 text-blue-700',
+                ],
+                  [
+                    'icon' => 'person_off',
+                    'accent' => 'bg-orange-500',
+                    'wrap' => 'bg-orange-200 text-orange-600',
                 ],
             ];
         @endphp

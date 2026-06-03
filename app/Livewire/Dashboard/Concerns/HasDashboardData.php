@@ -67,13 +67,13 @@ trait HasDashboardData
                     COUNT(*) as total,
                     SUM(status = ?) as confirmed,
                     SUM(status = ?) as cancelled,
-                    SUM(status = ?) as pending,
-                    SUM(status = ?) as completed
+                    SUM(status = ?) as completed,
+                    SUM(status = ?) as no_attend
                 ", [
                     Appointment::STATUS_CONFIRMED,
                     Appointment::STATUS_CANCELLED,
-                    Appointment::STATUS_PENDING,
                     Appointment::STATUS_COMPLETED,
+                    Appointment::STATUS_NO_ATTEND
                 ])
                 ->first();
 
@@ -85,7 +85,8 @@ trait HasDashboardData
                     ['label' => 'Total',       'value' => $total],
                     ['label' => 'Confirmadas', 'value' => (int) $stats->confirmed],
                     ['label' => 'Canceladas',  'value' => (int) $stats->cancelled],
-                    ['label' => 'Pendientes',  'value' => (int) $stats->pending],
+                    ['label' => 'Completadas',  'value' => (int) $stats->completed],
+                    ['label' => 'Inasistencias',  'value' => (int) $stats->no_attend],
                 ],
                 'asistencia' => [
                     'pct'  => $total > 0 ? round(($completed / $total) * 100) : 0,
@@ -191,7 +192,6 @@ trait HasDashboardData
                 'status'  => $a->status,
                 'label'   => match ($a->status) {
                     Appointment::STATUS_CONFIRMED => 'Confirmada',
-                    Appointment::STATUS_PENDING   => 'Pendiente',
                     Appointment::STATUS_COMPLETED => 'Completada',
                     default                       => $a->status,
                 },

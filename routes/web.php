@@ -16,6 +16,9 @@ use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\ProfessionalAvailabilityController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TwoFactorSetupController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\ClientesMasterController;
 use App\Livewire\Dashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -66,6 +69,14 @@ Route::middleware(['auth', 'password.changed'])->group(function () {
     // Perfil
     Route::get('/settings', [ProfileSettingsController::class, 'edit'])->name('profile.settings');
     Route::put('/settings', [ProfileSettingsController::class, 'update'])->name('profile.settings.update');
+
+    // Comprobante PDF de cita
+    Route::get('/appointments/{id}/voucher', [BookingController::class, 'voucher'])
+        ->name('appointment.voucher')
+        ->middleware(['auth']);
+
+    Route::get('/booking/citas-ocupadas', [BookingController::class, 'citasOcupadas'])
+        ->middleware('role:cliente|admin|empleado');
 });
 
 
@@ -88,6 +99,8 @@ Route::middleware(['auth', 'password.changed', 'role:master'])->prefix('master')
     Route::post('/admins', [AdminController::class, 'store'])->name('admins.store');
     Route::delete('/admins/{admin}', [AdminController::class, 'destroy'])->name('admins.destroy');
     Route::post('/admins/{id}/restore', [AdminController::class, 'restore'])->name('admins.restore');
+    Route::get('/clientes', [ClientesMasterController::class, 'index'])->name('clientes.index');
+    Route::patch('/clientes/{user}/toggle-plan', [ClientesMasterController::class, 'togglePlan'])->name('clientes.toggle-plan');
 });
 
 
@@ -95,7 +108,6 @@ Route::middleware(['auth', 'password.changed', 'role:master'])->prefix('master')
 // Rutas para clientes
 // ─────────────────────────────────────────────
 Route::middleware(['auth', 'password.changed', 'role:cliente'])->group(function () {
-    Route::get('/booking/citas-ocupadas', [BookingController::class, 'citasOcupadas']);
     Route::get('/booking/horarios-empresa', [BookingController::class, 'horariosEmpresa']);
     Route::get('/appointments', [BookingController::class, 'selectCompany'])->name('appointment.index');
     Route::get('/booking/{company}/services', [BookingController::class, 'selectServices'])->name('appointments.selectServices');
@@ -105,6 +117,11 @@ Route::middleware(['auth', 'password.changed', 'role:cliente'])->group(function 
     Route::get('/my-appointments', [BookingController::class, 'misCitas'])->name('appointment.history');
     Route::post('/my-appointments/cancel/{id}', [BookingController::class, 'cancelFromPanel'])->name('appointments.cancelFromPanel');
     Route::get('/booking/validar-combinacion', [BookingController::class, 'validarCombinacion']);
+    Route::get('/appointments/new', [BookingController::class, 'unified'])->name('appointment.create');
+    Route::get('/booking/servicios-empresa', [BookingController::class, 'serviciosEmpresa'])->name('booking.serviciosEmpresa');
+    Route::get('/appointments/create', function () {
+        return view('appointment.create');
+    })->name('appointment.create');
 });
 
 
@@ -118,6 +135,10 @@ Route::middleware(['auth', 'password.changed', 'role:admin'])->group(function ()
     Route::get('/appointments/export', [BookingController::class, 'exportView'])->name('appointments.export');
     Route::get('/appointments/export-pdf', [BookingController::class, 'exportPdf'])->name('appointments.export-pdf');
     Route::get('/notification-logs', [NotificationLogController::class, 'index'])->name('notification-logs.index');
+    Route::get('/invitations', [InvitationController::class, 'index'])->name('invitations.index');
+    Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
+    Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
+    Route::post('/invitations/{id}/restore', [InvitationController::class, 'restore'])->name('invitations.restore');
 });
 
 
@@ -131,11 +152,28 @@ Route::middleware(['auth', 'password.changed', 'role:admin|empleado'])->group(fu
         return view('appointment-manager.index');
     })->name('appointment-manager.index');
     Route::get('/professional-availability', [ProfessionalAvailabilityController::class, 'index'])->name('professional-availability.index');
+    Route::get('/appointments/new-for-client', function () {
+        return view('employee.appointment-create');
+    })->name('employee.appointment.create');
 });
 
 
-// Cancelar cita desde email (pública con token)
+// ─────────────────────────────────────────────
+// Rutas publicas
+// ─────────────────────────────────────────────
+
+// Cancelar cita desde email
 Route::get('/appointments/cancel/{token}', [BookingController::class, 'cancelByToken'])->name('appointments.cancel');
+Route::post('/appointments/cancel/{token}', [BookingController::class, 'cancelByTokenConfirm'])->name('appointments.cancel.confirm');
+
+// Registro con invitación
+Route::get('/register/{token}', [RegisteredUserController::class, 'create'])->middleware('guest')->name('register.invite');
+
+// Aceptar invitación estando autenticado
+Route::get('/invitations/{token}/accept', [InvitationController::class, 'accept'])->middleware('auth')->name('invitations.accept');
+
+// Registro libre (sin invitación)
+Route::get('/register', [RegisteredUserController::class, 'create'])->middleware('guest')->name('register');
 
 // Prueba todos los emails de una vez
 Route::get('/test-all-mails', function () {

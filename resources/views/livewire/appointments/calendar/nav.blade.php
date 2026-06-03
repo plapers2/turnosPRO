@@ -34,7 +34,7 @@
     </div>
 
     <div class="hidden sm:flex items-center gap-x-4 gap-y-1 flex-wrap justify-end">
-        @foreach ([['color' => '#854F0B', 'bg' => '#FAEEDA', 'label' => 'Pendiente'], ['color' => '#0F6E56', 'bg' => '#E1F5EE', 'label' => 'Confirmada'], ['color' => '#185FA5', 'bg' => '#E6F1FB', 'label' => 'Completada'], ['color' => '#A32D2D', 'bg' => '#FCEBEB', 'label' => 'Cancelada']] as $s)
+        @foreach ([['color' => '#0F6E56', 'bg' => '#E1F5EE', 'label' => 'Confirmada'], ['color' => '#185FA5', 'bg' => '#E6F1FB', 'label' => 'Completada'], ['color' => '#A32D2D', 'bg' => '#FCEBEB', 'label' => 'Cancelada']] as $s)
             <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-on-surface-variant">
                 <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ $s['color'] }}"></span>
                 {{ $s['label'] }}

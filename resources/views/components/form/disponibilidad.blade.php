@@ -3,12 +3,12 @@
 
     if ($oldDisp) {
         $dispParaJs = collect($oldDisp)
-            ->filter(fn($s) => !empty($s['dia_semana'])) // ← filtrar vacíos
+            ->filter(fn($s) => !empty($s['day_of_week']))
             ->map(
                 fn($s) => [
-                    'dia_semana' => $s['dia_semana'],
-                    'hora_inicio' => $s['hora_inicio'] ?? '08:00',
-                    'hora_fin' => $s['hora_fin'] ?? '09:00',
+                    'day_of_week' => $s['day_of_week'],
+                    'start_time' => $s['start_time'] ?? '08:00',
+                    'end_time' => $s['end_time'] ?? '09:00',
                 ],
             )
             ->values();
@@ -16,9 +16,9 @@
         $dispParaJs = $disponibilidades
             ->map(
                 fn($d) => [
-                    'dia_semana' => $d->day_of_week,
-                    'hora_inicio' => substr($d->start_time, 0, 5),
-                    'hora_fin' => substr($d->end_time, 0, 5),
+                    'day_of_week' => $d->day_of_week,
+                    'start_time' => substr($d->start_time, 0, 5),
+                    'end_time' => substr($d->end_time, 0, 5),
                 ],
             )
             ->values();
@@ -59,22 +59,24 @@
                         <div class="flex flex-col gap-1">
 
                             <div class="grid grid-cols-[1fr_1fr_auto] gap-3 items-center">
-                                <select :name="`disponibilidad[${indexGlobal(dia.key, ti)}][hora_inicio]`"
+
+                                {{-- Select inicio: usa horasDia(dia.key) --}}
+                                <select :name="`disponibilidad[${indexGlobal(dia.key, ti)}][start_time]`"
                                     x-model="turno.inicio"
-                                    :class="tieneError(dia.key, ti, 'hora_inicio') ? 'border-red-400 focus:border-red-400' : ''"
+                                    :class="tieneError(dia.key, ti, 'start_time') ? 'border-red-400 focus:border-red-400' : ''"
                                     class="w-full rounded-lg border border-outline-variant/30 text-sm px-3 py-2 bg-surface focus:border-primary/40 focus:ring-primary/10">
-                                    <template x-for="h in horas" :key="h">
-                                        {{-- Agrega :selected explícito --}}
+                                    <template x-for="h in horasDia(dia.key)" :key="h">
                                         <option :value="h" :selected="h === turno.inicio" x-text="h">
                                         </option>
                                     </template>
                                 </select>
 
-                                <select :name="`disponibilidad[${indexGlobal(dia.key, ti)}][hora_fin]`"
+                                {{-- Select fin: usa horasDia(dia.key) --}}
+                                <select :name="`disponibilidad[${indexGlobal(dia.key, ti)}][end_time]`"
                                     x-model="turno.fin"
-                                    :class="tieneError(dia.key, ti, 'hora_fin') ? 'border-red-400 focus:border-red-400' : ''"
+                                    :class="tieneError(dia.key, ti, 'end_time') ? 'border-red-400 focus:border-red-400' : ''"
                                     class="w-full rounded-lg border border-outline-variant/30 text-sm px-3 py-2 bg-surface focus:border-primary/40 focus:ring-primary/10">
-                                    <template x-for="h in horas" :key="h">
+                                    <template x-for="h in horasDia(dia.key)" :key="h">
                                         <option :value="h" :selected="h === turno.fin" x-text="h">
                                         </option>
                                     </template>
@@ -83,19 +85,20 @@
                                 <button type="button" @click="eliminarTurno(dia.key, ti)"
                                     class="text-on-surface-variant hover:text-error transition text-lg leading-none px-1">×</button>
 
-                                <input type="hidden" :name="`disponibilidad[${indexGlobal(dia.key, ti)}][dia_semana]`"
+                                <input type="hidden"
+                                    :name="`disponibilidad[${indexGlobal(dia.key, ti)}][day_of_week]`"
                                     :value="dia.key">
                                 <input type="hidden" :name="`disponibilidad[${indexGlobal(dia.key, ti)}][activo]`"
                                     value="1">
                             </div>
 
-                            {{-- Mensaje de error por turno (viene del servidor via Blade) --}}
-                            <template x-if="mensajeError(dia.key, ti, 'hora_inicio')">
-                                <p class="text-xs text-red-500 mt-0.5"
-                                    x-text="mensajeError(dia.key, ti, 'hora_inicio')"></p>
+                            {{-- Mensajes de error por turno (servidor via Blade) --}}
+                            <template x-if="mensajeError(dia.key, ti, 'start_time')">
+                                <p class="text-xs text-red-500 mt-0.5" x-text="mensajeError(dia.key, ti, 'start_time')">
+                                </p>
                             </template>
-                            <template x-if="mensajeError(dia.key, ti, 'hora_fin')">
-                                <p class="text-xs text-red-500 mt-0.5" x-text="mensajeError(dia.key, ti, 'hora_fin')">
+                            <template x-if="mensajeError(dia.key, ti, 'end_time')">
+                                <p class="text-xs text-red-500 mt-0.5" x-text="mensajeError(dia.key, ti, 'end_time')">
                                 </p>
                             </template>
 
@@ -114,21 +117,62 @@
 
 <script>
     function disponibilidad(existentes) {
-        const HORARIOS_EMPRESA = @json($horariosEmpresa);
+        const HORARIOS_EMPRESA = (() => {
+            const raw = @json($horariosEmpresa);
+            if (!raw) return [];
+            if (Array.isArray(raw)) return raw;
+            if (typeof raw === 'object') return Object.values(raw);
+            return [];
+        })();
         const ERRORES = @json($errors->toArray());
 
-        // Construir turnos ANTES de retornar el objeto reactivo
+        // ── Todas las horas posibles en intervalos de 30 min (06:00 – 22:30) ──
+        const TODAS_LAS_HORAS = [...Array(17 * 2)].map((_, i) => {
+            const total = 360 + i * 30;
+            return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+        });
+
+        /**
+         * Devuelve el array de horas permitidas para un día concreto
+         * según los rangos de HORARIOS_EMPRESA.
+         * Si el día no tiene horario de empresa configurado, devuelve todas las horas.
+         */
+        function horasPorDia(dayKey) {
+            const rangos = HORARIOS_EMPRESA.filter(h => h.day_of_week === dayKey);
+            if (!rangos.length) return TODAS_LAS_HORAS;
+
+            return TODAS_LAS_HORAS.filter(h =>
+                rangos.some(r =>
+                    h >= r.start_time.slice(0, 5) &&
+                    h <= r.end_time.slice(0, 5)
+                )
+            );
+        }
+
+        /**
+         * Devuelve la primera y última hora válida para un día,
+         * usadas al crear turnos nuevos.
+         */
+        function primeraYUltimaHora(dayKey) {
+            const horas = horasPorDia(dayKey);
+            return {
+                inicio: horas[0] ?? '08:00',
+                fin: horas[horas.length - 1] ?? '17:00',
+            };
+        }
+
+        // ── Turnos iniciales (desde BD o de old()) ──────────────────────────
         const turnosIniciales = {};
         existentes.forEach(e => {
-            if (!e.dia_semana) return;
-            if (!turnosIniciales[e.dia_semana]) turnosIniciales[e.dia_semana] = [];
-            turnosIniciales[e.dia_semana].push({
-                inicio: (e.hora_inicio ?? '08:00').slice(0, 5),
-                fin: (e.hora_fin ?? '09:00').slice(0, 5),
+            if (!e.day_of_week) return;
+            if (!turnosIniciales[e.day_of_week]) turnosIniciales[e.day_of_week] = [];
+            turnosIniciales[e.day_of_week].push({
+                inicio: (e.start_time ?? '08:00').slice(0, 5),
+                fin: (e.end_time ?? '09:00').slice(0, 5),
             });
         });
 
-        // Construir errores indexados ANTES de retornar
+        // ── Errores del servidor indexados por posición global ───────────────
         const erroresIniciales = {};
         Object.entries(ERRORES).forEach(([clave, msgs]) => {
             const match = clave.match(/^disponibilidad\.(\d+)\.(\w+)$/);
@@ -139,11 +183,8 @@
             erroresIniciales[idx][campo] = msgs[0];
         });
 
+        // ── Objeto Alpine ────────────────────────────────────────────────────
         return {
-            horas: [...Array(17 * 2)].map((_, i) => {
-                const total = 360 + i * 30;
-                return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-            }),
             dias: [{
                     key: 'Monday',
                     label: 'Lun',
@@ -181,13 +222,17 @@
                 },
             ],
 
-            // Ya inicializados, Alpine NO los mutará al arrancar
             turnos: turnosIniciales,
             erroresIndexados: erroresIniciales,
 
-            // init() ya no hace nada con datos, solo podría usarse para efectos secundarios
             init() {},
 
+            // ── Horas disponibles para un día (expuesto al template) ─────────
+            horasDia(dayKey) {
+                return horasPorDia(dayKey);
+            },
+
+            // ── Errores ──────────────────────────────────────────────────────
             tieneError(key, ti, campo) {
                 const idx = this.indexGlobal(key, ti);
                 return !!this.erroresIndexados?.[idx]?.[campo];
@@ -196,6 +241,8 @@
                 const idx = this.indexGlobal(key, ti);
                 return this.erroresIndexados?.[idx]?.[campo] ?? null;
             },
+
+            // ── Días ─────────────────────────────────────────────────────────
             estaActivo(key) {
                 return !!this.turnos[key]?.length;
             },
@@ -203,26 +250,38 @@
                 if (this.estaActivo(key)) {
                     delete this.turnos[key];
                 } else {
+                    const {
+                        inicio,
+                        fin
+                    } = primeraYUltimaHora(key);
                     this.turnos[key] = [{
-                        inicio: '08:00',
-                        fin: '17:00'
+                        inicio,
+                        fin
                     }];
                 }
             },
+            diasActivos() {
+                return this.dias.filter(d => this.estaActivo(d.key));
+            },
+
+            // ── Turnos ───────────────────────────────────────────────────────
             agregarTurno(key) {
                 if (!this.turnos[key]) this.turnos[key] = [];
+                const {
+                    inicio,
+                    fin
+                } = primeraYUltimaHora(key);
                 this.turnos[key].push({
-                    inicio: '08:00',
-                    fin: '17:00'
+                    inicio,
+                    fin
                 });
             },
             eliminarTurno(key, index) {
                 this.turnos[key].splice(index, 1);
                 if (!this.turnos[key].length) delete this.turnos[key];
             },
-            diasActivos() {
-                return this.dias.filter(d => this.estaActivo(d.key));
-            },
+
+            // ── Índice global para los nombres de los inputs ─────────────────
             indexGlobal(key, ti) {
                 let idx = 0;
                 for (const dia of this.dias) {

@@ -6,11 +6,9 @@
 
     {{-- FILTROS --}}
     <div class="flex flex-col gap-3 px-4 pt-3 sm:px-8 lg:flex-row lg:items-center mb-3">
-        {{-- Filtro de dias --}}
         <div class="relative w-full lg:max-w-[200px]">
             <span
-                class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2
-                         -translate-y-1/2 text-[17px] text-on-surface-variant">
+                class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[17px] text-on-surface-variant">
                 calendar_month
             </span>
             <select wire:model.live="day"
@@ -22,53 +20,37 @@
                 @foreach ($days as $key => $label)
                     <option value="{{ $key }}">{{ $label }}</option>
                 @endforeach
-
             </select>
             <span
-                class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2
-                         -translate-y-1/2 text-[17px] text-on-surface-variant">
+                class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[17px] text-on-surface-variant">
                 expand_more
             </span>
         </div>
 
-        {{-- Tabs de estado --}}
         <div
-            class="flex gap-1 rounded-xl border border-outline-variant/60
-                    bg-surface-container-lowest p-1 shrink-0 self-start lg:self-auto">
+            class="flex gap-1 rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-1 shrink-0 self-start lg:self-auto">
             <button wire:click="$set('status', '')"
-                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
-                       text-[12.5px] font-semibold transition-all duration-150
-                       {{ $status === ''
-                           ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm'
-                           : 'text-on-surface-variant hover:bg-surface-container' }}">
+                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold transition-all duration-150
+                       {{ $status === '' ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm' : 'text-on-surface-variant hover:bg-surface-container' }}">
                 Todos
             </button>
             <button wire:click="$set('status', 'active')"
-                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
-                       text-[12.5px] font-semibold transition-all duration-150
-                       {{ $status === 'active'
-                           ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm'
-                           : 'text-on-surface-variant hover:bg-surface-container' }}">
+                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold transition-all duration-150
+                       {{ $status === 'active' ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm' : 'text-on-surface-variant hover:bg-surface-container' }}">
                 Activos
             </button>
             <button wire:click="$set('status', 'inactive')"
-                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
-                       text-[12.5px] font-semibold transition-all duration-150
-                       {{ $status === 'inactive'
-                           ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm'
-                           : 'text-on-surface-variant hover:bg-surface-container' }}">
+                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold transition-all duration-150
+                       {{ $status === 'inactive' ? 'bg-on-primary-fixed-variant text-primary-fixed shadow-sm' : 'text-on-surface-variant hover:bg-surface-container' }}">
                 Inactivos
             </button>
         </div>
-
     </div>
 
     {{-- GRID SEMANAL --}}
-    <div class="px-8 pb-20">
+    <div class="px-3 sm:px-8 pb-20">
         <div
-            class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20
-                    shadow-[0_2px_16px_rgba(95,94,90,0.05)] p-6">
-
+            class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-[0_2px_16px_rgba(95,94,90,0.05)] p-3 sm:p-6">
             <div wire:loading.class="opacity-50 pointer-events-none transition-opacity duration-200"
                 wire:target="status, day" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
 
@@ -81,8 +63,7 @@
                                 {{ $label }}
                             </h3>
                             <span
-                                class="text-[11px] font-semibold px-2.5 py-1 rounded-full
-                                         bg-primary-fixed text-primary">
+                                class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-primary-fixed text-primary">
                                 {{ count($openingHours[$key] ?? []) }} horarios
                             </span>
                         </div>
@@ -97,9 +78,7 @@
                                             px-3.5 py-3 flex flex-col gap-2.5
                                             hover:shadow-[0_4px_16px_rgba(95,94,90,0.08)]
                                             hover:-translate-y-px transition-all duration-200
-                                            {{ $hour->trashed()
-                                                ? 'border-dashed border-outline-variant/50 opacity-75'
-                                                : 'border-outline-variant/50 hover:border-outline-variant' }}">
+                                            {{ $hour->trashed() ? 'border-dashed border-outline-variant/50 opacity-75' : 'border-outline-variant/50 hover:border-outline-variant' }}">
 
                                     {{-- TIEMPO + DURACIÓN --}}
                                     <div class="flex items-center gap-1.5">
@@ -113,23 +92,22 @@
                                             {{ \Carbon\Carbon::parse($hour->end_time)->format('h:i A') }}
                                         </span>
                                         <span
-                                            class="ml-auto text-[11px] font-medium text-on-surface-variant
-                                                     bg-surface-container px-2 py-0.5 rounded-md">
+                                            class="ml-auto text-[11px] font-medium text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-md">
                                             {{ \Carbon\Carbon::parse($hour->start_time)->diffInMinutes(\Carbon\Carbon::parse($hour->end_time)) }}
                                             min
                                         </span>
                                     </div>
 
                                     {{-- ESTADO + ACCIONES --}}
-                                    <div class="flex items-center justify-between">
+                                    <div class="flex items-center justify-between gap-2">
                                         <span
-                                            class="text-[11px] font-semibold px-2.5 py-1 rounded-[7px]
+                                            class="text-[11px] font-semibold px-2.5 py-1 rounded-[7px] shrink-0
                                             {{ $hour->deleted_at ? 'bg-error-container text-on-error-container' : 'bg-indigo-50 text-indigo-700' }}">
                                             {{ $hour->deleted_at ? 'Inactivo' : 'Activo' }}
                                         </span>
 
                                         @role('admin')
-                                            <div class="flex items-center gap-1.5">
+                                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
                                                 @if ($hour->deleted_at)
                                                     <button wire:click="restoreHour({{ $hour->id }})"
                                                         wire:loading.attr="disabled"
@@ -182,10 +160,8 @@
                                 </div>
                             @endforelse
                         </div>
-
                     </div>
                 @endforeach
-
             </div>
         </div>
     </div>

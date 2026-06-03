@@ -48,17 +48,61 @@
                             </x-form.field>
                         </div>
 
-                        <x-form.field label="Tipo de empresa" for="type_company_id">
-                            <x-form.select id="type_company_id" name="type_company_id">
-                                <option value="">Selecciona un tipo...</option>
-                                @foreach ($typeCompanies as $type)
-                                <option value="{{ $type->id }}" {{ old('type_company_id') == $type->id ? 'selected' : '' }}>
-                                    {{ $type->name }}
-                                </option>
-                                @endforeach
-                            </x-form.select>
-                            <x-input-error class="mt-1" :messages="$errors->get('type_company_id')" />
-                        </x-form.field>
+                        <div class="md:col-span-2" x-data="{ tipoType: '{{ old('type_type', 'existing') }}' }">
+                            <label class="block text-sm font-medium text-on-surface mb-2">Tipo de empresa</label>
+
+                            {{-- Selector de modo --}}
+                            <div class="flex gap-3 mb-4">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="type_type" value="existing" x-model="tipoType" class="sr-only" />
+                                    <div :class="tipoType === 'existing'
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-outline-variant/30 text-on-surface-variant hover:border-primary/40'"
+                                        class="flex items-center gap-3 p-4 rounded-xl border-2 transition">
+                                        <span class="material-symbols-outlined text-[20px]">storefront</span>
+                                        <div>
+                                            <p class="text-sm font-semibold">Tipo existente</p>
+                                            <p class="text-xs opacity-70">Selecciona de los tipos ya creados</p>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="type_type" value="new" x-model="tipoType" class="sr-only" />
+                                    <div :class="tipoType === 'new'
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-outline-variant/30 text-on-surface-variant hover:border-primary/40'"
+                                        class="flex items-center gap-3 p-4 rounded-xl border-2 transition">
+                                        <span class="material-symbols-outlined text-[20px]">add_circle</span>
+                                        <div>
+                                            <p class="text-sm font-semibold">Crear nuevo tipo</p>
+                                            <p class="text-xs opacity-70">Define un nuevo tipo de negocio</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {{-- Existente --}}
+                            <div x-show="tipoType === 'existing'" x-cloak>
+                                <x-form.select id="type_company_id" name="type_company_id">
+                                    <option value="">Selecciona un tipo...</option>
+                                    @foreach ($typeCompanies as $type)
+                                    <option value="{{ $type->id }}" {{ old('type_company_id') == $type->id ? 'selected' : '' }}>
+                                        {{ $type->name }}
+                                    </option>
+                                    @endforeach
+                                </x-form.select>
+                                <x-input-error class="mt-1" :messages="$errors->get('type_company_id')" />
+                            </div>
+
+                            {{-- Nuevo --}}
+                            <div x-show="tipoType === 'new'" x-cloak>
+                                <x-form.input id="type_company_name" name="type_company_name" type="text"
+                                    :value="old('type_company_name')"
+                                    placeholder="Ej. Barbería, Clínica dental, Spa..."
+                                    class="focus:ring-primary/10 focus:border-primary/40" />
+                                <x-input-error class="mt-1" :messages="$errors->get('type_company_name')" />
+                            </div>
+                        </div>
                     </div>
 
                     <!-- CARD ADMINISTRADOR -->

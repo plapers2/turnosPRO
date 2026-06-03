@@ -42,6 +42,10 @@
         <x-sidebar-link route="master.admins.index" pattern="master.admins.*" icon="manage_accounts">
             Administradores
         </x-sidebar-link>
+
+        <x-sidebar-link route="master.clientes.index" pattern="master.clientes.*" icon="group">
+            Clientes
+        </x-sidebar-link>
         @endcan
 
         @can('gestionar dashboard')

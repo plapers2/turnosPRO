@@ -26,6 +26,7 @@ class User extends Authenticatable
         'image',
         'state',
         'must_change_password',
+        'subscription_tier',
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'deleted_at' => 'datetime',
             'must_change_password' => 'boolean',
+            'subscription_tier' => 'string',
         ];
     }
     /**
@@ -85,5 +87,14 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
+    public function isPremium(): bool
+    {
+        return $this->subscription_tier === 'premium';
+    }
+
+    public function isStandard(): bool
+    {
+        return $this->subscription_tier === 'standard';
     }
 }

@@ -3,19 +3,24 @@
 namespace App\Livewire\Customers;
 
 use App\Models\Customer;
+use App\Models\CompanyInvitation;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CustomerIndex extends Component
 {
     use WithPagination;
 
-    public string $search = '';
-    public string $servicio = '';
+    public string $search    = '';
+    public string $servicio  = '';
     public string $frecuente = '';
 
-
+    // Modal invitación
+    public bool   $showInvitationModal = false;
+    public string $invitationEmail     = '';
+    public ?string $generatedLink      = null;
 
     public function updatingSearch(): void
     {
@@ -28,6 +33,45 @@ class CustomerIndex extends Component
     public function updatingFrecuente(): void
     {
         $this->resetPage();
+    }
+
+    public function openInvitationModal(): void
+    {
+        $this->invitationEmail = '';
+        $this->generatedLink   = null;
+        $this->showInvitationModal = true;
+    }
+
+    public function closeInvitationModal(): void
+    {
+        $this->showInvitationModal = false;
+        $this->invitationEmail     = '';
+        $this->generatedLink       = null;
+    }
+
+    public function generateInvitation(): void
+    {
+        $this->validate([
+            'invitationEmail' => 'required|email',
+        ], [
+            'invitationEmail.required' => 'El correo es obligatorio para generar la invitación.',
+            'invitationEmail.email'    => 'El correo no tiene un formato válido.',
+        ]);
+
+        $companyId = session('active_company_id');
+        abort_if(!$companyId, 403);
+
+        $invitation = CompanyInvitation::create([
+            'company_id' => $companyId,
+            'invited_by' => auth()->id(),
+            'token'      => Str::random(48),
+            'email'      => $this->invitationEmail,
+            'status'     => 'sent',
+            'expires_at' => now()->addDays(7),
+        ]);
+
+        $this->generatedLink   = route('register.invite', $invitation->token);
+        $this->invitationEmail = '';
     }
 
     public function render()
@@ -50,8 +94,7 @@ class CustomerIndex extends Component
                         ->where('status', 'completed')
                         ->whereHas(
                             'services',
-                            fn($s) =>
-                            $s->where('name', 'like', "%{$this->servicio}%")
+                            fn($s) => $s->where('name', 'like', "%{$this->servicio}%")
                         );
                 });
             })
@@ -68,7 +111,7 @@ class CustomerIndex extends Component
                     ->where('company_id', $companyId)
                     ->where('status', 'completed')
                     ->latest('start_time')
-                    ->limit(1)
+                    ->limit(1),
             ])
             ->orderByDesc('total_visitas')
             ->paginate(10);
@@ -85,6 +128,7 @@ class CustomerIndex extends Component
                 ->orderByDesc('total')
                 ->first();
         });
+
         $servicios = \App\Models\Service::where('company_id', $companyId)
             ->orderBy('name')
             ->pluck('name', 'id');

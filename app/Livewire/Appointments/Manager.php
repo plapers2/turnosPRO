@@ -4,29 +4,68 @@ namespace App\Livewire\Appointments;
 
 use App\Livewire\Appointments\Concerns\HasAppointmentActions;
 use App\Livewire\Appointments\Concerns\HasAuthorization;
+use App\Livewire\Appointments\Concerns\HasAvailabilitySlots;
 use App\Livewire\Appointments\Concerns\HasCalendar;
 use App\Livewire\Appointments\Concerns\HasDetailModal;
 use App\Livewire\Appointments\Concerns\HasFilters;
+use App\Livewire\Appointments\Concerns\HasProfessionalReassignment;
 use App\Models\Appointment;
 use App\Models\User;
+use Carbon\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Livewire\Appointments\Concerns\HasDelayNotification;
 
 class Manager extends Component
 {
     use WithPagination;
     use HasAuthorization;
-    use HasFilters;
     use HasDetailModal;
     use HasCalendar;
     use HasAppointmentActions;
+    use HasProfessionalReassignment;
+    use HasDelayNotification;
+    use HasFilters,
+        HasAvailabilitySlots {
+        // ── filterService ──────────────────────────────────────────────────
+        HasFilters::updatedFilterService           insteadof HasAvailabilitySlots;
+        HasFilters::updatedFilterService           as updatedFilterServiceFilters;
+        HasAvailabilitySlots::updatedFilterService as updatedFilterServiceAvailability;
 
+        // ── filterProfessional ─────────────────────────────────────────────
+        HasFilters::updatedFilterProfessional           insteadof HasAvailabilitySlots;
+        HasFilters::updatedFilterProfessional           as updatedFilterProfessionalFilters;
+        HasAvailabilitySlots::updatedFilterProfessional as updatedFilterProfessionalAvailability;
+    }
+
+    // 'list' | 'calendar' | 'availability'
     public string $view = 'list';
+    public bool $showPendingBanner = true;
 
     public function updatedView(string $value): void
     {
         $this->dispatch('viewChanged', view: $value);
+    }
+
+    /**
+     * Al cambiar servicio: resetear paginación + calendario (HasFilters)
+     * y sincronizar slotMinutes (HasAvailabilitySlots).
+     */
+    public function updatedFilterService($value): void
+    {
+        $this->updatedFilterServiceFilters($value);
+        $this->updatedFilterServiceAvailability($value);
+    }
+
+    /**
+     * Al cambiar profesional: resetear paginación + calendario (HasFilters)
+     * y resetear servicio/slotMinutes (HasAvailabilitySlots).
+     */
+    public function updatedFilterProfessional($value): void
+    {
+        $this->updatedFilterProfessionalFilters($value);
+        $this->updatedFilterProfessionalAvailability($value);
     }
 
     private function baseQuery()
@@ -76,10 +115,10 @@ class Manager extends Component
 
         return [
             'total'     => $counts->sum(),
-            'pending'   => $counts->get('pending',   0),
             'confirmed' => $counts->get('confirmed', 0),
             'cancelled' => $counts->get('cancelled', 0),
             'completed' => $counts->get('completed', 0),
+            'no_attend' => $counts->get('no_attend', 0)
         ];
     }
 
@@ -105,16 +144,44 @@ class Manager extends Component
             ->get();
     }
 
+    public function showConfirmAppointmentsForCompleted()
+    {
+        return $this->scopeCompany(
+            Appointment::with([
+                'customer' => fn($q) => $q->withTrashed(),
+                'user'     => fn($q) => $q->withTrashed(),
+                'services' => fn($q) => $q->withTrashed()
+            ])
+        )
+            ->when(! $this->isAdmin, fn($q) => $q->where('user_id', auth()->id()))
+            ->where('status', 'confirmed')
+            ->whereDate('start_time', today())
+            ->whereTime('start_time', '<', now())
+            ->get();
+    }
+
+    public function dismissBanner(): void
+    {
+        $this->showPendingBanner = false;
+    }
+
     public function render()
     {
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
+
         return view('livewire.appointments.⚡manager', [
-            'appointments'   => $this->appointments(),
-            'stats'          => $this->stats(),
-            'professionals'  => $this->professionals(),
-            'services'       => $this->services(),
-            'calendarEvents' => $this->calendarEvents(),
-            'isAdmin'        => $this->isAdmin,
+            'appointments'             => $this->appointments(),
+            'stats'                    => $this->stats(),
+            'professionals'            => $this->professionals(),
+            'services'                 => $this->services(),
+            'calendarEvents'           => $this->calendarEvents(),
+            'isAdmin'                  => $this->isAdmin,
+            'appointmentsForConfirmed' => $this->showConfirmAppointmentsForCompleted(),
+            'availabilityDays'         => $this->availabilityDays(),
+            'availabilitySummary'      => $this->availabilitySummary(),
+            'availableServices'        => $this->availableServices(),
+            // ── Usado por la filterbar de lista y calendario ──
+            'filterableServices'       => $this->filterableServices(),
         ]);
     }
 }

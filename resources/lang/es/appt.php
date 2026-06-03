@@ -7,5 +7,7 @@ return [
         'confirmed' => 'Confirmada',
         'completed' => 'Completada',
         'cancelled' => 'Cancelada',
+        'reassigned' => 'Reasignada',
+        'no_attend' => 'Inasistencia'
     ],
 ];

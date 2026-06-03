@@ -41,7 +41,10 @@ class CompanyController extends Controller
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('logos', 'public');
         }
-
+        if ($data['type_type'] === 'new') {
+            $tipo = TypeCompany::create(['name' => $data['type_company_name']]);
+            $data['type_company_id'] = $tipo->id;
+        }
         $company = Company::create([
             'name'            => $data['name'],
             'email'           => $data['email'],
@@ -99,7 +102,10 @@ class CompanyController extends Controller
         } else {
             unset($data['logo']);
         }
-
+        if ($request->type_type === 'new') {
+            $tipo = TypeCompany::create(['name' => $request->type_company_name]);
+            $data['type_company_id'] = $tipo->id;
+        }
         $company->update($data);
 
         return redirect()->route('master.index')

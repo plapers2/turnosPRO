@@ -2,6 +2,12 @@
     <form class="flex flex-col gap-5" method="POST" action="{{ route('register') }}">
         @csrf
 
+        {{-- Si es registro por invitación --}}
+        @if($token ?? null)
+        <input type="hidden" name="invitation_token" value="{{ $token }}">
+        <p class="alert-info">Estás registrándote por invitación. Solo tendrás acceso a los servicios de esta empresa.</p>
+        @endif
+
         {{-- Título --}}
         <div>
             <h2 class="text-lg font-semibold text-on-surface">Crear una cuenta</h2>
@@ -39,8 +45,16 @@
             <div class="relative group">
                 <span
                     class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[20px] text-outline-variant group-focus-within:text-primary transition-colors">mail</span>
-                <x-text-input placeholder="usuario@correo.com" id="email" class="block w-full" type="email"
-                    name="email" :value="old('email')" required autocomplete="username" />
+                <x-text-input
+                    placeholder="usuario@correo.com"
+                    id="email"
+                    type="email"
+                    name="email"
+                    :value="old('email', $invitation?->email ?? '')"
+                    required
+                    autocomplete="username"
+                    :class="(isset($invitation) && $invitation->email) ? 'block w-full opacity-60 cursor-not-allowed' : 'block w-full'"
+                    :readonly="isset($invitation) && $invitation->email !== null" />
             </div>
             <x-input-error :messages="$errors->get('email')" class="px-1" />
         </div>
@@ -62,7 +76,7 @@
                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                     </button>
                 </div>
-                <x-input-error :messages="$errors->get('password')" class="px-1" />
+                <x-input-error :messages="$errors->get('password') ? [$errors->get('password')[0]] : []" class="mt-1" />
 
 
                 <!-- Confirmar contraseña -->
@@ -87,9 +101,9 @@
 
             <!-- Barras de fortaleza -->
             <div class="mt-3">
-               <div>
-                <h2 class="my-3">Requisitos para la contraseña</h2>
-               </div>
+                <div>
+                    <h2 class="my-3">Requisitos para la contraseña</h2>
+                </div>
                 <div class="flex gap-1.5">
                     <div id="bar-1"
                         class="h-1 flex-1 rounded-full bg-outline-variant/30 transition-all duration-300">

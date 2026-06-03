@@ -46,8 +46,6 @@ class DemoSeeder extends Seeder
             ['name' => 'Barbería El Navajero', 'email' => 'barberia@demo.com', 'phone' => '3022222222', 'address' => 'Calle 12 #8-45, Pereira', 'type' => $tipoBarberia],
         ];
 
-        $statuses = ['completed', 'completed', 'completed', 'confirmed', 'cancelled', 'pending'];
-
         foreach ($empresasExtra as $e) {
             $empresaExtra = Company::create([
                 'name'            => $e['name'],
@@ -105,13 +103,14 @@ class DemoSeeder extends Seeder
             }
 
             // 200 citas
+            $statusesPasadosExtra = ['completed', 'completed', 'completed', 'cancelled', 'no_attend'];
             $horas = [9, 10, 11, 14, 15, 16];
             for ($i = 0; $i < 200; $i++) {
                 $servicio = $svcExtra->random();
                 $prof     = $profsExtra->random();
-                $inicio   = Carbon::now()->subDays(rand(0, 60))->setTime($horas[array_rand($horas)], 0);
+                $inicio  = Carbon::now()->subDays(rand(1, 60))->setTime($horas[array_rand($horas)], 0);
                 $fin      = $inicio->copy()->addMinutes($servicio->duration);
-                $status   = $statuses[array_rand($statuses)];
+                $status  = $statusesPasadosExtra[array_rand($statusesPasadosExtra)];
 
                 $apptId = DB::table('appointments')->insertGetId([
                     'start_time'              => $inicio,
@@ -272,10 +271,27 @@ class DemoSeeder extends Seeder
             ]);
 
             $clientesCreados->push($customerId);
+
+            DB::table('company_user')->insert([
+                'company_id' => $empresa->id,
+                'user_id'    => $userCliente->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
+        $clientePremium = User::create([
+            'name'              => 'Cliente Premium',
+            'email'             => 'premium.demo@gmail.com',
+            'password'          => Hash::make('12345'),
+            'phone'             => '3109990000',
+            'subscription_tier' => 'premium',
+            'image'             => null,
+        ]);
+        $clientePremium->assignRole('cliente');
+
         // ── 8. Citas de hoy (para dashboard) ────────────────
-        $horasHoy = [8, 9, 10, 11, 12, 14, 15, 16, 17];
+        $horasHoy = [8, 9, 10, 11, 12, 14, 15, 16, 17, 18];
         $citasHoy = [
             ['status' => 'completed', 'prof' => 0, 'servicio' => $sCorte,    'cliente' => 0],
             ['status' => 'completed', 'prof' => 2, 'servicio' => $sManicure, 'cliente' => 1],
@@ -283,9 +299,10 @@ class DemoSeeder extends Seeder
             ['status' => 'confirmed', 'prof' => 2, 'servicio' => $sTinte,    'cliente' => 0],
             ['status' => 'confirmed', 'prof' => 0, 'servicio' => $sManicure, 'cliente' => 1],
             ['status' => 'cancelled', 'prof' => 1, 'servicio' => $sCorte,    'cliente' => 2],
-            ['status' => 'pending',   'prof' => 0, 'servicio' => $sTinte,    'cliente' => 2],
-            ['status' => 'pending',   'prof' => 2, 'servicio' => $sMasaje,   'cliente' => 0],
-            ['status' => 'pending',   'prof' => 1, 'servicio' => $sCorte,    'cliente' => 1],
+            ['status' => 'confirmed', 'prof' => 0, 'servicio' => $sTinte,    'cliente' => 2],
+            ['status' => 'cancelled', 'prof' => 2, 'servicio' => $sMasaje,   'cliente' => 0],
+            ['status' => 'cancelled', 'prof' => 1, 'servicio' => $sCorte,    'cliente' => 1],
+            ['status' => 'no_attend', 'prof' => 1, 'servicio' => $sManicure, 'cliente' => 0],
         ];
 
         foreach ($citasHoy as $idx => $cita) {
@@ -317,49 +334,16 @@ class DemoSeeder extends Seeder
             ]);
         }
         // ── 9. 300 CITAS ALEATORIAS — Salón Pura Perfección ─────────
+        $statusesPasados = ['completed', 'completed', 'completed', 'cancelled', 'no_attend', 'no_attend'];
         $serviciosPrincipales = collect([$sCorte, $sManicure, $sTinte, $sMasaje]);
         $horas = [9, 10, 11, 14, 15, 16];
 
         for ($i = 0; $i < 300; $i++) {
             $profRandom     = $profCreados->random();
             $servicioRandom = $serviciosPrincipales->random();
-            $inicio         = Carbon::now()->subDays(rand(0, 60))->setTime($horas[array_rand($horas)], 0);
+            $inicio         = Carbon::now()->subDays(rand(1, 60))->setTime($horas[array_rand($horas)], 0);
             $fin            = $inicio->copy()->addMinutes($servicioRandom->duration);
-            $status         = $statuses[array_rand($statuses)];
-
-            $apptId = DB::table('appointments')->insertGetId([
-                'start_time'              => $inicio,
-                'end_time'                => $fin,
-                'status'                  => $status,
-                'notes'                   => null,
-                'cancel_token'            => Str::random(40),
-                'cancel_token_expires_at' => Carbon::now()->addDays(7),
-                'customer_id'             => $clientesCreados->random(),
-                'user_id'                 => $profRandom['user']->id,
-                'company_id'              => $empresa->id,
-                'booking_group'           => Str::uuid(),
-                'created_at'              => now(),
-                'updated_at'              => now(),
-            ]);
-
-            DB::table('appointment_service')->insert([
-                'appointment_id' => $apptId,
-                'service_id'     => $servicioRandom->id,
-                'created_at'     => now(),
-                'updated_at'     => now(),
-            ]);
-        } 
-        
-        // ── 10. 70 Citas futuras (próximos 30 días) ─────────────────────────
-        $statusesFuturos = ['confirmed', 'confirmed', 'pending', 'pending', 'pending'];
-        $serviciosPrincipales = collect([$sCorte, $sManicure, $sTinte, $sMasaje]);
-
-        for ($i = 0; $i < 70; $i++) {
-            $profRandom     = $profCreados->random();
-            $servicioRandom = $serviciosPrincipales->random();
-            $inicio         = Carbon::now()->addDays(rand(1, 30))->setTime($horas[array_rand($horas)], 0);
-            $fin            = $inicio->copy()->addMinutes($servicioRandom->duration);
-            $status         = $statusesFuturos[array_rand($statusesFuturos)];
+            $status         = $statusesPasados[array_rand($statusesPasados)];
 
             $apptId = DB::table('appointments')->insertGetId([
                 'start_time'              => $inicio,
@@ -384,6 +368,77 @@ class DemoSeeder extends Seeder
             ]);
         }
 
+        // ── 10. 70 Citas futuras (próximos 30 días) ─────────────────────────
+        $serviciosPrincipales = collect([$sCorte, $sManicure, $sTinte, $sMasaje]);
+
+        for ($i = 0; $i < 70; $i++) {
+            $profRandom     = $profCreados->random();
+            $servicioRandom = $serviciosPrincipales->random();
+            $inicio = Carbon::now()->addDays(rand(1, 30))->setTime($horas[array_rand($horas)], 0);
+            $fin            = $inicio->copy()->addMinutes($servicioRandom->duration);
+            $status         = 'confirmed';
+
+            $apptId = DB::table('appointments')->insertGetId([
+                'start_time'              => $inicio,
+                'end_time'                => $fin,
+                'status'                  => $status,
+                'notes'                   => null,
+                'cancel_token'            => Str::random(40),
+                'cancel_token_expires_at' => Carbon::now()->addDays(7),
+                'customer_id'             => $clientesCreados->random(),
+                'user_id'                 => $profRandom['user']->id,
+                'company_id'              => $empresa->id,
+                'booking_group'           => Str::uuid(),
+                'created_at'              => now(),
+                'updated_at'              => now(),
+            ]);
+
+            DB::table('appointment_service')->insert([
+                'appointment_id' => $apptId,
+                'service_id'     => $servicioRandom->id,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ]);
+        }
+
+        // ── 11. Citas completables (confirmed + hora pasada) ───────────────
+        $citasCompletables = [
+            ['prof' => 0, 'servicio' => $sManicure,  'cliente' => 0, 'horas_atras' => 2],
+            ['prof' => 1, 'servicio' => $sCorte,     'cliente' => 1, 'horas_atras' => 3],
+            ['prof' => 2, 'servicio' => $sTinte,     'cliente' => 2, 'horas_atras' => 4],
+            ['prof' => 0, 'servicio' => $sMasaje,    'cliente' => 2, 'horas_atras' => 5],
+            ['prof' => 1, 'servicio' => $sManicure,  'cliente' => 0, 'horas_atras' => 6],
+        ];
+
+        foreach ($citasCompletables as $cita) {
+            $prof     = $profCreados[$cita['prof']];
+            $servicio = $cita['servicio'];
+            $inicio   = Carbon::now()->subHours($cita['horas_atras']);
+            $fin      = $inicio->copy()->addMinutes($servicio->duration);
+
+            $apptId = DB::table('appointments')->insertGetId([
+                'start_time'              => $inicio,
+                'end_time'                => $fin,
+                'status'                  => 'confirmed',
+                'notes'                   => null,
+                'cancel_token'            => Str::random(40),
+                'cancel_token_expires_at' => Carbon::now()->addDays(7),
+                'customer_id'             => $clientesCreados[$cita['cliente']],
+                'user_id'                 => $prof['user']->id,
+                'company_id'              => $empresa->id,
+                'booking_group'           => Str::uuid(),
+                'created_at'              => now(),
+                'updated_at'              => now(),
+            ]);
+
+            DB::table('appointment_service')->insert([
+                'appointment_id' => $apptId,
+                'service_id'     => $servicio->id,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ]);
+        }
+
         $this->command->info(' DemoSeeder ejecutado correctamente.');
         $this->command->info(' Empresa: Salón Pura Perfeccion');
         $this->command->info(' Master:');
@@ -401,5 +456,7 @@ class DemoSeeder extends Seeder
         $this->command->info('   ana.cliente@gmail.com   / 12345');
         $this->command->info('   pedro.cliente@gmail.com / 12345');
         $this->command->info('   maria.cliente@gmail.com / 12345');
+        $this->command->info(' Cliente Premium (ve todas las empresas):');
+        $this->command->info('   premium.demo@gmail.com  / 12345');
     }
 }

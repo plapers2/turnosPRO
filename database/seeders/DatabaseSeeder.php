@@ -15,6 +15,7 @@ use Database\Seeders\ProfessionalAvailabilitiesSeeder;
 use Database\Seeders\OpeningHourSeeder;
 use Database\Seeders\AppointmentSeeder;
 use Database\Seeders\AppointmentServiceSeeder;
+use Database\Seeders\HistoricalAppointmentSeeder;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
@@ -47,6 +48,7 @@ class DatabaseSeeder extends Seeder
             OpeningHourSeeder::class,
             AppointmentSeeder::class,
             AppointmentServiceSeeder::class,
+            HistoricalAppointmentSeeder::class,
             // Demostracion en feria del software:
             // php artisan migrate:fresh --seed --seeder=DemoOnlySeeder
             // citas en dashboard

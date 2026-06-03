@@ -37,7 +37,7 @@
         class="h-9 bg-surface-container rounded-lg border border-outline-variant/20
                    px-3 text-sm text-on-surface outline-none cursor-pointer">
         <option value="">Todos los servicios</option>
-        @foreach ($services as $service)
+        @foreach ($filterableServices as $service)
         <option value="{{ $service->id }}">{{ $service->name }}</option>
         @endforeach
     </select>
@@ -48,10 +48,10 @@
         class="h-9 bg-surface-container rounded-lg border border-outline-variant/20
                    px-3 text-sm text-on-surface outline-none cursor-pointer">
         <option value="">Todos los estados</option>
-        <option value="pending">Pendiente</option>
         <option value="confirmed">Confirmada</option>
         <option value="completed">Completada</option>
         <option value="cancelled">Cancelada</option>
+          <option value="no_attend">Inasistente</option>
     </select>
 
     {{-- Rango de fechas --}}

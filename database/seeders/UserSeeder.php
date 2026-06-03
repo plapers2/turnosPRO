@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
                 'image'    => null,
             ]
         );
-        
+
         $admin = User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
             [
@@ -60,11 +60,23 @@ class UserSeeder extends Seeder
             ]
         );
 
+        $clientePremium = User::firstOrCreate(
+            ['email' => 'premium@gmail.com'],
+            [
+                'name'               => 'Cliente Premium',
+                'password'           => Hash::make('12345'),
+                'phone'              => '3109876543',
+                'image'              => null,
+                'subscription_tier'  => 'premium',
+            ]
+        );
+
         // Asignar roles a usuarios base
         $master->assignRole('master');
         $admin->assignRole('admin');
         $empleado->assignRole('empleado');
         $cliente->assignRole('cliente');
+        $clientePremium->assignRole('cliente');
 
         // Usuarios adicionales con factory
         $names = [
