@@ -103,7 +103,7 @@ class DemoSeeder extends Seeder
             }
 
             // 200 citas
-            $statusesPasadosExtra = ['completed', 'completed', 'completed', 'cancelled'];
+            $statusesPasadosExtra = ['completed', 'completed', 'completed', 'cancelled', 'no_attend'];
             $horas = [9, 10, 11, 14, 15, 16];
             for ($i = 0; $i < 200; $i++) {
                 $servicio = $svcExtra->random();
@@ -291,7 +291,7 @@ class DemoSeeder extends Seeder
         $clientePremium->assignRole('cliente');
 
         // ── 8. Citas de hoy (para dashboard) ────────────────
-        $horasHoy = [8, 9, 10, 11, 12, 14, 15, 16, 17];
+        $horasHoy = [8, 9, 10, 11, 12, 14, 15, 16, 17, 18];
         $citasHoy = [
             ['status' => 'completed', 'prof' => 0, 'servicio' => $sCorte,    'cliente' => 0],
             ['status' => 'completed', 'prof' => 2, 'servicio' => $sManicure, 'cliente' => 1],
@@ -302,6 +302,7 @@ class DemoSeeder extends Seeder
             ['status' => 'confirmed', 'prof' => 0, 'servicio' => $sTinte,    'cliente' => 2],
             ['status' => 'cancelled', 'prof' => 2, 'servicio' => $sMasaje,   'cliente' => 0],
             ['status' => 'cancelled', 'prof' => 1, 'servicio' => $sCorte,    'cliente' => 1],
+            ['status' => 'no_attend', 'prof' => 1, 'servicio' => $sManicure, 'cliente' => 0],
         ];
 
         foreach ($citasHoy as $idx => $cita) {
@@ -333,7 +334,7 @@ class DemoSeeder extends Seeder
             ]);
         }
         // ── 9. 300 CITAS ALEATORIAS — Salón Pura Perfección ─────────
-        $statusesPasados = ['completed', 'completed', 'completed', 'cancelled'];
+        $statusesPasados = ['completed', 'completed', 'completed', 'cancelled', 'no_attend', 'no_attend'];
         $serviciosPrincipales = collect([$sCorte, $sManicure, $sTinte, $sMasaje]);
         $horas = [9, 10, 11, 14, 15, 16];
 

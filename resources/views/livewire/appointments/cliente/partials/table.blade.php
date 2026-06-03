@@ -19,6 +19,7 @@
             'confirmed' => 'bg-[#E1F5EE] text-[#0F6E56]',
             'completed' => 'bg-[#E6F1FB] text-[#185FA5]',
             'cancelled' => 'bg-[#FCEBEB] text-[#A32D2D]',
+            'no_attend' => 'bg-[#FEF3E2] text-[#B45309]',
             default => 'bg-surface-container text-on-surface-variant',
             };
             $badgeLabel = match ($appt->status) {
@@ -26,6 +27,7 @@
             'confirmed' => 'Confirmada',
             'completed' => 'Completada',
             'cancelled' => 'Cancelada',
+            'no_attend' => 'Inasistencia',
             default => $appt->status,
             };
             $cancellable = in_array($appt->status, ['pending', 'confirmed'])

@@ -1,4 +1,4 @@
-<div class="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
+<div class="grid grid-cols-2 xl:grid-cols-5 gap-3 mb-5">
     @php
     $cards = [
     ['label' => 'Total', 'value' => $stats['total'], 'bg' => 'bg-primary-container', 'text' => 'text-on-primary-container', 'num' => 'text-primary',
@@ -17,6 +17,16 @@
     ['label' => 'Canceladas', 'value' => $stats['cancelled'], 'bg' => 'bg-[#FCEBEB]', 'text' => 'text-[#A32D2D]', 'num' => 'text-[#A32D2D]',
     'icon' => '
     <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+    ['label' => 'Inasistencias', 'value' => $stats['no_attend'], 'bg' => 'bg-[#FEF3E2]', 'text' => 'text-[#B45309]', 'num' => 'text-[#B45309]',
+    'icon' => '
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <circle cx="7" cy="4" r="2.2" stroke="currentColor" stroke-width="1.3" />
+        <path d="M3 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.3"
+            stroke-linecap="round" />
+        <line x1="1.5" y1="1.5" x2="12.5" y2="12.5" stroke="currentColor"
+            stroke-width="1.3" stroke-linecap="round" />
+    </svg>'],
     ];
     @endphp
 

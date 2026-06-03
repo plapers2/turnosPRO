@@ -23,6 +23,7 @@
         <option value="">Todos los estados</option>
         <option value="completed">Completada</option>
         <option value="cancelled">Cancelada</option>
+        <option value="no_attend">Inasistencia</option>
     </select>
     @endif
 
