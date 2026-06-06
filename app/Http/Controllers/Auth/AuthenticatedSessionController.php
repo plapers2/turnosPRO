@@ -25,19 +25,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate(); // login normal de Breeze
+        $request->authenticate();
 
         $user = $request->user() ?? Auth::user();
 
-        // Si tiene contraseña temporal, redirige a cambiarla antes de todo
         if ($user->must_change_password) {
             return redirect()->route('password.change');
         }
 
-        // Si el usuario tiene 2FA activo, redirigir al desafío
         if ($user && in_array(TwoFactorAuthenticatable::class, class_uses_recursive($user))) {
             if ($user->two_factor_confirmed_at && !session('auth.two_factor_confirmed')) {
-                Auth::logout(); // desloguear temporalmente
+                Auth::logout();
                 session(['login.id' => $user->getKey()]);
                 return redirect()->route('two-factor.login');
             }
@@ -45,7 +43,24 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Admin y empleado seleccionan empresa
+        // ── Vincular empresa si viene de invitación ───────────────────────
+        if (session('invitation_token')) {
+            $token = session()->pull('invitation_token');
+            $invitation = \App\Models\CompanyInvitation::where('token', $token)
+                ->whereNull('deleted_at')
+                ->first();
+
+            if ($invitation && $invitation->isUsable()) {
+                if (!$user->companies()->where('company_id', $invitation->company_id)->exists()) {
+                    $user->companies()->attach($invitation->company_id);
+                }
+                $invitation->update(['status' => 'registered']);
+
+                return redirect()->route('appointment.index')
+                    ->with('success', 'Empresa vinculada a tu cuenta correctamente.');
+            }
+        }
+
         return redirect()->route('company.select');
     }
 

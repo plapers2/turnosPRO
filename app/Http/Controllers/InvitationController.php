@@ -29,7 +29,7 @@ class InvitationController extends Controller
         abort_if(!$companyId, 403);
 
         $request->validate([
-            'email' => 'nullable|email',
+            'email' => 'required|email',
         ]);
 
         $invitation = CompanyInvitation::create([
@@ -41,13 +41,14 @@ class InvitationController extends Controller
             'expires_at' => now()->addDays(7),
         ]);
 
-        // Opcional: enviar email si se proporcionó uno
-        // Mail::to($invitation->email)->send(new InvitationMail($invitation));
-
         $link = route('register.invite', $invitation->token);
 
+        if ($invitation->email) {
+            \Mail::to($invitation->email)->send(new \App\Mail\InvitationMail($invitation, $link));
+        }
+
         return back()->with([
-            'success'    => 'Invitación generada.',
+            'success'     => "Invitación generada y enviada a {$invitation->email}.",
             'invite_link' => $link,
         ]);
     }

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Mail\AppointmentCancelledByEmployeeMail;
 use App\Mail\AppointmentCompletedMail;
-use App\Mail\AppointmentConfirmedByEmployeeMail;
 use App\Mail\AppointmentReassigned;
 use App\Models\Appointment;
 use App\Models\NotificationLog;
@@ -14,7 +13,6 @@ use Illuminate\Support\Facades\Mail;
 class AppointmentNotifier
 {
     private array $mailables = [
-        'confirmed_by_employee' => AppointmentConfirmedByEmployeeMail::class,
         'cancelled_by_employee' => AppointmentCancelledByEmployeeMail::class,
         'completed'             => AppointmentCompletedMail::class,
         'reassigned' => AppointmentReassigned::class

@@ -28,7 +28,7 @@
                             </div>
                             @endif
                             <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">
-                                {{ $company->name }} · TurnosPRO
+                                TurnosPRO
                             </h1>
                             <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">Panel de administración</p>
                         </td>
