@@ -35,11 +35,14 @@ class UserController extends Controller
     public function create(): View
     {
         $companyId = session('active_company_id');
-
         $user = new User();
         $roles = Role::all();
         $services = Service::where("company_id", $companyId)->get();
-        $horariosEmpresa = OpeningHour::where("company_id", $companyId)->whereNull('deleted_at')
+
+        $horariosEmpresa = OpeningHour::where('company_id', $companyId)
+            ->whereNull('deleted_at')
+            ->selectRaw('day_of_week, MIN(start_time) as start_time, MAX(end_time) as end_time')
+            ->groupBy('day_of_week')
             ->get()
             ->keyBy('day_of_week');
 
@@ -151,9 +154,13 @@ class UserController extends Controller
         $user = User::find($id);
         $roles = Role::all();
         $services = Service::where("company_id", $companyId)->get();
-        $horariosEmpresa = OpeningHour::where("company_id", $companyId)->whereNull('deleted_at')
+        $horariosEmpresa = OpeningHour::where('company_id', $companyId)
+            ->whereNull('deleted_at')
+            ->selectRaw('day_of_week, MIN(start_time) as start_time, MAX(end_time) as end_time')
+            ->groupBy('day_of_week')
             ->get()
             ->keyBy('day_of_week');
+
 
         return view('users.edit', compact('user', 'roles', 'horariosEmpresa', 'services'));
     }

@@ -16,28 +16,27 @@ class SinSolapamientoEnSlots implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // hora_fin del slot actual (puede estar vacía aún si no pasó su validación)
-        $finActual = $this->todosLosSlots[$this->indexActual]['hora_fin'] ?? null;
-
+        // end_time del slot actual (puede estar vacío aún si no pasó su validación)
+        $finActual = $this->todosLosSlots[$this->indexActual]['end_time'] ?? null;
         if (!$finActual) {
-            return; // hora_fin inválida: su propia regla 'after' ya reportará el error
+            return; // end_time inválido: su propia regla ya reportará el error
         }
 
         $nuevoInicio = Carbon::createFromFormat('H:i', substr($value, 0, 5));
         $nuevoFin    = Carbon::createFromFormat('H:i', substr($finActual, 0, 5));
 
         if ($nuevoInicio->gte($nuevoFin)) {
-            return; // la regla 'after' ya lo cubre
+            return; // la regla HoraFinPosteriorAInicio ya lo cubre
         }
 
         foreach ($this->todosLosSlots as $j => $slot) {
             // Solo comparar slots del mismo día, saltando el propio
-            if ($j === $this->indexActual || ($slot['dia_semana'] ?? '') !== $this->diaKey) {
+            if ($j === $this->indexActual || ($slot['day_of_week'] ?? '') !== $this->diaKey) {
                 continue;
             }
 
-            $otroInicio = $slot['hora_inicio'] ?? null;
-            $otroFin    = $slot['hora_fin']    ?? null;
+            $otroInicio = $slot['start_time'] ?? null;
+            $otroFin    = $slot['end_time']   ?? null;
 
             if (!$otroInicio || !$otroFin) {
                 continue; // slot incompleto, sus propias reglas lo reportarán

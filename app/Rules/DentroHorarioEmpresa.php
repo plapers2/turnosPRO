@@ -88,7 +88,7 @@ class DentroHorarioEmpresa implements ValidationRule
             ->join(', ', ' o ');
 
         // Detectar qué campo falló
-        $campo = str_contains($attribute, 'hora_inicio')
+        $campo = str_contains($attribute, 'start_time')
             ? 'La hora de inicio'
             : 'La hora de fin';
 
