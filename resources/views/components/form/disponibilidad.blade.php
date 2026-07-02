@@ -32,9 +32,13 @@
     <div class="grid grid-cols-7 gap-2 mb-6">
         <template x-for="dia in dias" :key="dia.key">
             <button type="button" @click="toggleDia(dia.key)"
-                :class="estaActivo(dia.key) ?
-                    'bg-primary/10 border-primary/40 text-primary font-semibold' :
-                    'border-outline-variant/30 text-on-surface-variant hover:bg-surface-container'"
+                :disabled="!diaDisponible(dia.key)"
+                :title="!diaDisponible(dia.key) ? 'Sin horario configurado para este día' : ''"
+                :class="!diaDisponible(dia.key) ?
+                    'border-outline-variant/20 text-on-surface-variant/40 cursor-not-allowed opacity-50' :
+                    (estaActivo(dia.key) ?
+                        'bg-primary/10 border-primary/40 text-primary font-semibold' :
+                        'border-outline-variant/30 text-on-surface-variant hover:bg-surface-container')"
                 class="py-2 rounded-lg border text-sm transition text-center">
                 <span x-text="dia.label"></span>
             </button>
@@ -133,9 +137,18 @@
         });
 
         /**
+         * Indica si la empresa tiene algún horario configurado para ese día.
+         * Se usa para decidir si el día puede marcarse en el selector.
+         */
+        function horarioEmpresaExiste(dayKey) {
+            return HORARIOS_EMPRESA.some(h => h.day_of_week === dayKey);
+        }
+
+        /**
          * Devuelve el array de horas permitidas para un día concreto
          * según los rangos de HORARIOS_EMPRESA.
-         * Si el día no tiene horario de empresa configurado, devuelve todas las horas.
+         * Si el día no tiene horario de empresa configurado, devuelve todas las horas
+         * (fallback usado solo para construir los <select>, no para habilitar el día).
          */
         function horasPorDia(dayKey) {
             const rangos = HORARIOS_EMPRESA.filter(h => h.day_of_week === dayKey);
@@ -225,11 +238,24 @@
             turnos: turnosIniciales,
             erroresIndexados: erroresIniciales,
 
-            init() {},
+            init() {
+                // Si por alguna razón llegan turnos precargados (old() o BD) en un día
+                // que ya no tiene horario de empresa, los quitamos para mantener consistencia.
+                Object.keys(this.turnos).forEach(key => {
+                    if (!this.diaDisponible(key)) {
+                        delete this.turnos[key];
+                    }
+                });
+            },
 
             // ── Horas disponibles para un día (expuesto al template) ─────────
             horasDia(dayKey) {
                 return horasPorDia(dayKey);
+            },
+
+            // ── Disponibilidad del día (horario de empresa) ───────────────────
+            diaDisponible(key) {
+                return horarioEmpresaExiste(key);
             },
 
             // ── Errores ──────────────────────────────────────────────────────
@@ -249,16 +275,20 @@
             toggleDia(key) {
                 if (this.estaActivo(key)) {
                     delete this.turnos[key];
-                } else {
-                    const {
-                        inicio,
-                        fin
-                    } = primeraYUltimaHora(key);
-                    this.turnos[key] = [{
-                        inicio,
-                        fin
-                    }];
+                    return;
                 }
+
+                // Bloquea la activación de días sin horario de empresa configurado
+                if (!this.diaDisponible(key)) return;
+
+                const {
+                    inicio,
+                    fin
+                } = primeraYUltimaHora(key);
+                this.turnos[key] = [{
+                    inicio,
+                    fin
+                }];
             },
             diasActivos() {
                 return this.dias.filter(d => this.estaActivo(d.key));
@@ -266,6 +296,7 @@
 
             // ── Turnos ───────────────────────────────────────────────────────
             agregarTurno(key) {
+                if (!this.diaDisponible(key)) return;
                 if (!this.turnos[key]) this.turnos[key] = [];
                 const {
                     inicio,
