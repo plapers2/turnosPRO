@@ -240,57 +240,57 @@ class AppointmentCreate extends Component
 
         $this->loadingProfesionales = true;
 
-        $services    = Service::whereIn('id', $this->selectedServices)->orderBy('id')->get();
-        $dayOfWeek   = Carbon::parse("{$this->fecha} 12:00:00")->format('l');
+        $services     = Service::whereIn('id', $this->selectedServices)->orderBy('id')->get();
+        $dayOfWeek    = Carbon::parse("{$this->fecha} 12:00:00")->format('l');
         $cursorInicio = Carbon::parse("{$this->fecha} {$this->hora}:00");
 
+        // Pool completo de profesionales calificados para AL MENOS uno de los
+        // servicios seleccionados (misma fuente que usa validarCombinacion),
+        // con relaciones cargadas para recorrer el backtracking en PHP.
+        $profesionales = User::whereHas('companies', fn($q) =>
+        $q->where('companies.id', $this->companyId))
+            ->whereHas('services', fn($q) =>
+            $q->whereIn('services.id', $this->selectedServices))
+            ->whereHas('roles', fn($q) => $q->where('name', 'empleado'))
+            ->with(['professionalAvailabilities', 'services'])
+            ->get(['id', 'name', 'image']);
+
+        // Citas reales del día para esos profesionales (para chequear choques).
+        $citasReales = Appointment::whereIn('user_id', $profesionales->pluck('id'))
+            ->whereDate('start_time', $this->fecha)
+            ->whereNotIn('status', ['cancelled'])
+            ->get(['id', 'user_id', 'start_time', 'end_time']);
+
+        $asignacion = $this->construirAsignacion(
+            $services,
+            $profesionales,
+            $citasReales,
+            $cursorInicio,
+            $dayOfWeek
+        );
+
         $resultado = [];
-        $asignados = [];
-
-        foreach ($services as $service) {
-            $fin = $cursorInicio->copy()->addMinutes($service->duration);
-
-            $profesionales = User::whereHas('companies', fn($q) =>
-            $q->where('companies.id', $this->companyId))
-                ->whereHas('services', fn($q) =>
-                $q->where('services.id', $service->id))
-                ->whereHas('roles', fn($q) => $q->where('name', 'empleado'))
-                ->whereHas('professionalAvailabilities', fn($q) =>
-                $q->where('day_of_week', $dayOfWeek)
-                    ->where('start_time', '<=', $cursorInicio->format('H:i:s'))
-                    ->where('end_time',   '>=', $fin->format('H:i:s')))
-                ->whereDoesntHave('appointments', fn($q) =>
-                $q->where('start_time', '<', $fin)
-                    ->where('end_time',   '>', $cursorInicio)
-                    ->whereNotIn('status', ['cancelled']))
-                ->whereNotIn('id', $asignados)
-                ->get(['id', 'name', 'image']);
-
-            $resultado[$service->id] = [
-                'service'       => [
-                    'id'       => $service->id,
-                    'name'     => $service->name,
-                    'duration' => $service->duration,
-                ],
-                'hora_inicio'   => $cursorInicio->format('H:i'),
-                'hora_fin'      => $fin->format('H:i'),
-                'profesionales' => $profesionales->map(fn($p) => [
+        foreach ($asignacion as $serviceId => $datos) {
+            $resultado[$serviceId] = [
+                'service'       => $datos['service'],
+                'hora_inicio'   => $datos['hora_inicio'],
+                'hora_fin'      => $datos['hora_fin'],
+                'profesionales' => $datos['profesionales']->map(fn($p) => [
                     'id'    => $p->id,
                     'name'  => $p->name,
                     'image' => $p->image ? asset('storage/' . $p->image) : null,
                 ])->toArray(),
             ];
 
-            // Preseleccionar si hay solo uno
-            if ($profesionales->count() === 1) {
-                $this->selectedProfesionales[$service->id] = $profesionales->first()->id;
-                $asignados[] = $profesionales->first()->id;
+            if ($datos['auto_asignado']) {
+                $this->selectedProfesionales[$serviceId] = $datos['auto_asignado'];
             }
-
-            $cursorInicio = $fin;
         }
 
-        $this->horaFin                  = $cursorInicio->format('H:i');
+        $ultimoServicio = $services->last();
+        $this->horaFin = $ultimoServicio
+            ? ($resultado[$ultimoServicio->id]['hora_fin'] ?? $cursorInicio->format('H:i'))
+            : $cursorInicio->format('H:i');
         $this->profesionalesPorServicio = $resultado;
         $this->loadingProfesionales     = false;
     }

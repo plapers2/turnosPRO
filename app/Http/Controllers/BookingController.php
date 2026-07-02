@@ -392,12 +392,14 @@ class BookingController extends Controller
     public function citasOcupadas(Request $request): JsonResponse
     {
         $companyId  = $request->company_id;
-        $start      = Carbon::parse($request->start);
-        $end        = Carbon::parse($request->end);
+        $start      = Carbon::parse($request->start)->setTimezone(config('app.timezone'));
+        $end        = Carbon::parse($request->end)->setTimezone(config('app.timezone'));
         $serviceIds = (array) $request->services;
         $empleadoId = $request->empleado_id;
 
-        $cacheKey = 'disponibilidad_' . $companyId . '_' . implode('-', $serviceIds)
+        $version = cache()->get("disponibilidad_version_{$companyId}", 1);
+
+        $cacheKey = 'disponibilidad_v' . $version . '_' . $companyId . '_' . implode('-', $serviceIds)
             . '_' . ($empleadoId ?? 'all')
             . '_' . $start->format('Ymd') . '_' . $end->format('Ymd');
 

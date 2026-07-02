@@ -57,5 +57,10 @@ class AppointmentObserver
             "dashboard_version_{$appointment->company_id}",
             (int) cache()->get("dashboard_version_{$appointment->company_id}", 1) + 1
         );
+
+        cache()->forever(
+            "disponibilidad_version_{$appointment->company_id}",
+            (int) cache()->get("disponibilidad_version_{$appointment->company_id}", 1) + 1
+        );
     }
 }
