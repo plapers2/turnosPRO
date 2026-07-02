@@ -18,6 +18,8 @@ class AppointmentObserver
             'reason'         => null,
         ]);
 
+        $this->bumpDashboardCache($appointment);
+
         broadcast(new AppointmentUpdated($appointment))->toOthers();
     }
 
@@ -33,11 +35,27 @@ class AppointmentObserver
             ]);
         }
 
+        $this->bumpDashboardCache($appointment);
+
         broadcast(new AppointmentUpdated($appointment))->toOthers();
     }
 
     public function deleted(Appointment $appointment): void
     {
+        $this->bumpDashboardCache($appointment);
+
         broadcast(new AppointmentUpdated($appointment))->toOthers();
+    }
+
+    protected function bumpDashboardCache(Appointment $appointment): void
+    {
+        if (! $appointment->company_id) {
+            return;
+        }
+
+        cache()->forever(
+            "dashboard_version_{$appointment->company_id}",
+            (int) cache()->get("dashboard_version_{$appointment->company_id}", 1) + 1
+        );
     }
 }

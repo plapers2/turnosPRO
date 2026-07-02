@@ -41,16 +41,22 @@ trait HasDashboardData
     }
 
     // ─────────────────────────────────────────────────────────
-    // CACHE KEY único por empresa + usuario + período
+    // VERSIÓN DE CACHÉ POR EMPRESA (se incrementa al crear/editar/borrar citas)
     // ─────────────────────────────────────────────────────────
+    protected function cacheVersion(int $companyId): int
+    {
+        return cache()->rememberForever("dashboard_version_{$companyId}", fn() => 1);
+    }
+
     protected function cacheKey(string $suffix): string
     {
         $companyId = session('active_company_id')
             ?? auth()->user()->companies()->first()?->id;
 
         $userSegment = ! empty($this->userId) ? $this->userId : 'all';
+        $version     = $this->cacheVersion($companyId);
 
-        return "dashboard_{$suffix}_{$companyId}_{$this->period}_{$userSegment}";
+        return "dashboard_{$suffix}_{$companyId}_{$this->period}_{$userSegment}_v{$version}";
     }
 
     // ─────────────────────────────────────────────────────────
