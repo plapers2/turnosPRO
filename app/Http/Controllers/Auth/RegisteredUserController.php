@@ -27,7 +27,12 @@ class RegisteredUserController extends Controller
 
         if ($token) {
             $invitation = CompanyInvitation::where('token', $token)->first();
-            abort_if(!$invitation || !$invitation->isUsable(), 410, 'Este enlace no es válido o ha expirado.');
+
+            if (!$invitation || !$invitation->isUsable()) {
+                return view('auth.invitation-invalid', [
+                    'message' => 'Este enlace de invitación no es válido o ha expirado. Solicita una nueva invitación al administrador.',
+                ]);
+            }
 
             // Caso 1.1.3: Ya está logueado → asignar empresa y redirigir
             if (auth()->check()) {
@@ -56,11 +61,10 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $customAttributes = ['password' => 'contraseña'];
 
-        // Validar invitación primero
         $invitation = null;
         $token = $request->invitation_token ?? session('invitation_token');
 
@@ -71,10 +75,11 @@ class RegisteredUserController extends Controller
                 ->first();
 
             if (!$invitation || !$invitation->isUsable()) {
-                abort(403, 'La invitación no es válida o ha expirado.');
+                return view('auth.invitation-invalid', [
+                    'message' => 'La invitación no es válida o ha expirado. Solicita una nueva al administrador.',
+                ]);
             }
 
-            // Validar que el correo coincida
             if ($invitation->email && $request->email !== $invitation->email) {
                 throw ValidationException::withMessages([
                     'email' => 'El correo no coincide con el de la invitación.',
