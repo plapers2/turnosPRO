@@ -144,7 +144,7 @@
                     </p>
                 </div>
 
-                <div class="py-[5px]">
+                <div class="py-[5px] max-h-[280px] overflow-y-auto">
                     @foreach ($userCompanies as $company)
                     @php $isActive = $company->id === $activeCompany->id; @endphp
                     <form method="POST" action="{{ route('company.select.store') }}">
