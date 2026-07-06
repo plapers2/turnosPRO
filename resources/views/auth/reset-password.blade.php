@@ -4,8 +4,7 @@
 
         {{-- Header --}}
         <div class="flex items-center gap-3 mb-2">
-            <div
-                class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-content-center justify-center">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-content-center justify-center">
                 <span class="material-symbols-outlined text-primary text-xl">lock_reset</span>
             </div>
             <div>
@@ -23,8 +22,9 @@
             <div class="relative group">
                 <span
                     class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">mail</span>
-                <x-text-input placeholder="usuario@gmail.com" id="email" class="block mt-1 w-full" type="email"
-                    name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
+                <x-text-input readonly placeholder="usuario@gmail.com" id="email"
+                    class="block mt-1 w-full cursor-not-allowed opacity-50" type="email" name="email"
+                    :value="old('email', $request->email)" required autocomplete="username" />
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-1" />
         </div>
@@ -36,7 +36,7 @@
                 <span
                     class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">lock</span>
                 <x-text-input placeholder="••••••••" id="password" class="block mt-1 w-full" type="password"
-                    name="password" required autocomplete="new-password" />
+                    name="password" autofocus required autocomplete="new-password" />
                 <button
                     class="absolute right-4 top-1/2 mt-1 -translate-y-1/2 text-outline-variant hover:text-on-surface transition-colors"
                     type="button" onclick="togglePassword('password', this)">
