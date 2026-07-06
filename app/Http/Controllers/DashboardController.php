@@ -63,7 +63,6 @@ class DashboardController extends Controller
         $upcoming = Appointment::whereIn('customer_id', $customerIds)
             ->whereIn('status', [
                 Appointment::STATUS_CONFIRMED,
-                Appointment::STATUS_PENDING,
             ])
             ->where('start_time', '>=', $now)
             ->with(['services', 'user'])
@@ -79,7 +78,7 @@ class DashboardController extends Controller
                 'status'   => $a->status,
                 'label'    => match ($a->status) {
                     Appointment::STATUS_CONFIRMED => 'Confirmada',
-                    Appointment::STATUS_PENDING   => 'Pendiente',
+
                     default                       => $a->status,
                 },
             ]);
@@ -115,7 +114,7 @@ class DashboardController extends Controller
         $citasCompletadas = (clone $allAppointments)->where('status', Appointment::STATUS_COMPLETED)->count();
         $citasCanceladas  = (clone $allAppointments)->where('status', Appointment::STATUS_CANCELLED)->count();
         $citasActivas     = (clone $allAppointments)
-            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED])
             ->where('start_time', '>=', $now->copy())
             ->count();
 
@@ -154,7 +153,7 @@ class DashboardController extends Controller
 
         // ── Próxima cita (la más inmediata) ──
         $nextAppointment = Appointment::whereIn('customer_id', $customerIds)
-            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING])
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED])
             ->where('start_time', '>=', $now->copy())
             ->with('services')
             ->orderBy('start_time')
@@ -206,7 +205,6 @@ class DashboardController extends Controller
             $confirmed = (clone $base)->where('status', Appointment::STATUS_CONFIRMED)->count();
             $cancelled = (clone $base)->where('status', Appointment::STATUS_CANCELLED)->count();
             $completed = (clone $base)->where('status', Appointment::STATUS_COMPLETED)->count();
-            $pending   = (clone $base)->where('status', Appointment::STATUS_PENDING)->count();
 
             $attendedPct = $total > 0 ? round(($completed / $total) * 100) : 0;
 
@@ -307,7 +305,6 @@ class DashboardController extends Controller
                 'status'  => $a->status,
                 'label'   => match ($a->status) {
                     Appointment::STATUS_CONFIRMED => 'Confirmada',
-                    Appointment::STATUS_PENDING   => 'Pendiente',
                     Appointment::STATUS_COMPLETED => 'Completada',
                     Appointment::STATUS_CANCELLED => 'Cancelada',
                     default                       => $a->status,

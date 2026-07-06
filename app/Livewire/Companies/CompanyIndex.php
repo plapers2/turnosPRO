@@ -45,7 +45,6 @@ class CompanyIndex extends Component
 
         $activeCitas = Appointment::where('company_id', $company->id)
             ->whereIn('status', [
-                Appointment::STATUS_PENDING,
                 Appointment::STATUS_CONFIRMED,
             ])
             ->count();
