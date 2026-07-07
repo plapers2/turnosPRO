@@ -11,11 +11,10 @@
             </div>
 
             <x-form.field label="Nombre del Tipo de Empresa" for="name">
-                <x-form.input id="name" name="name" type="text"
-                    :value="old('name', $typeCompany?->name)"
+                <x-form.input id="name" name="name" type="text" :value="old('name', $typeCompany?->name)"
                     placeholder="Ej. Farmacia, Salón de Belleza"
                     class="focus:ring-primary/10 focus:border-primary/40" />
-                <x-input-error class="mt-2" :messages="$errors->get('name')" />
+
             </x-form.field>
 
         </div>
@@ -41,12 +40,14 @@
             <h3 class="text-sm font-semibold text-primary">Logo del tipo de empresa</h3>
 
             <div class="flex justify-center">
-                <div class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
-                    @if(isset($typeCompany) && $typeCompany->logo)
-                    <img id="preview" src="{{ asset('storage/' . $typeCompany->logo) }}" class="w-full h-full object-cover" />
+                <div
+                    class="w-24 h-24 rounded-xl overflow-hidden border-2 border-outline-variant/20 bg-primary/10 flex items-center justify-center">
+                    @if (isset($typeCompany) && $typeCompany->logo)
+                        <img id="preview" src="{{ asset('storage/' . $typeCompany->logo) }}"
+                            class="w-full h-full object-cover" />
                     @else
-                    <img id="preview" src="" class="w-full h-full object-cover hidden" />
-                    <span id="initials" class="material-symbols-outlined text-3xl text-primary/30">category</span>
+                        <img id="preview" src="" class="w-full h-full object-cover hidden" />
+                        <span id="initials" class="material-symbols-outlined text-3xl text-primary/30">category</span>
                     @endif
                 </div>
             </div>

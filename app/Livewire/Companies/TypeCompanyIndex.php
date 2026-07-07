@@ -35,7 +35,17 @@ class TypeCompanyIndex extends Component
 
     public function deleteTypeCompany(int $id): void
     {
-        TypeCompany::findOrFail($id)->delete();
+        $typeCompany = TypeCompany::findOrFail($id);
+
+        if ($typeCompany->companies()->exists()) {
+            $this->dispatch(
+                'type-company-delete-error',
+                message: 'No se puede eliminar un tipo de empresa si ya está asociado a una empresa'
+            );
+            return;
+        }
+
+        $typeCompany->delete();
         $this->dispatch('type-company-deleted');
     }
 

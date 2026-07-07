@@ -70,7 +70,14 @@ class TypeCompanyController extends Controller
 
     public function destroy($id): RedirectResponse
     {
-        TypeCompany::findOrFail($id)->delete();
+
+        $typeCompany = TypeCompany::findOrFail($id);
+
+        if ($typeCompany->companies()->exists()) {
+            return Redirect::route('master.type-companies.index')->with('error', "No se puede eliminar un tipo de empresa si ya esta asociado a una empresa");
+        }
+
+        $typeCompany->delete();
 
         return Redirect::route('master.type-companies.index')
             ->with('success', 'Tipo de empresa desactivado correctamente.');

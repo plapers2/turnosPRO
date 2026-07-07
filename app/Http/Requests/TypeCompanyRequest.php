@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class TypeCompanyRequest extends FormRequest
 {
@@ -33,6 +34,14 @@ class TypeCompanyRequest extends FormRequest
             'logo.image'    => 'El archivo debe ser una imagen.',
             'logo.mimes'    => 'El logo debe ser PNG, JPG, JPEG.',
             'logo.max'      => 'El logo no puede superar los 10MB.',
+        ];
+    }
+
+    #[Override]
+    public function attributes()
+    {
+        return [
+            'name' => "nombre"
         ];
     }
 }
